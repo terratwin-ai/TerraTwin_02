@@ -1,0 +1,188 @@
+TerraTwin: Seed-to-Structure Digital Infrastructure for Verified Bamboo Economies
+Proposed by: Pamela Pascual, TerraTwin
+Date: January 28, 2026
+Proposed collaboration: Asian Development Bank (ADB), Innovation Sandbox
+Geographic focus: Philippines
+Executive Summary
+Bamboo presents a high-potential pathway for climate mitigation, land restoration, and rural livelihood development across Southeast Asia. It grows rapidly, restores degraded land, sequesters carbon, and can substitute for carbon-intensive materials. However, bamboo financing and scaling remain constrained by a lack of credible verification, transparent monitoring, and coordinated incentive infrastructure.
+TerraTwin proposes a pilot to research, build and test a digital twin verification and coordination platform that links bamboo stewardship activities to measurable proof, incentives, and market access. The system combines mobile data capture, multimodal verification (images, sensors, geospatial), AI-assisted analysis, and a shared digital twin of project sites. This enables trusted digital measurement, reporting, and verification (dMRV), conditional financing, and supply chain traceability.
+The research pilot will demonstrate how verified stewardship data can unlock faster, safer capital deployment and market participation for smallholder stewards and cooperatives, while giving funders and buyers transparent, auditable data.
+
+Why This Matters
+Bamboo can be the Philippines' climate + livelihood solution: fast-growing, carbon-sequestering, structural, and culturally resonant. But smallholder inclusion is the unlock. TerraTwin makes bamboo stewardship investable and visible, from clump to credit, from plot to bioregion.
+By solving the stickiness challenge, we don't just onboard farmers, we keep them engaged, unlock premium pricing, and scale a regenerative bamboo economy that works for everyone: stewards, cooperatives, off-takers, buyers, and the planet.
+
+The Problem
+ADB's experience in Northern Mindanao reveals a critical gap: while hundreds of farmers can be onboarded to digital platforms and thousands of bamboo clumps geotagged, sustained engagement requires farmers to see concrete benefits quickly, ideally within the first few weeks.
+Three interconnected challenges:
+Off-taker dependency: When primary buyers vertically integrate (e.g., Rhizome's own plantations), smallholders lose market access
+Payment opacity: Farmers need to see the platform directly facilitates payments, not just data collection
+Long carbon horizons: 40-year forward carbon credits ($8/ton) provide insufficient near-term value
+The result: Farmers ask "How do I get paid?" but platforms lack clear answers. Stickiness collapses.
+Additionally, the sector faces:
+Verification gap - Smallholder and community projects lack affordable, repeatable MRV systems. Verification is slow, manual, and costly, limiting finance and market access.
+Incentive Gap - Payments and financing are weakly tied to verified outcomes. Stewards often bear upfront costs without timely, performance-based incentives.
+Coordination gap - Data, actors, and decisions are fragmented across NGOs, buyers, funders, and agencies. There is no shared operational layer connecting land actions to verified outcomes and value flows.
+Market gap - Weak chain-of-custody limits buyer trust and price premiums
+
+The Solution: Digital Twin Verification & Coordination Platform
+TerraTwin will pilot a Digital Twin Verification & Coordination Platform for bamboo landscapes.
+The platform provides:
+📱 Mobile steward app for field data capture
+🛰 Geospatial + remote sensing integration
+🤖 AI-assisted image and growth analysis
+🌱 Plot-level digital twins (shared landscape models)
+✅ Verification workflows (AI + human review)
+💰 Incentive triggers tied to verified actions
+🔗 Chain-of-custody and supply traceability
+TerraTwin is a shared digital twin and coordination layer designed to complement and enhance existing platforms. It solves the stickiness problem by linking:
+plot boundaries → steward intent → field action → proof → verification → payments → chain-of-custody → forward planning → marketplace
+This reduces verification cost, increases trust, and enables outcome-based finance.
+What Makes It Different
+Near-term incentives: Milestone payments (planting, maintenance, survival checks) via GCash or local rails
+Multi-modal verification: Phone photos + geo-tags (baseline), optional sensors/LiDAR - not "max tech," but credible proof at low cost
+Buyer transparency: Chain-of-custody, social and ecological visibility that commands premium pricing
+Cooperative coordination: Aggregation views that strengthen bargaining power across barangays and bioregions
+
+Target Beneficiaries
+Primary
+Smallholder bamboo stewards
+Community land cooperatives
+Secondary
+NGOs and technical assistance providers
+Climate and rural development programs
+Bamboo buyers and processors
+Institutional
+DFIs and climate finance actors seeking verified outcomes
+
+
+
+The Research Pilot
+Why Now: Market Conditions + Technical Readiness
+Degraded land opportunity: 7.5M hectares in Philippines available for bamboo rehabilitation (per DENR); government partnerships possible
+Off-taker diversification: New players need for systems that serve multiple buyers
+Carbon pricing gap: better data = better pricing
+Tech maturity: GIS/remote sensing, mobile LiDAR, and AI tools now accessible; coordination is the bottleneck, not sensing
+Diaspora potential: $40B annual remittances; even 0.01% ($4M) via "plant a bamboo" subscriptions could seed cooperatives
+
+Phase 1: Research/Setup/Field Co-Design (1-3 months)
+Work with 10-25 farmers to understand:
+What makes you use this weekly?
+What payment timing changes behavior?
+What proof do off-takers actually need?
+How do cooperatives coordinate today?
+Activities:
+Site selection with local partners
+Steward and cooperative onboarding
+Plot boundary mapping
+Baseline geospatial analysis
+Mobile app development
+Verification protocol schema development
+
+Phase 2: Field Data and Verification (4-7 months)
+Build lightweight workflows based on Phase 1. Demonstrate:
+Plot capture → verification event → payment simulation → buyer dashboard
+Test what makes farmers feel "it worked" in the first 2 weeks
+Validate integration pathways with existing platforms
+Activities:
+Steward data capture (images, measurements, practices)
+Sensor sampling at selected nodes
+AI model assisted analysis
+Verifier review workflows
+Digital twin landscape modeling
+Incentive trigger testing
+Success Metrics
+% farmers completing weekly check-ins (targeting >70%)
+Time-to-payment after verification (targeting <2 weeks)
+Farmer feedback: "This platform helps me get paid"
+Buyer willingness to pay premium for traceable supply
+
+Phase 3: Evaluation
+Technical
+Operational digital MRV workflow
+Plot-level verification pipeline
+Steward mobile verification tool
+Shared landscape digital twin
+Economic
+Reduced verification cost per hectare
+Faster conditional disbursement
+Improved steward incentive alignment
+Institutional
+Transparent audit trails
+Replicable verification protocol
+Integration model for DFI program
+Deliverables:
+MRV accuracy & cost analysis
+Incentive response measurement
+User adoption & usability study
+Policy & financing integration recommendations
+Scale roadmap
+
+Core Pilot Functions
+For Stewards (Digital Twin UI)
+Create a landscape digital twin integrating steward, sensor, and geospatial data for transparent monitoring.
+Define plot boundaries (assisted digitization, geo-tagging)
+Simple evidence capture (photos/videos, timestamps, location)
+Clear status indicators ("submitted," "under review," "verified," "paid")
+Offline-capable workflows with low-bandwidth options
+For Verification
+Demonstrate a low-cost, repeatable MRV workflow for bamboo stewardship using multimodal data and AI-assisted verification.
+Multi-modal evidence bundles: field imagery, basic vegetation indices (NDVI where appropriate), temporal/spatial context
+Basic monitoring indicators (survival, clump count, growth proxies)
+Verification logic emphasizes evidence sufficiency, not single thresholds
+Human-auditable and reversible decisions
+For Incentives & Payments
+Test conditional incentive payments triggered by verified stewardship events.
+Milestone-based triggers linked to verification events
+Integration with local payment rails (e.g., GCash or equivalents)
+Near-term incentives prioritized over long-horizon carbon payouts
+For Buyers & Partners
+Provide dashboards and audit trails usable by funders, NGOs, and program managers.
+Chain-of-custody transparency to de-risk purchasing
+Forward-looking planning tools (expected yield, harvest windows, carbon estimates)
+Exportable verification summaries
+
+
+
+
+Budget & Partnership Request
+Lean Pilot
+Full Sandbox
+$50k-$100k
+$120k-$200k
+10-25 farmers
+50-200 farmers
+Basic prototype + field research
+Robust prototype + GCash integration
+Minimal sensing
+Sensing nodes + buyer dashboards
+
+Requesting from ADB:
+Innovation Sandbox support
+Technical collaboration on integration pathways
+Risks & Mitigation
+Risk 1: Steward engagement drops
+ Mitigation: Prioritize immediate benefits (payments/supply chain visibility); co-create UX with stewards; establish feedback loops within first 2 weeks
+Risk 2: Connectivity constraints
+ Mitigation: Offline-capable capture patterns; periodic sync; low-bandwidth media options; test in actual field conditions
+Risk 3: Partner incentives misalign
+ Mitigation: Include multiple off-takers; design cooperative bargaining visibility; explore alternative demand channels (diaspora-backed programs)
+Risk 4: Over-engineering tech stack
+ Mitigation: "Minimum credible set" first; prove value before expanding modalities
+Expected Outcomes
+A validated pilot protocol (field operations + verification method + data schema)
+A working prototype (steward workflow + digital twin view + buyer dashboard)
+A stakeholder map and governance approach (roles, incentives, data stewardship model)
+Field research insights on farmer needs, payment preferences, and verification requirements
+Goals:
+DFIs fund projects safely
+buyers trust claims
+stewards get paid faster
+collective coordination and intelligent regeneration for landscapes
+verifiers reduce cost
+insurers price risk
+
+
+Closing
+TerraTwin is a digital twin workflow for coordination and verification infrastructure for bamboo stewardship that links local ecological actions to credible incentives and markets. By making plot-level actions visible and investable, from clump to credit and clump to material product, TerraTwin reduces opacity, increases buyer trust, enables premium pricing, and improves inclusion of smallholders and cooperatives in bamboo sector development. The pilot aims to validate and co-develop field-ready workflows for today and advance coordination models to scale iteratively.
+
