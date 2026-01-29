@@ -5,11 +5,16 @@
 TerraTwin is a digital twin verification and coordination platform for bamboo landscapes in the Philippines. The platform connects bamboo stewardship activities to measurable proof, incentives, and market access for smallholder stewards and cooperatives.
 
 Key features include:
-- 3D landscape visualization with interactive bamboo plot markers
-- Steward management and tracking
+- 3D landscape visualization with interactive bamboo plot markers (WebGL with 2D fallback)
+- Steward management and tracking with earnings dashboard
 - Plot verification workflows with milestone-based payments
 - Real-time dashboard with carbon sequestration and earnings metrics
-- Mobile-first field data capture support
+- Dark/light theme support
+
+## Recent Changes
+- Fixed React import order issue in LandscapeScene.tsx to resolve "Cannot access 'React' before initialization" error
+- Added WebGL detection with automatic 2D fallback grid view for environments without GPU support
+- All tests passing for navigation, plots, stewards, and verification views
 
 ## User Preferences
 
