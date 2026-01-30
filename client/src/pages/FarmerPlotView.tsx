@@ -1,9 +1,6 @@
-import { useState, useRef, Suspense, useEffect, Component, ReactNode } from "react";
+import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment } from "@react-three/drei";
-import * as THREE from "three";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,159 +18,11 @@ import {
   MapPin,
   BarChart3,
   Activity,
-  AlertTriangle,
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
+import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
 
-class WebGLErrorBoundary extends Component<{children: ReactNode; fallback: ReactNode}, {hasError: boolean}> {
-  constructor(props: {children: ReactNode; fallback: ReactNode}) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
-    return this.props.children;
-  }
-}
-
-function TerrainMesh({ year, areaHectares }: { year: number; areaHectares: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const size = Math.sqrt(areaHectares) * 2;
-  
-  const geometry = new THREE.PlaneGeometry(size, size, 64, 64);
-  const positions = geometry.attributes.position.array as Float32Array;
-  
-  for (let i = 0; i < positions.length; i += 3) {
-    const x = positions[i];
-    const y = positions[i + 1];
-    positions[i + 2] = 
-      Math.sin(x * 0.5) * 0.15 + 
-      Math.cos(y * 0.5) * 0.15 + 
-      Math.sin(x * 0.3 + y * 0.3) * 0.1;
-  }
-  geometry.computeVertexNormals();
-
-  return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <primitive object={geometry} attach="geometry" />
-      <meshStandardMaterial 
-        color="#4a7c59" 
-        roughness={0.8}
-        metalness={0.1}
-      />
-    </mesh>
-  );
-}
-
-function BambooClump({ position, height, year }: { position: [number, number, number]; height: number; year: number }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const growthFactor = Math.min(1, (year - 2024) / 5);
-  const actualHeight = 0.1 + height * growthFactor;
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime + position[0]) * 0.02;
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={position}>
-      {[...Array(5)].map((_, i) => {
-        const angle = (i / 5) * Math.PI * 2;
-        const radius = 0.05;
-        const poleHeight = actualHeight * (0.8 + Math.random() * 0.4);
-        return (
-          <mesh
-            key={i}
-            position={[Math.cos(angle) * radius, poleHeight / 2, Math.sin(angle) * radius]}
-            castShadow
-          >
-            <cylinderGeometry args={[0.01, 0.015, poleHeight, 8]} />
-            <meshStandardMaterial color="#2d5a27" roughness={0.6} />
-          </mesh>
-        );
-      })}
-      <mesh position={[0, actualHeight * 0.9, 0]}>
-        <sphereGeometry args={[actualHeight * 0.3, 8, 8]} />
-        <meshStandardMaterial color="#3d7a37" roughness={0.8} transparent opacity={0.9} />
-      </mesh>
-    </group>
-  );
-}
-
-function SensorMarker({ position, type, value }: { position: [number, number, number]; type: string; value: number }) {
-  const color = type === "temp" ? "#ef4444" : type === "soil" ? "#3b82f6" : "#eab308";
-  
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.3, 0]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
-      </mesh>
-      <mesh position={[0, 0.15, 0]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.3, 8]} />
-        <meshStandardMaterial color="#666" metalness={0.8} />
-      </mesh>
-    </group>
-  );
-}
-
-function Scene3D({ plot, year }: { plot: Plot; year: number }) {
-  const clumpCount = plot.clumpCount || 150;
-  const size = Math.sqrt(plot.areaHectares) * 2;
-  
-  const clumpPositions: [number, number, number][] = [];
-  for (let i = 0; i < Math.min(clumpCount, 50); i++) {
-    const x = (Math.random() - 0.5) * size * 0.9;
-    const z = (Math.random() - 0.5) * size * 0.9;
-    clumpPositions.push([x, 0, z]);
-  }
-
-  const sensorPositions: { pos: [number, number, number]; type: string; value: number }[] = [
-    { pos: [-size * 0.3, 0, -size * 0.3], type: "temp", value: 29.5 },
-    { pos: [size * 0.3, 0, size * 0.3], type: "soil", value: 41 },
-  ];
-
-  return (
-    <>
-      <ambientLight intensity={0.4} />
-      <directionalLight
-        position={[10, 15, 10]}
-        intensity={1}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-      />
-      <TerrainMesh year={year} areaHectares={plot.areaHectares} />
-      {clumpPositions.map((pos, i) => (
-        <BambooClump 
-          key={i} 
-          position={pos} 
-          height={0.3 + Math.random() * 0.2}
-          year={year}
-        />
-      ))}
-      {sensorPositions.map((sensor, i) => (
-        <SensorMarker key={i} position={sensor.pos} type={sensor.type} value={sensor.value} />
-      ))}
-      <OrbitControls 
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
-        minDistance={1}
-        maxDistance={10}
-        minPolarAngle={0.2}
-        maxPolarAngle={Math.PI / 2.2}
-      />
-      <Environment preset="forest" />
-    </>
-  );
-}
+const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
 function SensorCard({ icon: Icon, label, value, unit, color, subtext }: {
   icon: any;
@@ -338,26 +187,11 @@ function IncomeProjection({ year, plot }: { year: number; plot: Plot }) {
   );
 }
 
-function checkWebGLSupport(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    return !!gl;
-  } catch {
-    return false;
-  }
-}
-
 export default function FarmerPlotView() {
   const [, params] = useRoute("/plot/:id");
   const plotId = params?.id;
   const [year, setYear] = useState(2024);
   const [activeTab, setActiveTab] = useState("3d");
-  const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setWebglSupported(checkWebGLSupport());
-  }, []);
 
   const { data: plot, isLoading: plotLoading } = useQuery<Plot>({
     queryKey: ["/api/plots", plotId],
@@ -431,62 +265,14 @@ export default function FarmerPlotView() {
 
         <TabsContent value="3d" className="mt-0 flex-1">
           <div className="grid lg:grid-cols-3 gap-0 min-h-[calc(100vh-120px)]">
-            <div className="lg:col-span-2 relative bg-gradient-to-b from-sky-100 to-sky-50 dark:from-sky-950 dark:to-background min-h-[400px] lg:min-h-0">
-              {webglSupported === false ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8" data-testid="webgl-fallback">
-                  <div className="flex items-center gap-2 text-amber-500">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span className="font-medium">3D View Unavailable</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground text-center max-w-md">
-                    Your browser doesn't support WebGL. View the Statistics tab for full plot data.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 mt-4 w-full max-w-sm">
-                    <Card className="border-border/50">
-                      <CardContent className="p-3 flex items-center gap-3">
-                        <Thermometer className="h-4 w-4 text-red-500" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Temp</p>
-                          <p className="font-medium">{sensorData.temperature.toFixed(1)}°C</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-border/50">
-                      <CardContent className="p-3 flex items-center gap-3">
-                        <Droplets className="h-4 w-4 text-blue-500" />
-                        <div>
-                          <p className="text-xs text-muted-foreground">Soil</p>
-                          <p className="font-medium">{sensorData.soilMoisture.toFixed(0)}%</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              ) : webglSupported === true ? (
-                <WebGLErrorBoundary fallback={
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8" data-testid="webgl-fallback">
-                    <div className="flex items-center gap-2 text-amber-500">
-                      <AlertTriangle className="h-5 w-5" />
-                      <span className="font-medium">3D Rendering Error</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground text-center">
-                      View the Statistics tab for plot data.
-                    </p>
-                  </div>
-                }>
-                  <Canvas shadows camera={{ position: [3, 3, 3], fov: 50 }}>
-                    <Suspense fallback={null}>
-                      <Scene3D plot={plot} year={year} />
-                    </Suspense>
-                  </Canvas>
-                </WebGLErrorBoundary>
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Leaf className="h-8 w-8 text-primary animate-pulse" />
-                </div>
-              )}
+            <div className="lg:col-span-2 relative min-h-[400px] lg:min-h-0">
+              <CesiumPlotTerrain 
+                plot={plot} 
+                cesiumToken={CESIUM_ION_TOKEN} 
+                year={year} 
+              />
               
-              <div className="absolute top-4 left-4 space-y-2">
+              <div className="absolute top-4 left-4 space-y-2 pointer-events-none">
                 <Card className="bg-card/90 backdrop-blur-sm border-border/50">
                   <CardContent className="p-3 flex items-center gap-3">
                     <Thermometer className="h-4 w-4 text-red-500" />
@@ -498,7 +284,7 @@ export default function FarmerPlotView() {
                 </Card>
               </div>
 
-              <div className="absolute bottom-4 right-4">
+              <div className="absolute bottom-4 right-4 pointer-events-none">
                 <Card className="bg-card/90 backdrop-blur-sm border-border/50">
                   <CardContent className="p-3 flex items-center gap-3">
                     <Droplets className="h-4 w-4 text-blue-500" />
