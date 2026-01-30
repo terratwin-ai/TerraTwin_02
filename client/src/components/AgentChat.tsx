@@ -142,11 +142,7 @@ Provide helpful, concise guidance about plot management, verification processes,
   }
 
   return (
-    <div className="flex flex-col h-full border-t border-border bg-background/50">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/30">
-        <Sparkles className="h-4 w-4 text-primary" />
-        <span className="text-sm font-medium">TerraTwin AI Assistant</span>
-      </div>
+    <div className="flex flex-col h-full bg-background/50">
 
       <ScrollArea className="flex-1 p-3" ref={scrollRef as any}>
         <div className="space-y-3">
