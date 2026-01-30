@@ -75,7 +75,7 @@ export default function Dashboard() {
       case "landscape":
       default:
         return (
-          <div className="relative h-full w-full" style={{ minHeight: "100%" }} data-testid="landscape-container">
+          <div className="absolute inset-0" data-testid="landscape-container">
             <Suspense fallback={<SceneLoadingOverlay />}>
               {CESIUM_ION_TOKEN ? (
                 <CesiumLandscape
@@ -173,7 +173,7 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <main className="flex-1 overflow-hidden h-0">
+          <main className="flex-1 overflow-hidden relative">
             {renderContent()}
           </main>
         </div>
