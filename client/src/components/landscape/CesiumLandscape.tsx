@@ -213,8 +213,8 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
           timeline: false,
           fullscreenButton: false,
           vrButton: false,
-          selectionIndicator: true,
-          infoBox: true,
+          selectionIndicator: false,
+          infoBox: false,
           shouldAnimate: false,
         });
 
