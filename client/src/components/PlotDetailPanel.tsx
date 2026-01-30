@@ -16,9 +16,9 @@ import {
   Eye,
   Camera,
   X,
-  MessageCircle,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  ArrowLeft
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
 import { AgentChat } from "./AgentChat";
@@ -32,7 +32,7 @@ interface PlotDetailPanelProps {
 }
 
 export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps) {
-  const [chatOpen, setChatOpen] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   
   const statusConfig = {
@@ -49,20 +49,40 @@ export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps
     <div className="absolute right-4 top-4 bottom-4 w-96 z-10">
       <Card className="h-full flex flex-col overflow-hidden shadow-xl">
         <CardHeader className="flex flex-row items-start justify-between gap-2 pb-3 bg-gradient-to-br from-primary/10 to-accent/20">
-          <div className="space-y-1 flex-1">
-            <CardTitle className="text-lg leading-tight" data-testid="text-plot-name">
-              {plot.name}
-            </CardTitle>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5" />
-              <span>{plot.latitude.toFixed(4)}°N, {plot.longitude.toFixed(4)}°E</span>
+          {showChat ? (
+            <>
+              <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} data-testid="button-back-to-details">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="space-y-1 flex-1">
+                <CardTitle className="text-base leading-tight flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  TerraTwin AI
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">{plot.name}</p>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-1 flex-1">
+              <CardTitle className="text-lg leading-tight" data-testid="text-plot-name">
+                {plot.name}
+              </CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" />
+                <span>{plot.latitude.toFixed(4)}°N, {plot.longitude.toFixed(4)}°E</span>
+              </div>
             </div>
-          </div>
+          )}
           <Button variant="ghost" size="icon" onClick={onClose} data-testid="button-close-panel">
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
         
+        {showChat ? (
+          <div className="flex-1 overflow-hidden">
+            <AgentChat plot={plot} steward={steward} />
+          </div>
+        ) : (
         <CardContent className="flex-1 overflow-auto space-y-5 pt-4">
           <div className="flex items-center gap-3">
             <Badge className={`${config.color} gap-1.5 px-3 py-1`} data-testid="badge-plot-status">
@@ -182,39 +202,26 @@ export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps
             </Button>
           </div>
           
-          <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-            <DialogTrigger asChild>
-              <div 
-                className="p-3 rounded-lg border border-primary/30 bg-primary/5 cursor-pointer hover-elevate"
-                data-testid="button-open-chat"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">TerraTwin AI Assistant</p>
-                      <p className="text-xs text-muted-foreground">Ask about this plot</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <div 
+            className="p-3 rounded-lg border border-primary/30 bg-primary/5 cursor-pointer hover-elevate"
+            onClick={() => setShowChat(true)}
+            data-testid="button-open-chat"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">TerraTwin AI Assistant</p>
+                  <p className="text-xs text-muted-foreground">Ask about this plot</p>
                 </div>
               </div>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg h-[600px] flex flex-col p-0 gap-0">
-              <DialogHeader className="px-4 py-3 border-b">
-                <DialogTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  TerraTwin AI - {plot.name}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="flex-1 overflow-hidden">
-                <AgentChat plot={plot} steward={steward} />
-              </div>
-            </DialogContent>
-          </Dialog>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
         </CardContent>
+        )}
       </Card>
     </div>
   );
