@@ -230,6 +230,22 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
   }, [cesiumToken]);
 
   useEffect(() => {
+    if (!viewerReady || !viewerRef.current || !containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (viewerRef.current && viewerRef.current.canvas) {
+        viewerRef.current.resize();
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [viewerReady]);
+
+  useEffect(() => {
     if (!cesiumLoaded || !containerRef.current || !cesiumToken || viewerRef.current) return;
 
     const Cesium = window.Cesium;
