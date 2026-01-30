@@ -25,10 +25,10 @@ interface PlotDetailPanelProps {
 
 export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps) {
   const statusConfig = {
-    verified: { label: "Verified", color: "bg-chart-1 text-white", icon: CheckCircle2 },
-    pending: { label: "Pending", color: "bg-amber-500 text-white", icon: Clock },
-    submitted: { label: "Submitted", color: "bg-blue-500 text-white", icon: Eye },
-    under_review: { label: "Under Review", color: "bg-purple-500 text-white", icon: AlertCircle },
+    verified: { label: "Verified", color: "bg-emerald-500 text-white", icon: CheckCircle2 },
+    pending: { label: "Pending", color: "bg-amber-400 text-black", icon: Clock },
+    submitted: { label: "Submitted", color: "bg-orange-500 text-white", icon: Eye },
+    under_review: { label: "Under Review", color: "bg-red-500 text-white", icon: AlertCircle },
   };
   
   const config = statusConfig[plot.status as keyof typeof statusConfig] || statusConfig.pending;

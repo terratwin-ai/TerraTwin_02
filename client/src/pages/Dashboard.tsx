@@ -108,10 +108,10 @@ export default function Dashboard() {
                   <span className="text-sm font-medium">Legend</span>
                 </div>
                 <div className="space-y-1.5 text-xs">
-                  <LegendItem color="bg-green-500" label="Verified" />
-                  <LegendItem color="bg-amber-500" label="Pending" />
-                  <LegendItem color="bg-blue-500" label="Submitted" />
-                  <LegendItem color="bg-purple-500" label="Under Review" />
+                  <LegendItem color="bg-emerald-500" label="Verified" />
+                  <LegendItem color="bg-amber-400" label="Pending" />
+                  <LegendItem color="bg-orange-500" label="Submitted" />
+                  <LegendItem color="bg-red-500" label="Under Review" />
                 </div>
               </div>
             </div>

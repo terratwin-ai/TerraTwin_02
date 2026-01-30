@@ -21,13 +21,13 @@ interface CesiumLandscapeProps {
 function getStatusColor(status: string): string {
   switch (status) {
     case "verified":
-      return "#22c55e";
+      return "#10b981";
     case "pending":
-      return "#eab308";
+      return "#fbbf24";
     case "submitted":
-      return "#3b82f6";
-    case "under_review":
       return "#f97316";
+    case "under_review":
+      return "#ef4444";
     default:
       return "#6b7280";
   }

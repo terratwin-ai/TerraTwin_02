@@ -54,16 +54,17 @@ export function DashboardSidebar({
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-sidebar-primary flex items-center justify-center">
-            <Leaf className="h-5 w-5 text-sidebar-primary-foreground" />
+      <SidebarHeader className="p-4 pb-0">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-6 bg-white" />
+            <div className="w-1 h-4 bg-white -ml-0.5 -mt-3" />
           </div>
           <div>
-            <h1 className="font-semibold text-lg text-sidebar-foreground">TerraTwin</h1>
-            <p className="text-xs text-sidebar-foreground/70">Bamboo Digital Twin</p>
+            <h1 className="font-medium text-base tracking-wide text-sidebar-foreground lowercase">terratwin</h1>
           </div>
         </div>
+        <div className="h-0.5 w-full rounded-full" style={{ background: 'linear-gradient(90deg, #ef4444 0%, #f97316 25%, #fbbf24 50%, #84cc16 75%, #10b981 100%)' }} />
       </SidebarHeader>
 
       <SidebarContent>
@@ -198,10 +199,10 @@ function OverviewStat({
 
 function StatusDot({ status }: { status: string }) {
   const colorMap: Record<string, string> = {
-    verified: "bg-green-500",
-    pending: "bg-amber-500",
-    submitted: "bg-blue-500",
-    under_review: "bg-purple-500",
+    verified: "bg-emerald-500",
+    pending: "bg-amber-400",
+    submitted: "bg-orange-500",
+    under_review: "bg-red-500",
   };
 
   return (
