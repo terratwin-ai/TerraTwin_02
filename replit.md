@@ -13,11 +13,14 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **AI Agent in Steward App** - Stewards can now chat with the AI agent in plot detail pages
+  - Tabbed UI: Details / AI Agent tabs
+  - Context-aware chat about plot verification, carbon tracking, and earnings
 - **Steward Mobile Flow** - Added mobile-first steward portal at /steward/* routes
   - StewardLogin: Simple steward selection (localStorage-based session)
   - StewardHome: View assigned plots with status badges
   - StewardCapture: Quick access to plots needing verification
-  - StewardPlotDetail: Plot info with "Capture Verification" button
+  - StewardPlotDetail: Plot info with "Capture Verification" button + AI Agent tab
   - StewardSubmit: Evidence capture form (photo, GPS, notes)
   - StewardEarnings: Total earnings, carbon stats, payment history
   - Mobile bottom navigation (My Plots, Capture, Earnings tabs)
