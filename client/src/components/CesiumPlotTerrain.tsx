@@ -138,25 +138,14 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
         controller.minimumZoomDistance = 50;
         controller.maximumZoomDistance = 300;
 
-        viewer.camera.flyTo({
-          destination: Cesium.Rectangle.fromDegrees(west - halfSizeDeg, south - halfSizeDeg, east + halfSizeDeg, north + halfSizeDeg),
-          orientation: {
-            heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-45),
-            roll: 0,
-          },
-          duration: 0,
-          complete: () => {
-            viewer?.camera.lookAt(
-              plotCenter,
-              new Cesium.HeadingPitchRange(
-                Cesium.Math.toRadians(0),
-                Cesium.Math.toRadians(-45),
-                120
-              )
-            );
-          }
-        });
+        viewer.camera.lookAt(
+          plotCenter,
+          new Cesium.HeadingPitchRange(
+            Cesium.Math.toRadians(0),
+            Cesium.Math.toRadians(-50),
+            150
+          )
+        );
 
         addBambooPlants(viewer, plot, year);
 
