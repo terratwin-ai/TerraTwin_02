@@ -83,25 +83,25 @@ export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps
           
           <div className="grid grid-cols-2 gap-3">
             <StatCard
-              icon={<TreePine className="h-4 w-4 text-muted-foreground" />}
+              icon={<TreePine className="h-4 w-4 text-emerald-500" />}
               label="Clump Count"
               value={plot.clumpCount?.toString() || "0"}
               testId="stat-clump-count"
             />
             <StatCard
-              icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
+              icon={<MapPin className="h-4 w-4 text-amber-400" />}
               label="Area"
               value={`${plot.areaHectares.toFixed(2)} ha`}
               testId="stat-area"
             />
             <StatCard
-              icon={<Leaf className="h-4 w-4 text-muted-foreground" />}
+              icon={<Leaf className="h-4 w-4 text-emerald-400" />}
               label="Carbon"
               value={`${plot.carbonTons?.toFixed(1) || "0"} t`}
               testId="stat-carbon"
             />
             <StatCard
-              icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+              icon={<DollarSign className="h-4 w-4 text-amber-300" />}
               label="Est. Value"
               value={`₱${((plot.carbonTons || 0) * 400).toLocaleString()}`}
               testId="stat-value"

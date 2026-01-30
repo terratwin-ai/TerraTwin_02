@@ -119,21 +119,21 @@ export function PlotList({ plots, stewards, onPlotSelect, selectedPlotId }: Plot
                 <div className="grid grid-cols-3 gap-3 pt-2 border-t">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <TreePine className="h-3.5 w-3.5 text-muted-foreground" />
+                      <TreePine className="h-3.5 w-3.5 text-emerald-500" />
                       <span className="font-semibold text-foreground">{plot.clumpCount || 0}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Clumps</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <Leaf className="h-3.5 w-3.5 text-muted-foreground" />
+                      <Leaf className="h-3.5 w-3.5 text-emerald-400" />
                       <span className="font-semibold text-foreground">{plot.carbonTons?.toFixed(1) || 0}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Carbon (t)</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      <MapPin className="h-3.5 w-3.5 text-amber-400" />
                       <span className="font-semibold text-foreground">{plot.areaHectares.toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Hectares</p>
