@@ -12,7 +12,8 @@ import { LoadingState, SceneLoadingOverlay } from "@/components/LoadingState";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
-import { Leaf, Wifi } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Leaf, Wifi, LogOut } from "lucide-react";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -169,11 +170,23 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1.5 text-xs">
+              <Badge variant="outline" className="gap-1.5 text-xs hidden sm:flex">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                 Connected
               </Badge>
               <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  localStorage.removeItem("adminAuth");
+                  window.location.href = "/";
+                }}
+                title="Log out"
+                data-testid="button-logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </header>
 

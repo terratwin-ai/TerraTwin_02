@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -5,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Dashboard from "@/pages/Dashboard";
+import AdminLogin from "@/pages/AdminLogin";
 import NotFound from "@/pages/not-found";
 import StewardLogin from "@/pages/steward/StewardLogin";
 import StewardHome from "@/pages/steward/StewardHome";
@@ -13,10 +15,29 @@ import StewardSubmit from "@/pages/steward/StewardSubmit";
 import StewardCapture from "@/pages/steward/StewardCapture";
 import StewardEarnings from "@/pages/steward/StewardEarnings";
 
+function ProtectedDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const auth = localStorage.getItem("adminAuth");
+    setIsAuthenticated(auth === "true");
+  }, []);
+
+  if (isAuthenticated === null) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;
+  }
+
+  return <Dashboard />;
+}
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={ProtectedDashboard} />
       <Route path="/steward" component={StewardLogin} />
       <Route path="/steward/home" component={StewardHome} />
       <Route path="/steward/capture" component={StewardCapture} />
