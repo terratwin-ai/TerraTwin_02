@@ -130,36 +130,32 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
           });
         }
 
-        viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(plot.longitude, plot.latitude, 150),
-          orientation: {
-            heading: Cesium.Math.toRadians(15),
-            pitch: Cesium.Math.toRadians(-40),
-            roll: 0,
-          },
-        });
-
         const controller = viewer.scene.screenSpaceCameraController;
         controller.enableRotate = true;
         controller.enableZoom = true;
         controller.enableTilt = true;
         controller.enableTranslate = false;
-        controller.minimumZoomDistance = 80;
-        controller.maximumZoomDistance = 200;
+        controller.minimumZoomDistance = 50;
+        controller.maximumZoomDistance = 300;
 
-        viewer.camera.percentageChanged = 0.001;
-        viewer.camera.changed.addEventListener(() => {
-          if (!viewer || viewer.isDestroyed()) return;
-          const cam = viewer.camera;
-          const camPos = cam.positionCartographic;
-          const currentHeight = Math.max(80, Math.min(200, camPos.height));
-          
-          cam.lookAt(plotCenter, new Cesium.HeadingPitchRange(
-            cam.heading,
-            cam.pitch,
-            currentHeight
-          ));
-          cam.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        viewer.camera.flyTo({
+          destination: Cesium.Rectangle.fromDegrees(west - halfSizeDeg, south - halfSizeDeg, east + halfSizeDeg, north + halfSizeDeg),
+          orientation: {
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-45),
+            roll: 0,
+          },
+          duration: 0,
+          complete: () => {
+            viewer?.camera.lookAt(
+              plotCenter,
+              new Cesium.HeadingPitchRange(
+                Cesium.Math.toRadians(0),
+                Cesium.Math.toRadians(-45),
+                120
+              )
+            );
+          }
         });
 
         addBambooPlants(viewer, plot, year);
