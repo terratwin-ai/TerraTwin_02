@@ -13,13 +13,17 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
-- **Farmer Plot View** - Dedicated plot detail page at /plot/:id route
-  - 3D terrain visualization with Three.js (WebGL with graceful fallback)
-  - Simulated sensor data display (temperature, soil moisture, humidity, light)
-  - Growth timeline slider (2024-2035) showing bamboo maturation
+- **Farmer Plot View with Cesium Terrain** - Dedicated plot detail page at /plot/:id route
+  - Real satellite terrain from Cesium Ion with 1-hectare cropping via Globe.clippingPlanes
+  - ClippingPlaneCollection with ENU transform creates 100m x 100m bounded area
+  - Visual mask polygon fallback for browsers without clipping plane support
+  - Camera constraints: no panning, locked lookAt on plot center, 80-200m zoom range
+  - 3D bamboo entities (cylinders + leaves) that grow based on year slider (2024-2035)
+  - Growth timeline slider showing bamboo maturation from 0.5m to 25m
   - Carbon sequestration calculations (Giant Bamboo - 8.75 t CO2e/ha/yr)
   - Projected income from carbon credits ($30/tonne) and harvest ($12/pole)
   - Double-click on Cesium plot markers navigates to this view
+  - WebGL detection with graceful fallback UI
 - **AI Agent in Steward App** - Stewards can now chat with the AI agent in plot detail pages
   - Tabbed UI: Details / AI Agent tabs
   - Context-aware chat about plot verification, carbon tracking, and earnings
