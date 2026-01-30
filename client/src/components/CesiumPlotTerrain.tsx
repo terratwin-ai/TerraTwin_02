@@ -75,8 +75,8 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
 
         viewerRef.current = viewer;
 
-        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0f1a14");
-        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#2d4a3e");
+        viewer.scene.backgroundColor = Cesium.Color.WHITE;
+        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#8b9a7e");
         viewer.scene.fog.enabled = false;
 
         const hectareMeters = 100;
@@ -141,9 +141,9 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
         viewer.camera.lookAt(
           plotCenter,
           new Cesium.HeadingPitchRange(
-            Cesium.Math.toRadians(0),
-            Cesium.Math.toRadians(-50),
-            150
+            Cesium.Math.toRadians(-45),
+            Cesium.Math.toRadians(-35),
+            250
           )
         );
 
