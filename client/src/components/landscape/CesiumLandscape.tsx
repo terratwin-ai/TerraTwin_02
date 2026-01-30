@@ -43,6 +43,17 @@ function getStatusBadge(status: string) {
   return variants[status] || "secondary";
 }
 
+function escapeHtml(str: string | number | null | undefined): string {
+  if (str === null || str === undefined) return "";
+  const s = String(str);
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function FallbackMapView({ plots, selectedPlotId, onPlotSelect }: Omit<CesiumLandscapeProps, "cesiumToken">) {
   const minLat = Math.min(...plots.map(p => p.latitude));
   const maxLat = Math.max(...plots.map(p => p.latitude));
@@ -74,7 +85,7 @@ function FallbackMapView({ plots, selectedPlotId, onPlotSelect }: Omit<CesiumLan
           <CardContent className="p-3">
             <div className="flex items-center gap-2 text-sm">
               <AlertTriangle className="h-4 w-4 text-yellow-500" />
-              <span className="text-muted-foreground">Loading Cesium terrain...</span>
+              <span className="text-muted-foreground">Cesium terrain unavailable</span>
             </div>
           </CardContent>
         </Card>
@@ -120,9 +131,13 @@ function FallbackMapView({ plots, selectedPlotId, onPlotSelect }: Omit<CesiumLan
 export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumToken }: CesiumLandscapeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
-  const [cesiumLoaded, setCesiumLoaded] = useState(false);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const cssRef = useRef<HTMLLinkElement | null>(null);
+  const [cesiumLoaded, setCesiumLoaded] = useState(!!window.Cesium);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [viewerReady, setViewerReady] = useState(false);
+  const plotsRef = useRef<Plot[]>([]);
 
   useEffect(() => {
     if (!cesiumToken) {
@@ -131,55 +146,53 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
       return;
     }
 
-    const loadCesium = async () => {
-      try {
-        if (window.Cesium) {
-          setCesiumLoaded(true);
-          return;
-        }
+    if (window.Cesium) {
+      setCesiumLoaded(true);
+      return;
+    }
 
-        window.CESIUM_BASE_URL = "https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/";
+    window.CESIUM_BASE_URL = "https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/";
 
-        const cssLink = document.createElement("link");
-        cssLink.rel = "stylesheet";
-        cssLink.href = `${window.CESIUM_BASE_URL}Widgets/widgets.css`;
-        document.head.appendChild(cssLink);
+    const cssLink = document.createElement("link");
+    cssLink.rel = "stylesheet";
+    cssLink.href = `${window.CESIUM_BASE_URL}Widgets/widgets.css`;
+    document.head.appendChild(cssLink);
+    cssRef.current = cssLink;
 
-        const script = document.createElement("script");
-        script.src = `${window.CESIUM_BASE_URL}Cesium.js`;
-        script.async = true;
-        
-        script.onload = () => {
-          setCesiumLoaded(true);
-        };
-        
-        script.onerror = () => {
-          setError("Failed to load Cesium library");
-          setLoading(false);
-        };
-        
-        document.head.appendChild(script);
-      } catch (err) {
-        setError("Failed to initialize Cesium");
-        setLoading(false);
+    const script = document.createElement("script");
+    script.src = `${window.CESIUM_BASE_URL}Cesium.js`;
+    script.async = true;
+    
+    script.onload = () => {
+      setCesiumLoaded(true);
+    };
+    
+    script.onerror = () => {
+      setError("Failed to load Cesium library");
+      setLoading(false);
+    };
+    
+    document.head.appendChild(script);
+    scriptRef.current = script;
+
+    return () => {
+      if (scriptRef.current && document.head.contains(scriptRef.current)) {
+        document.head.removeChild(scriptRef.current);
+      }
+      if (cssRef.current && document.head.contains(cssRef.current)) {
+        document.head.removeChild(cssRef.current);
       }
     };
-
-    loadCesium();
   }, [cesiumToken]);
 
   useEffect(() => {
-    if (!cesiumLoaded || !containerRef.current || !cesiumToken) return;
+    if (!cesiumLoaded || !containerRef.current || !cesiumToken || viewerRef.current) return;
 
     const Cesium = window.Cesium;
 
     const initViewer = async () => {
       try {
         Cesium.Ion.defaultAccessToken = cesiumToken;
-
-        if (viewerRef.current) {
-          viewerRef.current.destroy();
-        }
 
         const viewer = new Cesium.Viewer(containerRef.current!, {
           terrainProvider: await Cesium.CesiumTerrainProvider.fromIonAssetId(1),
@@ -198,72 +211,19 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
         });
 
         viewerRef.current = viewer;
-
         viewer.scene.globe.enableLighting = true;
-
-        plots.forEach((plot) => {
-          const lat = plot.latitude;
-          const lng = plot.longitude;
-          const color = getStatusColor(plot.status);
-
-          viewer.entities.add({
-            id: plot.id.toString(),
-            name: plot.name,
-            position: Cesium.Cartesian3.fromDegrees(lng, lat, 50),
-            point: {
-              pixelSize: 16,
-              color: Cesium.Color.fromCssColorString(color),
-              outlineColor: Cesium.Color.WHITE,
-              outlineWidth: 2,
-              heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
-            },
-            label: {
-              text: plot.name,
-              font: "12px sans-serif",
-              fillColor: Cesium.Color.WHITE,
-              outlineColor: Cesium.Color.BLACK,
-              outlineWidth: 2,
-              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-              pixelOffset: new Cesium.Cartesian2(0, -20),
-              heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
-            },
-            description: `
-              <div style="padding: 10px; font-family: sans-serif;">
-                <h3 style="margin: 0 0 10px 0;">${plot.name}</h3>
-                <p><strong>Status:</strong> ${plot.status}</p>
-                <p><strong>Area:</strong> ${plot.areaHectares} hectares</p>
-                <p><strong>Clumps:</strong> ${plot.clumpCount}</p>
-                <p><strong>Health Score:</strong> ${plot.healthScore}%</p>
-                <p><strong>Carbon:</strong> ${plot.carbonTons} tons CO₂</p>
-                <p><strong>Coordinates:</strong> ${plot.latitude}, ${plot.longitude}</p>
-              </div>
-            `,
-          });
-        });
-
-        if (plots.length > 0) {
-          const avgLat = plots.reduce((sum, p) => sum + p.latitude, 0) / plots.length;
-          const avgLng = plots.reduce((sum, p) => sum + p.longitude, 0) / plots.length;
-
-          viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(avgLng, avgLat, 15000),
-            orientation: {
-              heading: Cesium.Math.toRadians(0),
-              pitch: Cesium.Math.toRadians(-45),
-              roll: 0,
-            },
-            duration: 2,
-          });
-        }
 
         viewer.screenSpaceEventHandler.setInputAction((click: any) => {
           const pickedObject = viewer.scene.pick(click.position);
           if (Cesium.defined(pickedObject) && pickedObject.id) {
-            onPlotSelect(pickedObject.id.id || pickedObject.id);
+            const entityId = pickedObject.id.id || pickedObject.id;
+            if (typeof entityId === "string") {
+              onPlotSelect(entityId);
+            }
           }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+        setViewerReady(true);
         setLoading(false);
       } catch (err) {
         console.error("Cesium initialization error:", err);
@@ -278,18 +238,112 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
       if (viewerRef.current) {
         viewerRef.current.destroy();
         viewerRef.current = null;
+        setViewerReady(false);
       }
     };
-  }, [cesiumLoaded, cesiumToken, plots, onPlotSelect]);
+  }, [cesiumLoaded, cesiumToken]);
 
   useEffect(() => {
-    if (!viewerRef.current || !selectedPlotId) return;
+    if (!viewerReady || !viewerRef.current) return;
+
+    const Cesium = window.Cesium;
+    const viewer = viewerRef.current;
+    const currentPlotIds = new Set(plots.map(p => p.id.toString()));
+    const existingEntityIds = new Set<string>();
+
+    viewer.entities.values.forEach((entity: any) => {
+      existingEntityIds.add(entity.id);
+    });
+
+    existingEntityIds.forEach((entityId) => {
+      if (!currentPlotIds.has(entityId)) {
+        const entity = viewer.entities.getById(entityId);
+        if (entity) {
+          viewer.entities.remove(entity);
+        }
+      }
+    });
+
+    plots.forEach((plot) => {
+      const plotId = plot.id.toString();
+      const lat = plot.latitude;
+      const lng = plot.longitude;
+      const color = getStatusColor(plot.status);
+      
+      const existingEntity = viewer.entities.getById(plotId);
+      
+      const description = `
+        <div style="padding: 10px; font-family: sans-serif;">
+          <h3 style="margin: 0 0 10px 0;">${escapeHtml(plot.name)}</h3>
+          <p><strong>Status:</strong> ${escapeHtml(plot.status)}</p>
+          <p><strong>Area:</strong> ${escapeHtml(plot.areaHectares)} hectares</p>
+          <p><strong>Clumps:</strong> ${escapeHtml(plot.clumpCount)}</p>
+          <p><strong>Health Score:</strong> ${escapeHtml(plot.healthScore)}%</p>
+          <p><strong>Carbon:</strong> ${escapeHtml(plot.carbonTons)} tons CO₂</p>
+          <p><strong>Coordinates:</strong> ${escapeHtml(lat)}, ${escapeHtml(lng)}</p>
+        </div>
+      `;
+
+      if (existingEntity) {
+        existingEntity.position = Cesium.Cartesian3.fromDegrees(lng, lat, 50);
+        existingEntity.point.color = Cesium.Color.fromCssColorString(color);
+        existingEntity.description = description;
+        existingEntity.label.text = plot.name;
+      } else {
+        viewer.entities.add({
+          id: plotId,
+          name: plot.name,
+          position: Cesium.Cartesian3.fromDegrees(lng, lat, 50),
+          point: {
+            pixelSize: 16,
+            color: Cesium.Color.fromCssColorString(color),
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          },
+          label: {
+            text: plot.name,
+            font: "12px sans-serif",
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -20),
+            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          },
+          description,
+        });
+      }
+    });
+
+    const plotsChanged = JSON.stringify(plots.map(p => p.id)) !== JSON.stringify(plotsRef.current.map(p => p.id));
+    if (plotsChanged && plots.length > 0) {
+      const avgLat = plots.reduce((sum, p) => sum + p.latitude, 0) / plots.length;
+      const avgLng = plots.reduce((sum, p) => sum + p.longitude, 0) / plots.length;
+
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(avgLng, avgLat, 15000),
+        orientation: {
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(-45),
+          roll: 0,
+        },
+        duration: 2,
+      });
+    }
+    
+    plotsRef.current = plots;
+  }, [viewerReady, plots]);
+
+  useEffect(() => {
+    if (!viewerReady || !viewerRef.current || !selectedPlotId) return;
 
     const entity = viewerRef.current.entities.getById(selectedPlotId);
     if (entity) {
       viewerRef.current.selectedEntity = entity;
     }
-  }, [selectedPlotId]);
+  }, [viewerReady, selectedPlotId]);
 
   if (error) {
     return <FallbackMapView plots={plots} selectedPlotId={selectedPlotId} onPlotSelect={onPlotSelect} />;
