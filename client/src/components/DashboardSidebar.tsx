@@ -22,6 +22,7 @@ import {
   DollarSign
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
+import logoImage from "@/assets/terratwin-logo.png";
 
 interface DashboardSidebarProps {
   plots: Plot[];
@@ -56,13 +57,8 @@ export function DashboardSidebar({
     <Sidebar>
       <SidebarHeader className="p-4 pb-0">
         <div className="flex items-center gap-3 mb-3">
-          <div className="flex items-center gap-1.5">
-            <div className="w-1 h-6 bg-white" />
-            <div className="w-1 h-4 bg-white -ml-0.5 -mt-3" />
-          </div>
-          <div>
-            <h1 className="font-medium text-base tracking-wide text-sidebar-foreground lowercase">terratwin</h1>
-          </div>
+          <img src={logoImage} alt="TerraTwin" className="h-6 w-auto" />
+          <h1 className="font-medium text-base tracking-wide text-sidebar-foreground lowercase">terratwin</h1>
         </div>
         <div className="h-0.5 w-full rounded-full" style={{ background: 'linear-gradient(90deg, #ef4444 0%, #f97316 25%, #fbbf24 50%, #84cc16 75%, #10b981 100%)' }} />
       </SidebarHeader>
