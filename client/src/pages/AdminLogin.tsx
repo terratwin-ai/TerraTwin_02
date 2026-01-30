@@ -25,13 +25,13 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
             <Leaf className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">TerraTwin</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">TerraTwin</h1>
           <p className="text-muted-foreground">Digital Infrastructure for Bamboo Stewardship</p>
         </div>
 
