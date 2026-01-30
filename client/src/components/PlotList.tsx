@@ -41,10 +41,10 @@ export function PlotList({ plots, stewards, onPlotSelect, selectedPlotId }: Plot
   };
 
   const statusConfig = {
-    verified: { label: "Verified", color: "bg-green-500/10 text-green-700 border-green-200", icon: CheckCircle2 },
-    pending: { label: "Pending", color: "bg-amber-500/10 text-amber-700 border-amber-200", icon: Clock },
-    submitted: { label: "Submitted", color: "bg-blue-500/10 text-blue-700 border-blue-200", icon: Eye },
-    under_review: { label: "Under Review", color: "bg-purple-500/10 text-purple-700 border-purple-200", icon: AlertCircle },
+    verified: { label: "Verified", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: CheckCircle2 },
+    pending: { label: "Pending", color: "bg-amber-400/20 text-amber-300 border-amber-400/30", icon: Clock },
+    submitted: { label: "Submitted", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: Eye },
+    under_review: { label: "Under Review", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: AlertCircle },
   };
 
   return (
@@ -118,23 +118,23 @@ export function PlotList({ plots, stewards, onPlotSelect, selectedPlotId }: Plot
 
                 <div className="grid grid-cols-3 gap-3 pt-2 border-t">
                   <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-chart-1">
-                      <TreePine className="h-3.5 w-3.5" />
-                      <span className="font-semibold">{plot.clumpCount || 0}</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <TreePine className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">{plot.clumpCount || 0}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Clumps</p>
                   </div>
                   <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-chart-2">
-                      <Leaf className="h-3.5 w-3.5" />
-                      <span className="font-semibold">{plot.carbonTons?.toFixed(1) || 0}</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <Leaf className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">{plot.carbonTons?.toFixed(1) || 0}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Carbon (t)</p>
                   </div>
                   <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 text-chart-4">
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span className="font-semibold">{plot.areaHectares.toFixed(1)}</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">{plot.areaHectares.toFixed(1)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">Hectares</p>
                   </div>
