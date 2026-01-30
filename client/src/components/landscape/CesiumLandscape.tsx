@@ -17,6 +17,7 @@ interface CesiumLandscapeProps {
   plots: Plot[];
   selectedPlotId: string | null;
   onPlotSelect: (id: string) => void;
+  onPlotDoubleClick?: (id: string) => void;
   cesiumToken: string;
 }
 
@@ -130,7 +131,7 @@ function FallbackMapView({ plots, selectedPlotId, onPlotSelect }: Omit<CesiumLan
   );
 }
 
-export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumToken }: CesiumLandscapeProps) {
+export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDoubleClick, cesiumToken }: CesiumLandscapeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
@@ -290,6 +291,16 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
             }
           }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        viewer.screenSpaceEventHandler.setInputAction((click: any) => {
+          const pickedObject = viewer.scene.pick(click.position);
+          if (Cesium.defined(pickedObject) && pickedObject.id) {
+            const entityId = pickedObject.id.id || pickedObject.id;
+            if (typeof entityId === "string" && onPlotDoubleClick) {
+              onPlotDoubleClick(entityId);
+            }
+          }
+        }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
         setViewerReady(true);
         setLoading(false);

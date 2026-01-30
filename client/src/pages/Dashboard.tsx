@@ -1,4 +1,5 @@
 import { useState, Suspense } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
@@ -18,6 +19,7 @@ import { Leaf, Wifi, LogOut } from "lucide-react";
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
 export default function Dashboard() {
+  const [, navigate] = useLocation();
   const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
   const [activeView, setActiveView] = useState("landscape");
 
@@ -52,6 +54,10 @@ export default function Dashboard() {
     }
   };
 
+  const handlePlotDoubleClick = (id: string) => {
+    navigate(`/plot/${id}`);
+  };
+
   const renderContent = () => {
     switch (activeView) {
       case "plots":
@@ -83,6 +89,7 @@ export default function Dashboard() {
                   plots={plots}
                   selectedPlotId={selectedPlotId}
                   onPlotSelect={handlePlotSelect}
+                  onPlotDoubleClick={handlePlotDoubleClick}
                   cesiumToken={CESIUM_ION_TOKEN}
                 />
               ) : (
