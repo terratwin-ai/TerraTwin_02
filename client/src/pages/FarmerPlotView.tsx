@@ -264,8 +264,8 @@ export default function FarmerPlotView() {
         </div>
 
         <TabsContent value="3d" className="mt-0 flex-1">
-          <div className="grid lg:grid-cols-3 gap-0 min-h-[calc(100vh-120px)]">
-            <div className="lg:col-span-2 relative min-h-[400px] lg:min-h-0">
+          <div className="grid lg:grid-cols-3 gap-0" style={{ minHeight: "calc(100vh - 120px)" }}>
+            <div className="lg:col-span-2 relative" style={{ minHeight: "600px" }}>
               <CesiumPlotTerrain 
                 plot={plot} 
                 cesiumToken={CESIUM_ION_TOKEN} 

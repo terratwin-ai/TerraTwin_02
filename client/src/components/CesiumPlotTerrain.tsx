@@ -209,11 +209,11 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={{ minHeight: "500px" }}>
       <div 
         ref={containerRef} 
         className="w-full h-full"
-        style={{ background: "linear-gradient(135deg, #1a2f23 0%, #0f1a14 100%)" }}
+        style={{ minHeight: "500px", background: "#ffffff" }}
       />
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-emerald-900/30 to-background/80">
