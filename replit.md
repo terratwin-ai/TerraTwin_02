@@ -13,14 +13,19 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
-- Added AI agent chat interface integrated into PlotDetailPanel with tabbed UI (Details/AI Agent tabs)
-- AgentChat component with streaming SSE responses using Replit AI Integrations (OpenAI)
-- Chat database schema (conversations, messages tables) with plot context linking
-- Sleek black/white minimal theme with heatmap gradient accents for status indicators
-- Added Cesium 3D globe integration for real Philippine terrain visualization with satellite imagery
-- CesiumLandscape component dynamically loads Cesium via CDN, displays plot markers at GPS coordinates
-- Fallback to Three.js visualization if VITE_CESIUM_ION_TOKEN is not set
-- All tests passing including AI agent chat functionality
+- **Steward Mobile Flow** - Added mobile-first steward portal at /steward/* routes
+  - StewardLogin: Simple steward selection (localStorage-based session)
+  - StewardHome: View assigned plots with status badges
+  - StewardCapture: Quick access to plots needing verification
+  - StewardPlotDetail: Plot info with "Capture Verification" button
+  - StewardSubmit: Evidence capture form (photo, GPS, notes)
+  - StewardEarnings: Total earnings, carbon stats, payment history
+  - Mobile bottom navigation (My Plots, Capture, Earnings tabs)
+- Cesium map search bar for finding plots by name/status
+- AI agent chat transitions within PlotDetailPanel (no modal)
+- AgentChat component with streaming SSE responses using Replit AI Integrations
+- Cesium 3D globe with ResizeObserver for responsive layout
+- Dark/light theme support with heatmap gradient status indicators
 
 ## User Preferences
 
