@@ -194,8 +194,16 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
       try {
         Cesium.Ion.defaultAccessToken = cesiumToken;
 
+        let terrainProvider;
+        try {
+          terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+        } catch (terrainError) {
+          console.warn("Failed to load Cesium terrain, using ellipsoid:", terrainError);
+          terrainProvider = undefined;
+        }
+
         const viewer = new Cesium.Viewer(containerRef.current!, {
-          terrainProvider: await Cesium.CesiumTerrainProvider.fromIonAssetId(1),
+          terrainProvider,
           baseLayerPicker: false,
           geocoder: false,
           homeButton: false,
@@ -211,7 +219,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
         });
 
         viewerRef.current = viewer;
-        viewer.scene.globe.enableLighting = true;
+        viewer.scene.globe.enableLighting = false;
 
         viewer.screenSpaceEventHandler.setInputAction((click: any) => {
           const pickedObject = viewer.scene.pick(click.position);
@@ -349,23 +357,21 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
     return <FallbackMapView plots={plots} selectedPlotId={selectedPlotId} onPlotSelect={onPlotSelect} />;
   }
 
-  if (loading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-900/20 via-emerald-800/10 to-teal-900/20">
-        <div className="text-center">
-          <Leaf className="h-8 w-8 mx-auto text-primary animate-pulse" />
-          <p className="text-sm text-muted-foreground mt-2">Loading Cesium terrain...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div 
-      ref={containerRef} 
-      data-testid="cesium-viewer"
-      className="w-full h-full"
-      style={{ minHeight: "400px" }}
-    />
+    <div className="w-full h-full relative" style={{ minHeight: "400px" }}>
+      <div 
+        ref={containerRef} 
+        data-testid="cesium-viewer"
+        className="w-full h-full absolute inset-0"
+      />
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-900/20 via-emerald-800/10 to-teal-900/20 z-10">
+          <div className="text-center">
+            <Leaf className="h-8 w-8 mx-auto text-primary animate-pulse" />
+            <p className="text-sm text-muted-foreground mt-2">Loading Cesium terrain...</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
