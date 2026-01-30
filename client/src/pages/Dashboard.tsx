@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { LandscapeScene } from "@/components/landscape/LandscapeScene";
+import { CesiumLandscape } from "@/components/landscape/CesiumLandscape";
 import { PlotDetailPanel } from "@/components/PlotDetailPanel";
 import { PlotList } from "@/components/PlotList";
 import { StewardList } from "@/components/StewardList";
@@ -12,6 +13,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Badge } from "@/components/ui/badge";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
 import { Leaf, Wifi } from "lucide-react";
+
+const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
 export default function Dashboard() {
   const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
@@ -74,11 +77,20 @@ export default function Dashboard() {
         return (
           <div className="relative h-full" data-testid="landscape-container">
             <Suspense fallback={<SceneLoadingOverlay />}>
-              <LandscapeScene
-                plots={plots}
-                selectedPlotId={selectedPlotId}
-                onPlotSelect={handlePlotSelect}
-              />
+              {CESIUM_ION_TOKEN ? (
+                <CesiumLandscape
+                  plots={plots}
+                  selectedPlotId={selectedPlotId}
+                  onPlotSelect={handlePlotSelect}
+                  cesiumToken={CESIUM_ION_TOKEN}
+                />
+              ) : (
+                <LandscapeScene
+                  plots={plots}
+                  selectedPlotId={selectedPlotId}
+                  onPlotSelect={handlePlotSelect}
+                />
+              )}
             </Suspense>
 
             {selectedPlot && (
