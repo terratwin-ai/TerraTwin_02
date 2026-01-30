@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { Plot } from "@shared/schema";
-import { Leaf, AlertTriangle, MapPin } from "lucide-react";
+import { Leaf, AlertTriangle, MapPin, Search, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 declare global {
   interface Window {
@@ -138,6 +140,48 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
   const [loading, setLoading] = useState(true);
   const [viewerReady, setViewerReady] = useState(false);
   const plotsRef = useRef<Plot[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Plot[]>([]);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length > 0) {
+      const filtered = plots.filter(plot => 
+        plot.name.toLowerCase().includes(query.toLowerCase()) ||
+        plot.status.toLowerCase().includes(query.toLowerCase())
+      );
+      setSearchResults(filtered);
+      setShowResults(true);
+    } else {
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  };
+
+  const flyToPlot = (plot: Plot) => {
+    if (viewerRef.current) {
+      const Cesium = window.Cesium;
+      viewerRef.current.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(plot.longitude, plot.latitude, 2000),
+        orientation: {
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(-45),
+          roll: 0,
+        },
+        duration: 1.5,
+      });
+    }
+    onPlotSelect(plot.id.toString());
+    setSearchQuery("");
+    setShowResults(false);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setShowResults(false);
+  };
 
   useEffect(() => {
     if (!cesiumToken) {
@@ -364,6 +408,61 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, cesiumTok
         data-testid="cesium-viewer"
         className="w-full h-full absolute inset-0"
       />
+      
+      <div className="absolute top-4 left-4 z-20 w-72">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            type="text"
+            placeholder="Search plots..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-9 pr-9 bg-background/90 backdrop-blur-sm border-border/50 shadow-lg"
+            data-testid="input-map-search"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+              onClick={clearSearch}
+              data-testid="button-clear-search"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
+        {showResults && searchResults.length > 0 && (
+          <Card className="mt-2 bg-background/95 backdrop-blur-sm shadow-xl max-h-64 overflow-auto">
+            <CardContent className="p-2">
+              {searchResults.map((plot) => (
+                <div
+                  key={plot.id}
+                  className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover-elevate"
+                  onClick={() => flyToPlot(plot)}
+                  data-testid={`search-result-${plot.id}`}
+                >
+                  <MapPin className="h-4 w-4 flex-shrink-0" style={{ color: getStatusColor(plot.status) }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{plot.name}</p>
+                    <p className="text-xs text-muted-foreground">{plot.carbonTons}t CO₂ • {plot.status}</p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+        
+        {showResults && searchQuery && searchResults.length === 0 && (
+          <Card className="mt-2 bg-background/95 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-muted-foreground">No plots found</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+      
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-900/20 via-emerald-800/10 to-teal-900/20 z-10">
           <div className="text-center">
