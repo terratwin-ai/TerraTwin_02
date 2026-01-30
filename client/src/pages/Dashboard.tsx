@@ -197,7 +197,7 @@ export default function Dashboard() {
             </div>
           </header>
 
-          <main className="flex-1 overflow-hidden relative">
+          <main className="flex-1 overflow-hidden relative" style={{ minHeight: "500px" }}>
             {renderContent()}
           </main>
         </div>

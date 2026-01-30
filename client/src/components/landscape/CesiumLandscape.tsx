@@ -429,11 +429,12 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
   }
 
   return (
-    <div className="w-full h-full relative" style={{ minHeight: "400px" }}>
+    <div className="w-full h-full relative" style={{ minHeight: "600px", height: "100%" }}>
       <div 
         ref={containerRef} 
         data-testid="cesium-viewer"
         className="w-full h-full absolute inset-0"
+        style={{ minHeight: "600px" }}
       />
       
       <div className="absolute top-4 left-4 z-20 w-72">
