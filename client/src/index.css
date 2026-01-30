@@ -240,3 +240,15 @@
     inset: -1px;
   }
 }
+
+/* Cesium viewer container sizing */
+.cesium-viewer,
+.cesium-viewer-cesiumWidgetContainer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
