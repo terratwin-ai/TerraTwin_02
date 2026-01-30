@@ -113,15 +113,18 @@ export default function StewardSubmit() {
 
   if (!plot) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="min-h-screen bg-black flex justify-center">
+        <div className="w-full max-w-md bg-background flex items-center justify-center min-h-screen">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="p-3 border-b bg-card/50 flex items-center gap-3 sticky top-0 z-20">
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="w-full max-w-md bg-background flex flex-col min-h-screen shadow-2xl relative">
+        <header className="p-3 border-b bg-card/50 flex items-center gap-3 sticky top-0 z-20">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -232,7 +235,7 @@ export default function StewardSubmit() {
           </CardContent>
         </Card>
 
-        <div className="fixed bottom-4 left-4 right-4">
+        <div className="absolute bottom-4 left-4 right-4">
           <Button 
             className="w-full h-14 text-lg gap-2"
             onClick={() => submitMutation.mutate()}
@@ -258,6 +261,7 @@ export default function StewardSubmit() {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }

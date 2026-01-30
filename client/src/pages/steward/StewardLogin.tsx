@@ -38,8 +38,9 @@ export default function StewardLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="p-4 border-b bg-card/50">
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="w-full max-w-md bg-background flex flex-col min-h-screen shadow-2xl">
+        <header className="p-4 border-b bg-card/50">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
             <Leaf className="h-5 w-5 text-primary" />
@@ -128,6 +129,7 @@ export default function StewardLogin() {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }
