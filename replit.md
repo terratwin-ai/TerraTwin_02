@@ -12,8 +12,10 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
-- Fixed React import order issue in LandscapeScene.tsx to resolve "Cannot access 'React' before initialization" error
-- Added WebGL detection with automatic 2D fallback grid view for environments without GPU support
+- Added Cesium 3D globe integration for real Philippine terrain visualization with satellite imagery
+- CesiumLandscape component dynamically loads Cesium via CDN, displays plot markers at GPS coordinates
+- Fallback to Three.js visualization if VITE_CESIUM_ION_TOKEN is not set
+- Fixed React import order issue in LandscapeScene.tsx
 - All tests passing for navigation, plots, stewards, and verification views
 
 ## User Preferences
