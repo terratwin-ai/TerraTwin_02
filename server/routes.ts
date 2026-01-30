@@ -4,11 +4,15 @@ import { storage } from "./storage";
 import { insertPlotSchema, insertStewardSchema, insertVerificationEventSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { registerChatRoutes } from "./replit_integrations/chat";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Register AI chat routes
+  registerChatRoutes(app);
   
   app.get("/api/stewards", async (_req, res) => {
     try {

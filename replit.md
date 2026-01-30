@@ -9,14 +9,18 @@ Key features include:
 - Steward management and tracking with earnings dashboard
 - Plot verification workflows with milestone-based payments
 - Real-time dashboard with carbon sequestration and earnings metrics
+- AI agent chat interface for plot management and verification assistance
 - Dark/light theme support
 
 ## Recent Changes
+- Added AI agent chat interface integrated into PlotDetailPanel with tabbed UI (Details/AI Agent tabs)
+- AgentChat component with streaming SSE responses using Replit AI Integrations (OpenAI)
+- Chat database schema (conversations, messages tables) with plot context linking
+- Sleek black/white minimal theme with heatmap gradient accents for status indicators
 - Added Cesium 3D globe integration for real Philippine terrain visualization with satellite imagery
 - CesiumLandscape component dynamically loads Cesium via CDN, displays plot markers at GPS coordinates
 - Fallback to Three.js visualization if VITE_CESIUM_ION_TOKEN is not set
-- Fixed React import order issue in LandscapeScene.tsx
-- All tests passing for navigation, plots, stewards, and verification views
+- All tests passing including AI agent chat functionality
 
 ## User Preferences
 
@@ -51,6 +55,8 @@ Preferred communication style: Simple, everyday language.
 - **Stewards**: Community bamboo farmers with plot and earnings tracking
 - **Plots**: Geolocated bamboo plots with health scores, carbon data, and verification status
 - **Verification Events**: Milestone events (planting, maintenance, survival checks) with payment triggers
+- **Conversations**: AI chat sessions linked to plots for contextual assistance
+- **Messages**: Chat history for each conversation (user/assistant roles)
 
 ### Project Structure
 ```
@@ -81,6 +87,7 @@ shared/           # Shared code between client/server
 - **TanStack Query**: Data fetching and caching
 - **Zod**: Runtime schema validation with `drizzle-zod` integration
 - **date-fns**: Date formatting utilities
+- **OpenAI SDK**: AI chat via Replit AI Integrations (streaming SSE responses)
 
 ### Development Tools
 - **Replit plugins**: Runtime error overlay, cartographer, and dev banner for Replit environment
