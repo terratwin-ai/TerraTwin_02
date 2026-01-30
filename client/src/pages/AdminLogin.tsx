@@ -20,7 +20,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
       localStorage.setItem("adminAuth", "true");
       onLogin();
     } else {
-      setError("Invalid password. Hint: terratwin2026");
+      setError("Invalid password");
     }
   };
 
