@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useParams } from "wouter";
-import type { Plot, VerificationEvent } from "@shared/schema";
+import type { Plot, VerificationEvent, Steward } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgentChat } from "@/components/AgentChat";
 import { 
   ArrowLeft, MapPin, Leaf, Camera, CheckCircle2, Clock, 
-  AlertCircle, FileCheck, TreeDeciduous, DollarSign, Calendar
+  AlertCircle, FileCheck, TreeDeciduous, DollarSign, Calendar, Bot
 } from "lucide-react";
 
 const statusConfig = {
@@ -22,6 +24,7 @@ export default function StewardPlotDetail() {
   const [, setLocation] = useLocation();
   const params = useParams<{ id: string }>();
   const plotId = params.id;
+  const [activeTab, setActiveTab] = useState("details");
 
   useEffect(() => {
     const id = localStorage.getItem("stewardId");
@@ -38,8 +41,13 @@ export default function StewardPlotDetail() {
     queryKey: ["/api/verification-events"],
   });
 
+  const { data: stewards = [] } = useQuery<Steward[]>({
+    queryKey: ["/api/stewards"],
+  });
+
   const plot = plots.find((p) => p.id.toString() === plotId);
   const plotEvents = events.filter((e) => e.plotId?.toString() === plotId);
+  const steward = stewards.find((s) => s.id === plot?.stewardId);
 
   if (!plot) {
     return (
@@ -77,70 +85,89 @@ export default function StewardPlotDetail() {
         </div>
       </header>
 
-      <main className="flex-1 p-4 space-y-4 pb-24">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className={`${config.color}`}>
-                <StatusIcon className="h-3.5 w-3.5 mr-1.5" />
-                {config.label}
-              </Badge>
-              {plot.healthScore && (
-                <span className="text-sm text-muted-foreground">{plot.healthScore}% healthy</span>
-              )}
-            </div>
-            <Progress value={plot.healthScore || 0} className="h-2" />
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard icon={<TreeDeciduous className="h-4 w-4 text-emerald-500" />} label="Clumps" value={plot.clumpCount?.toString() || "0"} />
-          <StatCard icon={<MapPin className="h-4 w-4 text-amber-400" />} label="Area" value={`${plot.areaHectares} ha`} />
-          <StatCard icon={<Leaf className="h-4 w-4 text-emerald-400" />} label="Carbon" value={`${plot.carbonTons || 0}t`} />
-          <StatCard icon={<DollarSign className="h-4 w-4 text-amber-300" />} label="Est. Value" value={`₱${estimatedValue.toLocaleString()}`} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 pt-2 border-b bg-card/30">
+          <TabsList className="w-full">
+            <TabsTrigger value="details" className="flex-1 gap-1.5" data-testid="tab-details">
+              <Leaf className="h-4 w-4" />
+              Details
+            </TabsTrigger>
+            <TabsTrigger value="agent" className="flex-1 gap-1.5" data-testid="tab-agent">
+              <Bot className="h-4 w-4" />
+              AI Agent
+            </TabsTrigger>
+          </TabsList>
         </div>
 
-        {plotEvents.length > 0 && (
+        <TabsContent value="details" className="flex-1 overflow-auto m-0 p-4 space-y-4 pb-24">
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-medium mb-3 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Verification History
-              </h3>
-              <div className="space-y-3">
-                {plotEvents.slice(0, 3).map((event) => (
-                  <div key={event.id} className="flex items-start gap-3 text-sm">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                      event.status === "approved" ? "bg-emerald-500" : 
-                      event.status === "pending" ? "bg-amber-400" : "bg-red-500"
-                    }`} />
-                    <div className="flex-1">
-                      <p className="font-medium capitalize">{event.eventType.replace("_", " ")}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {event.createdAt ? new Date(event.createdAt).toLocaleDateString() : ""}
-                        {event.paymentAmount && ` • ₱${event.paymentAmount.toLocaleString()}`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between mb-4">
+                <Badge variant="outline" className={`${config.color}`}>
+                  <StatusIcon className="h-3.5 w-3.5 mr-1.5" />
+                  {config.label}
+                </Badge>
+                {plot.healthScore && (
+                  <span className="text-sm text-muted-foreground">{plot.healthScore}% healthy</span>
+                )}
               </div>
+              <Progress value={plot.healthScore || 0} className="h-2" />
             </CardContent>
           </Card>
-        )}
 
-        {needsVerification && (
-          <div className="absolute bottom-4 left-4 right-4">
-            <Button 
-              className="w-full h-14 text-lg gap-2"
-              onClick={() => setLocation(`/steward/submit/${plotId}`)}
-              data-testid="button-capture"
-            >
-              <Camera className="h-5 w-5" />
-              Capture Verification
-            </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard icon={<TreeDeciduous className="h-4 w-4 text-emerald-500" />} label="Clumps" value={plot.clumpCount?.toString() || "0"} />
+            <StatCard icon={<MapPin className="h-4 w-4 text-amber-400" />} label="Area" value={`${plot.areaHectares} ha`} />
+            <StatCard icon={<Leaf className="h-4 w-4 text-emerald-400" />} label="Carbon" value={`${plot.carbonTons || 0}t`} />
+            <StatCard icon={<DollarSign className="h-4 w-4 text-amber-300" />} label="Est. Value" value={`₱${estimatedValue.toLocaleString()}`} />
           </div>
-        )}
-      </main>
+
+          {plotEvents.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-medium mb-3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Verification History
+                </h3>
+                <div className="space-y-3">
+                  {plotEvents.slice(0, 3).map((event) => (
+                    <div key={event.id} className="flex items-start gap-3 text-sm">
+                      <div className={`w-2 h-2 rounded-full mt-1.5 ${
+                        event.status === "approved" ? "bg-emerald-500" : 
+                        event.status === "pending" ? "bg-amber-400" : "bg-red-500"
+                      }`} />
+                      <div className="flex-1">
+                        <p className="font-medium capitalize">{event.eventType.replace("_", " ")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {event.createdAt ? new Date(event.createdAt).toLocaleDateString() : ""}
+                          {event.paymentAmount && ` • ₱${event.paymentAmount.toLocaleString()}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {needsVerification && (
+            <div className="absolute bottom-4 left-4 right-4">
+              <Button 
+                className="w-full h-14 text-lg gap-2"
+                onClick={() => setLocation(`/steward/submit/${plotId}`)}
+                data-testid="button-capture"
+              >
+                <Camera className="h-5 w-5" />
+                Capture Verification
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="agent" className="flex-1 overflow-hidden m-0">
+          <AgentChat plot={plot} steward={steward} />
+        </TabsContent>
+      </Tabs>
       </div>
     </div>
   );
