@@ -46,8 +46,8 @@ export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps
   const StatusIcon = config.icon;
 
   return (
-    <div className="absolute right-4 top-4 bottom-4 w-96 z-10">
-      <Card className="h-full flex flex-col overflow-hidden shadow-xl">
+    <div className="absolute inset-0 md:inset-auto md:right-4 md:top-4 md:bottom-4 md:w-96 z-10">
+      <Card className="h-full flex flex-col overflow-hidden shadow-xl rounded-none md:rounded-lg">
         <CardHeader className="flex flex-row items-start justify-between gap-2 pb-3 bg-gradient-to-br from-primary/10 to-accent/20">
           {showChat ? (
             <>

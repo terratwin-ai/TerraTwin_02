@@ -101,27 +101,31 @@ export default function Dashboard() {
               />
             )}
 
-            <div className="absolute left-4 bottom-4 z-10">
-              <div className="p-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Leaf className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Legend</span>
-                </div>
-                <div className="space-y-1.5 text-xs">
-                  <LegendItem color="bg-emerald-500" label="Verified" />
-                  <LegendItem color="bg-amber-400" label="Pending" />
-                  <LegendItem color="bg-orange-500" label="Submitted" />
-                  <LegendItem color="bg-red-500" label="Under Review" />
+            {!selectedPlot && (
+              <div className="absolute left-4 bottom-4 z-10 hidden md:block">
+                <div className="p-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Leaf className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Legend</span>
+                  </div>
+                  <div className="space-y-1.5 text-xs">
+                    <LegendItem color="bg-emerald-500" label="Verified" />
+                    <LegendItem color="bg-amber-400" label="Pending" />
+                    <LegendItem color="bg-orange-500" label="Submitted" />
+                    <LegendItem color="bg-red-500" label="Under Review" />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="absolute right-4 bottom-4 z-10">
-              <div className="p-2 px-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg flex items-center gap-2">
-                <Wifi className="h-3.5 w-3.5 text-green-500" />
-                <span className="text-xs text-muted-foreground">Live Data</span>
+            {!selectedPlot && (
+              <div className="absolute right-4 bottom-4 z-10 hidden md:block">
+                <div className="p-2 px-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg flex items-center gap-2">
+                  <Wifi className="h-3.5 w-3.5 text-green-500" />
+                  <span className="text-xs text-muted-foreground">Live Data</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
     }
