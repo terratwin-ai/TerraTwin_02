@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
 import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
+import { AgentChat } from "@/components/AgentChat";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -297,27 +298,33 @@ export default function FarmerPlotView() {
               </div>
             </div>
 
-            <div className="border-l overflow-y-auto p-4 space-y-4 max-h-[calc(100vh-120px)]">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Year: {year}
-                  </p>
+            <div className="border-l flex flex-col max-h-[calc(100vh-120px)]">
+              <div className="overflow-y-auto p-4 space-y-4 flex-1">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Year: {year}
+                    </p>
+                  </div>
+                  <Slider
+                    value={[year]}
+                    onValueChange={([v]) => setYear(v)}
+                    min={2024}
+                    max={2035}
+                    step={1}
+                    className="w-full"
+                    data-testid="slider-year"
+                  />
                 </div>
-                <Slider
-                  value={[year]}
-                  onValueChange={([v]) => setYear(v)}
-                  min={2024}
-                  max={2035}
-                  step={1}
-                  className="w-full"
-                  data-testid="slider-year"
-                />
+
+                <GrowthStats year={year} plot={plot} />
+                <IncomeProjection year={year} plot={plot} />
               </div>
 
-              <GrowthStats year={year} plot={plot} />
-              <IncomeProjection year={year} plot={plot} />
+              <div className="border-t h-[300px]">
+                <AgentChat plot={plot} steward={steward} />
+              </div>
             </div>
           </div>
         </TabsContent>
