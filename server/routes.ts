@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPlotSchema, insertStewardSchema, insertVerificationEventSchema } from "@shared/schema";
+import { insertProjectSchema, insertPlotSchema, insertStewardSchema, insertVerificationEventSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { registerChatRoutes } from "./replit_integrations/chat";
@@ -13,6 +13,71 @@ export async function registerRoutes(
   
   // Register AI chat routes
   registerChatRoutes(app);
+  
+  // Project routes - aggregation layer for smallholders
+  app.get("/api/projects", async (_req, res) => {
+    try {
+      const projects = await storage.getProjects();
+      res.json(projects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/projects/:id", async (req, res) => {
+    try {
+      const project = await storage.getProject(req.params.id);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      console.error("Error fetching project:", error);
+      res.status(500).json({ error: "Failed to fetch project" });
+    }
+  });
+
+  app.get("/api/projects/:id/plots", async (req, res) => {
+    try {
+      const plots = await storage.getPlotsByProject(req.params.id);
+      res.json(plots);
+    } catch (error) {
+      console.error("Error fetching project plots:", error);
+      res.status(500).json({ error: "Failed to fetch project plots" });
+    }
+  });
+
+  app.post("/api/projects", async (req, res) => {
+    try {
+      const data = insertProjectSchema.parse(req.body);
+      const project = await storage.createProject(data);
+      res.status(201).json(project);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ error: fromZodError(error).message });
+      }
+      console.error("Error creating project:", error);
+      res.status(500).json({ error: "Failed to create project" });
+    }
+  });
+
+  app.patch("/api/projects/:id", async (req, res) => {
+    try {
+      const data = insertProjectSchema.partial().parse(req.body);
+      const project = await storage.updateProject(req.params.id, data);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ error: fromZodError(error).message });
+      }
+      console.error("Error updating project:", error);
+      res.status(500).json({ error: "Failed to update project" });
+    }
+  });
   
   app.get("/api/stewards", async (_req, res) => {
     try {

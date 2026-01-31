@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { stewards, plots, verificationEvents } from "@shared/schema";
+import { projects, stewards, plots, verificationEvents } from "@shared/schema";
 
 export async function seedDatabase() {
   const existingStewards = await db.select().from(stewards);
@@ -9,6 +9,42 @@ export async function seedDatabase() {
   }
 
   console.log("Seeding database with sample data...");
+
+  // Create aggregation projects for smallholders
+  const [project1, project2] = await db.insert(projects).values([
+    {
+      name: "Mindanao Bamboo Collective",
+      description: "Aggregating smallholder bamboo stewards across Northern Mindanao for carbon credit issuance",
+      region: "Northern Mindanao",
+      province: "Bukidnon",
+      methodology: "verra-bamboo",
+      status: "active",
+      totalHectares: 15.5,
+      totalStewards: 3,
+      totalPlots: 8,
+      totalCarbonTons: 88.5,
+      creditsIssued: 45.2,
+      creditsRetired: 12.0,
+      vintage: 2025,
+      startDate: new Date("2024-03-15"),
+    },
+    {
+      name: "Cagayan de Oro Restoration Initiative",
+      description: "New growth bamboo project aggregating stewards in the CDO area",
+      region: "Northern Mindanao",
+      province: "Misamis Oriental",
+      methodology: "gold-standard",
+      status: "active",
+      totalHectares: 3.8,
+      totalStewards: 1,
+      totalPlots: 2,
+      totalCarbonTons: 7.3,
+      creditsIssued: 0,
+      creditsRetired: 0,
+      vintage: 2026,
+      startDate: new Date("2025-06-01"),
+    },
+  ]).returning();
 
   const [steward1, steward2, steward3, steward4] = await db.insert(stewards).values([
     {
@@ -49,10 +85,13 @@ export async function seedDatabase() {
     },
   ]).returning();
 
+  // Assign plots to projects - first 8 plots go to project1 (Mindanao Bamboo Collective)
+  // Last 2 plots go to project2 (CDO Restoration Initiative - new growth area)
   const [plot1, plot2, plot3, plot4, plot5, plot6] = await db.insert(plots).values([
     {
       name: "Hillside Bamboo Grove",
       stewardId: steward1.id,
+      projectId: project1.id,
       latitude: 7.7234,
       longitude: 125.5823,
       areaHectares: 2.5,
@@ -65,6 +104,7 @@ export async function seedDatabase() {
     {
       name: "Riverside Plantation",
       stewardId: steward1.id,
+      projectId: project1.id,
       latitude: 7.6891,
       longitude: 125.6234,
       areaHectares: 1.8,
@@ -77,6 +117,7 @@ export async function seedDatabase() {
     {
       name: "Valley Floor Plot",
       stewardId: steward1.id,
+      projectId: project1.id,
       latitude: 7.7512,
       longitude: 125.5012,
       areaHectares: 3.2,
@@ -88,6 +129,7 @@ export async function seedDatabase() {
     {
       name: "Mountain Terrace",
       stewardId: steward2.id,
+      projectId: project1.id,
       latitude: 7.8123,
       longitude: 125.5456,
       areaHectares: 2.1,
@@ -100,6 +142,7 @@ export async function seedDatabase() {
     {
       name: "Coastal Bamboo Stand",
       stewardId: steward2.id,
+      projectId: project1.id,
       latitude: 7.6234,
       longitude: 125.7123,
       areaHectares: 1.5,
@@ -111,6 +154,7 @@ export async function seedDatabase() {
     {
       name: "Northern Ridge Farm",
       stewardId: steward3.id,
+      projectId: project1.id,
       latitude: 7.8567,
       longitude: 125.4891,
       areaHectares: 4.0,
@@ -122,6 +166,7 @@ export async function seedDatabase() {
     {
       name: "Sunrise Valley Plot",
       stewardId: steward3.id,
+      projectId: project1.id,
       latitude: 7.7891,
       longitude: 125.5678,
       areaHectares: 2.8,
@@ -134,6 +179,7 @@ export async function seedDatabase() {
     {
       name: "Bamboo Heritage Site",
       stewardId: steward3.id,
+      projectId: project1.id,
       latitude: 7.7012,
       longitude: 125.6567,
       areaHectares: 1.9,
@@ -146,6 +192,7 @@ export async function seedDatabase() {
     {
       name: "New Growth Area",
       stewardId: steward4.id,
+      projectId: project2.id,
       latitude: 7.6567,
       longitude: 125.5234,
       areaHectares: 2.2,
@@ -157,6 +204,7 @@ export async function seedDatabase() {
     {
       name: "Expansion Zone East",
       stewardId: steward4.id,
+      projectId: project2.id,
       latitude: 7.7345,
       longitude: 125.6891,
       areaHectares: 1.6,
