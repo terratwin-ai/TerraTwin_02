@@ -198,7 +198,7 @@ function IncomeProjection({ year, plot }: { year: number; plot: Plot }) {
 export default function FarmerPlotView() {
   const [, params] = useRoute("/plot/:id");
   const plotId = params?.id;
-  const [year, setYear] = useState(2024);
+  const [year, setYear] = useState(2026);
   const [activeTab, setActiveTab] = useState("3d");
   const [showLidar, setShowLidar] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
