@@ -188,11 +188,6 @@ export default function ProjectDetail() {
                       <TileLayer
                         attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
                         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                        opacity={0.6}
-                      />
-                      <TileLayer
-                        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                        url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
                       />
                       <FitBounds plots={plots} />
                       {plots.map((plot) => (
