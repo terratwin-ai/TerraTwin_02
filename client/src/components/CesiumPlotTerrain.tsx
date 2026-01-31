@@ -75,8 +75,7 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
 
         viewerRef.current = viewer;
 
-        viewer.scene.backgroundColor = Cesium.Color.WHITE;
-        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString("#8b9a7e");
+        viewer.scene.globe.enableLighting = false;
         viewer.scene.fog.enabled = false;
 
         const hectareMeters = 100;
@@ -87,65 +86,41 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
         const east = plot.longitude + halfSizeDeg;
         const south = plot.latitude - halfSizeDeg;
         const north = plot.latitude + halfSizeDeg;
-        
-        const plotCenter = Cesium.Cartesian3.fromDegrees(plot.longitude, plot.latitude, 0);
-
-        try {
-          const clippingPlanes = new Cesium.ClippingPlaneCollection({
-            planes: [
-              new Cesium.ClippingPlane(new Cesium.Cartesian3(1, 0, 0), hectareMeters / 2),
-              new Cesium.ClippingPlane(new Cesium.Cartesian3(-1, 0, 0), hectareMeters / 2),
-              new Cesium.ClippingPlane(new Cesium.Cartesian3(0, 1, 0), hectareMeters / 2),
-              new Cesium.ClippingPlane(new Cesium.Cartesian3(0, -1, 0), hectareMeters / 2),
-            ],
-            modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(plotCenter),
-            unionClippingRegions: false,
-            edgeWidth: 2.0,
-            edgeColor: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.8),
-          });
-          viewer.scene.globe.clippingPlanes = clippingPlanes;
-        } catch (e) {
-          console.log("Clipping planes not supported, using visual mask");
-          const maskOffset = halfSizeDeg * 15;
-          const outerRing = [
-            plot.longitude - maskOffset, plot.latitude - maskOffset,
-            plot.longitude + maskOffset, plot.latitude - maskOffset,
-            plot.longitude + maskOffset, plot.latitude + maskOffset,
-            plot.longitude - maskOffset, plot.latitude + maskOffset,
-            plot.longitude - maskOffset, plot.latitude - maskOffset,
-          ];
-          const innerRing = [
-            west, south, west, north, east, north, east, south, west, south,
-          ];
-          viewer.entities.add({
-            polygon: {
-              hierarchy: new Cesium.PolygonHierarchy(
-                Cesium.Cartesian3.fromDegreesArray(outerRing),
-                [new Cesium.PolygonHierarchy(Cesium.Cartesian3.fromDegreesArray(innerRing))]
-              ),
-              material: Cesium.Color.fromCssColorString("#0f1a14"),
-              height: 0,
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            },
-          });
-        }
 
         const controller = viewer.scene.screenSpaceCameraController;
         controller.enableRotate = true;
         controller.enableZoom = true;
         controller.enableTilt = true;
-        controller.enableTranslate = false;
+        controller.enableTranslate = true;
         controller.minimumZoomDistance = 50;
-        controller.maximumZoomDistance = 300;
+        controller.maximumZoomDistance = 2000;
 
-        viewer.camera.lookAt(
-          plotCenter,
-          new Cesium.HeadingPitchRange(
-            Cesium.Math.toRadians(-45),
-            Cesium.Math.toRadians(-40),
-            120
-          )
-        );
+        viewer.entities.add({
+          rectangle: {
+            coordinates: Cesium.Rectangle.fromDegrees(west, south, east, north),
+            material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.3),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString("#fbbf24"),
+            outlineWidth: 3,
+            height: 0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+        });
+
+        viewer.camera.flyTo({
+          destination: Cesium.Rectangle.fromDegrees(
+            west - halfSizeDeg * 2,
+            south - halfSizeDeg * 2,
+            east + halfSizeDeg * 2,
+            north + halfSizeDeg * 2
+          ),
+          orientation: {
+            heading: Cesium.Math.toRadians(-45),
+            pitch: Cesium.Math.toRadians(-45),
+            roll: 0,
+          },
+          duration: 0,
+        });
 
         addBambooPlants(viewer, plot, year);
 
