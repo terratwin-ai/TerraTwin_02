@@ -1,6 +1,8 @@
 import { 
   type User, 
   type InsertUser, 
+  type Project,
+  type InsertProject,
   type Steward, 
   type InsertSteward,
   type Plot,
@@ -8,6 +10,7 @@ import {
   type VerificationEvent,
   type InsertVerificationEvent,
   users,
+  projects,
   stewards,
   plots,
   verificationEvents
@@ -20,6 +23,11 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
+  getProjects(): Promise<Project[]>;
+  getProject(id: string): Promise<Project | undefined>;
+  createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: string, project: Partial<InsertProject>): Promise<Project | undefined>;
+  
   getStewards(): Promise<Steward[]>;
   getSteward(id: string): Promise<Steward | undefined>;
   createSteward(steward: InsertSteward): Promise<Steward>;
@@ -28,6 +36,7 @@ export interface IStorage {
   getPlots(): Promise<Plot[]>;
   getPlot(id: string): Promise<Plot | undefined>;
   getPlotsBySteward(stewardId: string): Promise<Plot[]>;
+  getPlotsByProject(projectId: string): Promise<Plot[]>;
   createPlot(plot: InsertPlot): Promise<Plot>;
   updatePlot(id: string, plot: Partial<InsertPlot>): Promise<Plot | undefined>;
   
@@ -52,6 +61,25 @@ export class DatabaseStorage implements IStorage {
   async createUser(user: InsertUser): Promise<User> {
     const [created] = await db.insert(users).values(user).returning();
     return created;
+  }
+
+  async getProjects(): Promise<Project[]> {
+    return db.select().from(projects);
+  }
+
+  async getProject(id: string): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async createProject(project: InsertProject): Promise<Project> {
+    const [created] = await db.insert(projects).values(project).returning();
+    return created;
+  }
+
+  async updateProject(id: string, project: Partial<InsertProject>): Promise<Project | undefined> {
+    const [updated] = await db.update(projects).set(project).where(eq(projects.id, id)).returning();
+    return updated;
   }
 
   async getStewards(): Promise<Steward[]> {
@@ -84,6 +112,10 @@ export class DatabaseStorage implements IStorage {
 
   async getPlotsBySteward(stewardId: string): Promise<Plot[]> {
     return db.select().from(plots).where(eq(plots.stewardId, stewardId));
+  }
+
+  async getPlotsByProject(projectId: string): Promise<Plot[]> {
+    return db.select().from(plots).where(eq(plots.projectId, projectId));
   }
 
   async createPlot(plot: InsertPlot): Promise<Plot> {

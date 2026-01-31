@@ -9,6 +9,26 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+// Projects aggregate multiple smallholder plots for carbon credit issuance
+export const projects = pgTable("projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  region: text("region").notNull(),
+  province: text("province").notNull(),
+  methodology: text("methodology").default("verra-bamboo"), // verification standard
+  status: text("status").notNull().default("active"), // active, verified, completed
+  totalHectares: real("total_hectares").default(0),
+  totalStewards: integer("total_stewards").default(0),
+  totalPlots: integer("total_plots").default(0),
+  totalCarbonTons: real("total_carbon_tons").default(0),
+  creditsIssued: real("credits_issued").default(0),
+  creditsRetired: real("credits_retired").default(0),
+  vintage: integer("vintage"), // year credits were issued
+  startDate: timestamp("start_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const stewards = pgTable("stewards", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -26,6 +46,7 @@ export const plots = pgTable("plots", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   stewardId: varchar("steward_id").references(() => stewards.id),
+  projectId: varchar("project_id").references(() => projects.id),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
   areaHectares: real("area_hectares").notNull(),
@@ -58,6 +79,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
+export const insertProjectSchema = createInsertSchema(projects).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertStewardSchema = createInsertSchema(stewards).omit({
   id: true,
   createdAt: true,
@@ -75,6 +101,8 @@ export const insertVerificationEventSchema = createInsertSchema(verificationEven
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type InsertProject = z.infer<typeof insertProjectSchema>;
+export type Project = typeof projects.$inferSelect;
 export type InsertSteward = z.infer<typeof insertStewardSchema>;
 export type Steward = typeof stewards.$inferSelect;
 export type InsertPlot = z.infer<typeof insertPlotSchema>;
