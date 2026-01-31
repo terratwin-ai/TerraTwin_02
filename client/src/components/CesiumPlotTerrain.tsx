@@ -109,14 +109,14 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
 
         viewer.camera.flyTo({
           destination: Cesium.Rectangle.fromDegrees(
-            west - halfSizeDeg * 2,
-            south - halfSizeDeg * 2,
-            east + halfSizeDeg * 2,
-            north + halfSizeDeg * 2
+            west - halfSizeDeg * 5,
+            south - halfSizeDeg * 5,
+            east + halfSizeDeg * 5,
+            north + halfSizeDeg * 5
           ),
           orientation: {
             heading: Cesium.Math.toRadians(-45),
-            pitch: Cesium.Math.toRadians(-45),
+            pitch: Cesium.Math.toRadians(-50),
             roll: 0,
           },
           duration: 0,
