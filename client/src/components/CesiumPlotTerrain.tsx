@@ -247,18 +247,26 @@ function addBambooPlants(
 ) {
   const Cesium = window.Cesium;
   
-  const growthYears = Math.max(0, year - 2024);
-  const maturityProgress = Math.min(1, growthYears / 10);
+  const progress = Math.max(0, Math.min(1, (year - 2024) / 11));
+  
+  const maxHeight = 25;
+  const minHeight = 0.5;
+  const growthRate = 15;
+  const midpoint = 0.3;
+  const baseHeight = minHeight + (maxHeight - minHeight) / 
+    (1 + Math.exp(-growthRate * (progress - midpoint)));
+  
+  const minPoles = 5;
+  const maxPoles = 100;
+  const poleCountPerClump = Math.floor(minPoles + (maxPoles - minPoles) / 
+    (1 + Math.exp(-15 * (progress - 0.3))));
   
   const clumpsPerHa = 150;
   const totalClumps = Math.floor(plot.areaHectares * clumpsPerHa);
-  const visibleClumps = Math.min(totalClumps, 40);
+  const visibleClumps = Math.min(totalClumps, 30);
   
   const hectareMeters = 100;
   const halfSize = hectareMeters / 2;
-  
-  const maxHeight = 25;
-  const baseHeight = 0.5 + maturityProgress * (maxHeight - 0.5);
 
   for (let i = 0; i < visibleClumps; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -270,10 +278,10 @@ function addBambooPlants(
     const clumpLat = plot.latitude + offsetLat;
     const clumpLng = plot.longitude + offsetLng;
     
-    const polesPerClump = Math.floor(3 + maturityProgress * 7);
+    const polesInThisClump = Math.min(Math.floor(poleCountPerClump * (0.5 + Math.random() * 0.5)), 12);
     
-    for (let p = 0; p < polesPerClump; p++) {
-      const poleAngle = (p / polesPerClump) * Math.PI * 2 + Math.random() * 0.3;
+    for (let p = 0; p < polesInThisClump; p++) {
+      const poleAngle = (p / polesInThisClump) * Math.PI * 2 + Math.random() * 0.3;
       const poleRadius = 0.5 + Math.random() * 1.5;
       
       const poleOffsetLat = (poleRadius * Math.cos(poleAngle)) / 111320;
@@ -285,7 +293,7 @@ function addBambooPlants(
       const heightVariation = 0.7 + Math.random() * 0.6;
       const poleHeight = baseHeight * heightVariation;
       
-      const poleRadius_m = 0.08 + maturityProgress * 0.12;
+      const poleRadius_m = 0.08 + progress * 0.12;
       
       const greenShade = Math.random();
       const poleColor = greenShade < 0.3 
@@ -306,7 +314,7 @@ function addBambooPlants(
         },
       });
 
-      if (maturityProgress > 0.3 && poleHeight > 5) {
+      if (progress > 0.3 && poleHeight > 5) {
         const leafHeight = poleHeight * 0.85;
         viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, leafHeight),
