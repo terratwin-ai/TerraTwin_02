@@ -16,10 +16,39 @@ import {
   Clock,
   Circle,
   Building2,
-  ExternalLink
+  ExternalLink,
+  Map
 } from "lucide-react";
 import type { Project, Steward, ProjectMilestone, ProjectDocument, Cooperative, Plot } from "@shared/schema";
 import { format } from "date-fns";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix Leaflet default marker icons
+const defaultIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Component to fit map bounds to markers
+function FitBounds({ plots }: { plots: Plot[] }) {
+  const map = useMap();
+  
+  if (plots.length > 0) {
+    const bounds = L.latLngBounds(
+      plots.map(p => [p.latitude, p.longitude] as [number, number])
+    );
+    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+  }
+  
+  return null;
+}
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -134,6 +163,53 @@ export default function ProjectDetail() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
+            {/* Map showing all plot locations */}
+            <Card data-testid="card-plot-map">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Map className="h-5 w-5" />
+                  Plot Locations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {plots.length > 0 ? (
+                  <div className="h-[300px] rounded-lg overflow-hidden" data-testid="map-container">
+                    <MapContainer
+                      center={[plots[0]?.latitude || 8.5, plots[0]?.longitude || 124.6]}
+                      zoom={10}
+                      style={{ height: "100%", width: "100%" }}
+                      scrollWheelZoom={true}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <FitBounds plots={plots} />
+                      {plots.map((plot) => (
+                        <Marker 
+                          key={plot.id} 
+                          position={[plot.latitude, plot.longitude]}
+                          icon={defaultIcon}
+                        >
+                          <Popup>
+                            <div className="text-sm">
+                              <p className="font-medium">{plot.name}</p>
+                              <p className="text-muted-foreground">{plot.areaHectares} ha</p>
+                              <Badge variant={plot.status === "verified" ? "default" : "secondary"} className="mt-1">
+                                {plot.status}
+                              </Badge>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      ))}
+                    </MapContainer>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-center py-8">No plots to display</p>
+                )}
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
