@@ -13,6 +13,17 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Projects Aggregation Layer** - Added Projects entity to aggregate smallholder plots for carbon credit issuance
+  - Projects table with aggregation fields (totalHectares, totalStewards, totalPlots, creditsIssued, creditsRetired, vintage)
+  - Plots now link to projects via projectId foreign key
+  - API endpoints: GET/POST /api/projects, GET/PATCH /api/projects/:id, GET /api/projects/:id/plots
+  - Sample projects: "Mindanao Bamboo Collective" (8 plots), "Cagayan de Oro Restoration Initiative" (2 plots)
+  - Methodology tracking (verra-bamboo, gold-standard) for verification standards
+- **LiDAR Analysis Visualization** - Added simulated LiDAR point cloud display in plot detail view
+  - Toggle switch to enable/disable LiDAR visualization
+  - "Capture LiDAR Scan" button with 3-second simulated drone scan
+  - 625 height-colored points (green→lime→yellow→red gradient) on 4m grid
+  - Points grow with bamboo based on year slider
 - **Farmer Plot View with Cesium Terrain** - Dedicated plot detail page at /plot/:id route
   - Real satellite terrain from Cesium Ion with 1-hectare cropping via Globe.clippingPlanes
   - ClippingPlaneCollection with ENU transform creates 100m x 100m bounded area
@@ -71,8 +82,9 @@ Preferred communication style: Simple, everyday language.
 
 ### Key Data Models
 - **Users**: Basic authentication (username/password)
+- **Projects**: Aggregation vehicle for smallholder plots (links to carbon registries, tracks credits issued/retired)
 - **Stewards**: Community bamboo farmers with plot and earnings tracking
-- **Plots**: Geolocated bamboo plots with health scores, carbon data, and verification status
+- **Plots**: Geolocated bamboo plots with health scores, carbon data, verification status, and project membership
 - **Verification Events**: Milestone events (planting, maintenance, survival checks) with payment triggers
 - **Conversations**: AI chat sessions linked to plots for contextual assistance
 - **Messages**: Chat history for each conversation (user/assistant roles)
