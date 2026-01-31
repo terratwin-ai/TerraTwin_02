@@ -248,86 +248,75 @@ function addBambooPlants(
   const Cesium = window.Cesium;
   
   const growthYears = Math.max(0, year - 2024);
-  const maturityProgress = Math.min(1, growthYears / 7);
+  const maturityProgress = Math.min(1, growthYears / 10);
   
-  const baseClumpCount = Math.floor(plot.areaHectares * 25);
-  const clumpCount = Math.floor(baseClumpCount * (0.3 + maturityProgress * 0.7));
+  const clumpsPerHa = 150;
+  const totalClumps = Math.floor(plot.areaHectares * clumpsPerHa);
+  const visibleClumps = Math.min(totalClumps, 40);
   
   const hectareMeters = 100;
   const halfSize = hectareMeters / 2;
   
-  const bambooColor = Cesium.Color.fromCssColorString(
-    maturityProgress < 0.3 ? "#4ade80" : 
-    maturityProgress < 0.7 ? "#22c55e" : "#16a34a"
-  );
-  
-  const baseScale = 0.3 + maturityProgress * 0.7;
+  const maxHeight = 25;
+  const baseHeight = 0.5 + maturityProgress * (maxHeight - 0.5);
 
-  for (let i = 0; i < clumpCount; i++) {
+  for (let i = 0; i < visibleClumps; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const radius = Math.random() * halfSize * 0.9;
+    const radius = Math.random() * halfSize * 0.85;
     
     const offsetLat = (radius * Math.cos(angle)) / 111320;
     const offsetLng = (radius * Math.sin(angle)) / (111320 * Math.cos(plot.latitude * Math.PI / 180));
     
-    const lat = plot.latitude + offsetLat;
-    const lng = plot.longitude + offsetLng;
+    const clumpLat = plot.latitude + offsetLat;
+    const clumpLng = plot.longitude + offsetLng;
     
-    const clumpScale = baseScale * (0.7 + Math.random() * 0.6);
-    const height = 2 + maturityProgress * 18 * clumpScale;
+    const polesPerClump = Math.floor(3 + maturityProgress * 7);
+    
+    for (let p = 0; p < polesPerClump; p++) {
+      const poleAngle = (p / polesPerClump) * Math.PI * 2 + Math.random() * 0.3;
+      const poleRadius = 0.5 + Math.random() * 1.5;
+      
+      const poleOffsetLat = (poleRadius * Math.cos(poleAngle)) / 111320;
+      const poleOffsetLng = (poleRadius * Math.sin(poleAngle)) / (111320 * Math.cos(clumpLat * Math.PI / 180));
+      
+      const poleLat = clumpLat + poleOffsetLat;
+      const poleLng = clumpLng + poleOffsetLng;
+      
+      const heightVariation = 0.7 + Math.random() * 0.6;
+      const poleHeight = baseHeight * heightVariation;
+      
+      const poleRadius_m = 0.08 + maturityProgress * 0.12;
+      
+      const greenShade = Math.random();
+      const poleColor = greenShade < 0.3 
+        ? Cesium.Color.fromCssColorString("#4ade80")
+        : greenShade < 0.7 
+        ? Cesium.Color.fromCssColorString("#22c55e")
+        : Cesium.Color.fromCssColorString("#16a34a");
 
-    viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(lng, lat, height / 2),
-      cylinder: {
-        length: height,
-        topRadius: 1.5 * clumpScale,
-        bottomRadius: 2.5 * clumpScale,
-        material: bambooColor.withAlpha(0.9),
-        outline: false,
-        heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
-      },
-    });
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, poleHeight / 2),
+        cylinder: {
+          length: poleHeight,
+          topRadius: poleRadius_m * 0.7,
+          bottomRadius: poleRadius_m,
+          material: poleColor,
+          outline: false,
+          heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+        },
+      });
 
-    if (maturityProgress > 0.2) {
-      const leafCount = Math.floor(2 + maturityProgress * 4);
-      for (let j = 0; j < leafCount; j++) {
-        const leafAngle = (j / leafCount) * Math.PI * 2;
-        const leafRadius = 3 * clumpScale;
-        const leafOffsetLat = (leafRadius * Math.cos(leafAngle)) / 111320;
-        const leafOffsetLng = (leafRadius * Math.sin(leafAngle)) / (111320 * Math.cos(lat * Math.PI / 180));
-        
+      if (maturityProgress > 0.3 && poleHeight > 5) {
+        const leafHeight = poleHeight * 0.85;
         viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-            lng + leafOffsetLng,
-            lat + leafOffsetLat,
-            height * 0.7
-          ),
+          position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, leafHeight),
           ellipsoid: {
-            radii: new Cesium.Cartesian3(1.5 * clumpScale, 1.5 * clumpScale, 3 * clumpScale),
-            material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.7),
+            radii: new Cesium.Cartesian3(0.8, 0.8, 1.5),
+            material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.8),
             heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
           },
         });
       }
     }
   }
-
-  const outlineColor = Cesium.Color.fromCssColorString("#fbbf24").withAlpha(0.6);
-  const cornerOffset = halfSize / 111320;
-  const corners = [
-    [plot.longitude - cornerOffset, plot.latitude - cornerOffset],
-    [plot.longitude + cornerOffset, plot.latitude - cornerOffset],
-    [plot.longitude + cornerOffset, plot.latitude + cornerOffset],
-    [plot.longitude - cornerOffset, plot.latitude + cornerOffset],
-    [plot.longitude - cornerOffset, plot.latitude - cornerOffset],
-  ];
-
-  viewer.entities.add({
-    polyline: {
-      positions: Cesium.Cartesian3.fromDegreesArray(corners.flat()),
-      width: 3,
-      material: outlineColor,
-      clampToGround: true,
-    },
-  });
 }
