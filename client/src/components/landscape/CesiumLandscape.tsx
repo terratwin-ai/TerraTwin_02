@@ -402,10 +402,10 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       const avgLng = plots.reduce((sum, p) => sum + p.longitude, 0) / plots.length;
 
       viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(avgLng, avgLat, 15000),
+        destination: Cesium.Cartesian3.fromDegrees(avgLng, avgLat, 45000),
         orientation: {
           heading: Cesium.Math.toRadians(0),
-          pitch: Cesium.Math.toRadians(-45),
+          pitch: Cesium.Math.toRadians(-60),
           roll: 0,
         },
         duration: 2,
