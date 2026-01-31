@@ -314,17 +314,6 @@ function addBambooPlants(
         },
       });
 
-      if (progress > 0.3 && poleHeight > 5) {
-        const leafHeight = poleHeight * 0.85;
-        viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, leafHeight),
-          ellipsoid: {
-            radii: new Cesium.Cartesian3(0.8, 0.8, 1.5),
-            material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.8),
-            heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
-          },
-        });
-      }
     }
   }
 }
