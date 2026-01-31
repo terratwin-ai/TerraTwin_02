@@ -316,4 +316,22 @@ function addBambooPlants(
 
     }
   }
+
+  const cornerOffset = halfSize / 111320;
+  const corners = [
+    plot.longitude - cornerOffset, plot.latitude - cornerOffset,
+    plot.longitude + cornerOffset, plot.latitude - cornerOffset,
+    plot.longitude + cornerOffset, plot.latitude + cornerOffset,
+    plot.longitude - cornerOffset, plot.latitude + cornerOffset,
+    plot.longitude - cornerOffset, plot.latitude - cornerOffset,
+  ];
+
+  viewer.entities.add({
+    polyline: {
+      positions: Cesium.Cartesian3.fromDegreesArray(corners),
+      width: 4,
+      material: Cesium.Color.fromCssColorString("#fbbf24"),
+      clampToGround: true,
+    },
+  });
 }
