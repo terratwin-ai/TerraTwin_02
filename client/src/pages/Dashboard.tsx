@@ -7,6 +7,7 @@ import { LandscapeScene } from "@/components/landscape/LandscapeScene";
 import { CesiumLandscape } from "@/components/landscape/CesiumLandscape";
 import { PlotDetailPanel } from "@/components/PlotDetailPanel";
 import { PlotList } from "@/components/PlotList";
+import { ProjectList } from "@/components/ProjectList";
 import { StewardList } from "@/components/StewardList";
 import { VerificationList } from "@/components/VerificationList";
 import { LoadingState, SceneLoadingOverlay } from "@/components/LoadingState";
@@ -60,6 +61,8 @@ export default function Dashboard() {
 
   const renderContent = () => {
     switch (activeView) {
+      case "projects":
+        return <ProjectList />;
       case "plots":
         return (
           <PlotList

@@ -19,7 +19,8 @@ import {
   CheckCircle, 
   TrendingUp,
   Leaf,
-  DollarSign
+  DollarSign,
+  FolderKanban
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
 import logoImage from "@/assets/terratwin-logo.png";
@@ -48,6 +49,7 @@ export function DashboardSidebar({
 
   const navItems = [
     { id: "landscape", label: "Landscape View", icon: Map },
+    { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "plots", label: "My Plots", icon: TreePine },
     { id: "stewards", label: "Stewards", icon: Users },
     { id: "verifications", label: "Verifications", icon: CheckCircle },
