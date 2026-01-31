@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,14 @@ import {
   MapPin,
   BarChart3,
   Activity,
+  Scan,
+  Layers,
+  Camera,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import type { Plot, Steward } from "@shared/schema";
 import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
 import { AgentChat } from "@/components/AgentChat";
@@ -193,6 +200,18 @@ export default function FarmerPlotView() {
   const plotId = params?.id;
   const [year, setYear] = useState(2024);
   const [activeTab, setActiveTab] = useState("3d");
+  const [showLidar, setShowLidar] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanComplete, setScanComplete] = useState(false);
+  const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const { data: plot, isLoading: plotLoading } = useQuery<Plot>({
     queryKey: ["/api/plots", plotId],
@@ -270,7 +289,8 @@ export default function FarmerPlotView() {
               <CesiumPlotTerrain 
                 plot={plot} 
                 cesiumToken={CESIUM_ION_TOKEN} 
-                year={year} 
+                year={year}
+                showLidar={showLidar}
               />
               
               <div className="absolute top-4 left-4 space-y-2 pointer-events-none">
@@ -317,6 +337,89 @@ export default function FarmerPlotView() {
                     data-testid="slider-year"
                   />
                 </div>
+
+                <Card className="border-border/50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Scan className="h-4 w-4 text-cyan-500" />
+                      LiDAR Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Layers className="h-4 w-4 text-muted-foreground" />
+                        <Label htmlFor="lidar-toggle" className="text-sm">Show Point Cloud</Label>
+                      </div>
+                      <Switch
+                        id="lidar-toggle"
+                        checked={showLidar}
+                        onCheckedChange={setShowLidar}
+                        data-testid="switch-lidar"
+                      />
+                    </div>
+                    
+                    {showLidar && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-green-500" />
+                          <span>Low</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-lime-500" />
+                          <span>Med</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                          <span>High</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded-full bg-red-500" />
+                          <span>Max</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <Button
+                      variant={scanComplete ? "outline" : "default"}
+                      className="w-full gap-2"
+                      disabled={isScanning}
+                      onClick={() => {
+                        setIsScanning(true);
+                        setScanComplete(false);
+                        scanTimeoutRef.current = setTimeout(() => {
+                          setIsScanning(false);
+                          setScanComplete(true);
+                          setShowLidar(true);
+                        }, 3000);
+                      }}
+                      data-testid="button-lidar-scan"
+                    >
+                      {isScanning ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Scanning...
+                        </>
+                      ) : scanComplete ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Scan Complete
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="h-4 w-4" />
+                          Capture LiDAR Scan
+                        </>
+                      )}
+                    </Button>
+                    
+                    {scanComplete && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        Point cloud captured with 625 points. Ready for verification.
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
 
                 <GrowthStats year={year} plot={plot} />
                 <IncomeProjection year={year} plot={plot} />

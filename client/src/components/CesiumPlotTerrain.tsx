@@ -13,6 +13,7 @@ interface CesiumPlotTerrainProps {
   plot: Plot;
   cesiumToken: string;
   year: number;
+  showLidar?: boolean;
 }
 
 function checkWebGLSupport(): boolean {
@@ -25,7 +26,7 @@ function checkWebGLSupport(): boolean {
   }
 }
 
-export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlotTerrainProps) {
+export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar = false }: CesiumPlotTerrainProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<InstanceType<typeof window.Cesium.Viewer> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,18 +96,6 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
         controller.minimumZoomDistance = 50;
         controller.maximumZoomDistance = 2000;
 
-        viewer.entities.add({
-          rectangle: {
-            coordinates: Cesium.Rectangle.fromDegrees(west, south, east, north),
-            material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.3),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString("#fbbf24"),
-            outlineWidth: 3,
-            height: 0,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          },
-        });
-
         viewer.camera.flyTo({
           destination: Cesium.Rectangle.fromDegrees(
             west - halfSizeDeg * 4,
@@ -121,8 +110,6 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
           },
           duration: 0,
         });
-
-        addBambooPlants(viewer, plot, year);
 
         setIsLoading(false);
       } catch (err) {
@@ -148,10 +135,36 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
   useEffect(() => {
     if (viewerRef.current && !viewerRef.current.isDestroyed()) {
       const viewer = viewerRef.current;
+      const Cesium = window.Cesium;
       viewer.entities.removeAll();
+      
+      // Re-add plot boundary rectangle with fill
+      const hectareMeters = 100;
+      const halfSize = hectareMeters / 2;
+      const halfSizeDeg = halfSize / 111320;
+      const west = plot.longitude - halfSizeDeg;
+      const south = plot.latitude - halfSizeDeg;
+      const east = plot.longitude + halfSizeDeg;
+      const north = plot.latitude + halfSizeDeg;
+      
+      viewer.entities.add({
+        rectangle: {
+          coordinates: Cesium.Rectangle.fromDegrees(west, south, east, north),
+          material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.3),
+          outline: true,
+          outlineColor: Cesium.Color.fromCssColorString("#fbbf24"),
+          outlineWidth: 3,
+          height: 0,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+      });
+      
       addBambooPlants(viewer, plot, year);
+      if (showLidar) {
+        addLidarPointCloud(viewer, plot, year);
+      }
     }
-  }, [year, plot]);
+  }, [year, plot, showLidar]);
 
   if (!webglSupported || !cesiumToken) {
     return (
@@ -317,21 +330,68 @@ function addBambooPlants(
     }
   }
 
-  const cornerOffset = halfSize / 111320;
-  const corners = [
-    plot.longitude - cornerOffset, plot.latitude - cornerOffset,
-    plot.longitude + cornerOffset, plot.latitude - cornerOffset,
-    plot.longitude + cornerOffset, plot.latitude + cornerOffset,
-    plot.longitude - cornerOffset, plot.latitude + cornerOffset,
-    plot.longitude - cornerOffset, plot.latitude - cornerOffset,
-  ];
+}
 
-  viewer.entities.add({
-    polyline: {
-      positions: Cesium.Cartesian3.fromDegreesArray(corners),
-      width: 4,
-      material: Cesium.Color.fromCssColorString("#fbbf24"),
-      clampToGround: true,
-    },
-  });
+function addLidarPointCloud(
+  viewer: InstanceType<typeof window.Cesium.Viewer>,
+  plot: Plot,
+  year: number
+) {
+  const Cesium = window.Cesium;
+  
+  const progress = Math.max(0, Math.min(1, (year - 2024) / 11));
+  const maxHeight = 25;
+  const minHeight = 0.5;
+  const growthRate = 15;
+  const midpoint = 0.3;
+  const baseHeight = minHeight + (maxHeight - minHeight) / 
+    (1 + Math.exp(-growthRate * (progress - midpoint)));
+  
+  const hectareMeters = 100;
+  const halfSize = hectareMeters / 2;
+  
+  const gridResolution = 4;
+  const numPoints = Math.floor(hectareMeters / gridResolution);
+  
+  for (let x = 0; x < numPoints; x++) {
+    for (let z = 0; z < numPoints; z++) {
+      const offsetX = (x * gridResolution - halfSize + gridResolution * Math.random());
+      const offsetZ = (z * gridResolution - halfSize + gridResolution * Math.random());
+      
+      const offsetLat = offsetZ / 111320;
+      const offsetLng = offsetX / (111320 * Math.cos(plot.latitude * Math.PI / 180));
+      
+      const pointLat = plot.latitude + offsetLat;
+      const pointLng = plot.longitude + offsetLng;
+      
+      const distFromCenter = Math.sqrt(offsetX * offsetX + offsetZ * offsetZ) / halfSize;
+      const noise = Math.random() * 0.4 + 0.6;
+      const clumpProximity = Math.sin(offsetX * 0.15) * Math.sin(offsetZ * 0.15);
+      const heightFactor = Math.max(0.1, (1 - distFromCenter * 0.3) * noise * (0.8 + clumpProximity * 0.4));
+      
+      const pointHeight = baseHeight * heightFactor * (0.3 + Math.random() * 0.7);
+      
+      const normalizedHeight = pointHeight / maxHeight;
+      let pointColor;
+      if (normalizedHeight < 0.3) {
+        pointColor = Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.8);
+      } else if (normalizedHeight < 0.6) {
+        pointColor = Cesium.Color.fromCssColorString("#84cc16").withAlpha(0.8);
+      } else if (normalizedHeight < 0.85) {
+        pointColor = Cesium.Color.fromCssColorString("#eab308").withAlpha(0.8);
+      } else {
+        pointColor = Cesium.Color.fromCssColorString("#ef4444").withAlpha(0.8);
+      }
+      
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(pointLng, pointLat, pointHeight),
+        point: {
+          pixelSize: 3,
+          color: pointColor,
+          heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+      });
+    }
+  }
 }
