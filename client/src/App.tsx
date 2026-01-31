@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Dashboard from "@/pages/Dashboard";
 import AdminLogin from "@/pages/AdminLogin";
 import FarmerPlotView from "@/pages/FarmerPlotView";
+import ProjectDetail from "@/pages/ProjectDetail";
 import NotFound from "@/pages/not-found";
 import StewardLogin from "@/pages/steward/StewardLogin";
 import StewardHome from "@/pages/steward/StewardHome";
@@ -39,6 +40,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={ProtectedDashboard} />
+      <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/plot/:id" component={FarmerPlotView} />
       <Route path="/steward" component={StewardLogin} />
       <Route path="/steward/home" component={StewardHome} />

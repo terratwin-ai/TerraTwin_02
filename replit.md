@@ -13,10 +13,26 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Project Detail View** - Full detail page for individual projects at /projects/:id
+  - 4 tabbed sections: Overview, Timeline, Documents, Stewards
+  - Overview shows project plots, cooperatives, and credit issuance stats
+  - Timeline displays milestone progression (documentation, public comment, audit, site visit, approval, credit issuance)
+  - Documents table with submission dates and PDF download links
+  - Stewards view showing all farmers contributing to the project with earnings
+- **Cooperatives Model** - Groups of stewards within projects
+  - cooperatives table (projectId, name, region, notes, memberCount)
+  - cooperativeMembers join table (cooperativeId, stewardId, role)
+  - Roles: leader, member, treasurer, secretary
+  - Sample cooperatives: "San Isidro Bamboo Farmers Cooperative", "Tagoloan Valley Stewards Association"
+- **Project Timeline & Documentation** - Carbon registry workflow tracking
+  - projectMilestones table (title, description, milestoneType, status, dueDate, completedAt)
+  - projectDocuments table (title, documentType, fileUrl, submittedAt)
+  - Sample milestones for Mindanao Bamboo Collective (2 completed, 1 in progress, 3 pending)
 - **Projects Aggregation Layer** - Added Projects entity to aggregate smallholder plots for carbon credit issuance
   - Projects table with aggregation fields (totalHectares, totalStewards, totalPlots, creditsIssued, creditsRetired, vintage)
   - Plots now link to projects via projectId foreign key
   - API endpoints: GET/POST /api/projects, GET/PATCH /api/projects/:id, GET /api/projects/:id/plots
+  - Additional endpoints: GET /api/projects/:id/stewards, /milestones, /documents, /cooperatives
   - Sample projects: "Mindanao Bamboo Collective" (8 plots), "Cagayan de Oro Restoration Initiative" (2 plots)
   - Methodology tracking (verra-bamboo, gold-standard) for verification standards
 - **LiDAR Analysis Visualization** - Added simulated LiDAR point cloud display in plot detail view

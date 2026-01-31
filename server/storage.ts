@@ -9,14 +9,26 @@ import {
   type InsertPlot,
   type VerificationEvent,
   type InsertVerificationEvent,
+  type Cooperative,
+  type InsertCooperative,
+  type CooperativeMember,
+  type InsertCooperativeMember,
+  type ProjectMilestone,
+  type InsertProjectMilestone,
+  type ProjectDocument,
+  type InsertProjectDocument,
   users,
   projects,
   stewards,
   plots,
-  verificationEvents
+  verificationEvents,
+  cooperatives,
+  cooperativeMembers,
+  projectMilestones,
+  projectDocuments
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -45,6 +57,21 @@ export interface IStorage {
   getVerificationEventsByPlot(plotId: string): Promise<VerificationEvent[]>;
   createVerificationEvent(event: InsertVerificationEvent): Promise<VerificationEvent>;
   updateVerificationEvent(id: string, event: Partial<InsertVerificationEvent>): Promise<VerificationEvent | undefined>;
+  
+  getCooperativesByProject(projectId: string): Promise<Cooperative[]>;
+  getCooperative(id: string): Promise<Cooperative | undefined>;
+  createCooperative(cooperative: InsertCooperative): Promise<Cooperative>;
+  
+  getCooperativeMembers(cooperativeId: string): Promise<CooperativeMember[]>;
+  createCooperativeMember(member: InsertCooperativeMember): Promise<CooperativeMember>;
+  
+  getProjectMilestones(projectId: string): Promise<ProjectMilestone[]>;
+  createProjectMilestone(milestone: InsertProjectMilestone): Promise<ProjectMilestone>;
+  
+  getProjectDocuments(projectId: string): Promise<ProjectDocument[]>;
+  createProjectDocument(document: InsertProjectDocument): Promise<ProjectDocument>;
+  
+  getProjectStewards(projectId: string): Promise<Steward[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -149,6 +176,58 @@ export class DatabaseStorage implements IStorage {
   async updateVerificationEvent(id: string, event: Partial<InsertVerificationEvent>): Promise<VerificationEvent | undefined> {
     const [updated] = await db.update(verificationEvents).set(event).where(eq(verificationEvents.id, id)).returning();
     return updated;
+  }
+
+  async getCooperativesByProject(projectId: string): Promise<Cooperative[]> {
+    return db.select().from(cooperatives).where(eq(cooperatives.projectId, projectId));
+  }
+
+  async getCooperative(id: string): Promise<Cooperative | undefined> {
+    const [cooperative] = await db.select().from(cooperatives).where(eq(cooperatives.id, id));
+    return cooperative;
+  }
+
+  async createCooperative(cooperative: InsertCooperative): Promise<Cooperative> {
+    const [created] = await db.insert(cooperatives).values(cooperative).returning();
+    return created;
+  }
+
+  async getCooperativeMembers(cooperativeId: string): Promise<CooperativeMember[]> {
+    return db.select().from(cooperativeMembers).where(eq(cooperativeMembers.cooperativeId, cooperativeId));
+  }
+
+  async createCooperativeMember(member: InsertCooperativeMember): Promise<CooperativeMember> {
+    const [created] = await db.insert(cooperativeMembers).values(member).returning();
+    return created;
+  }
+
+  async getProjectMilestones(projectId: string): Promise<ProjectMilestone[]> {
+    return db.select().from(projectMilestones).where(eq(projectMilestones.projectId, projectId));
+  }
+
+  async createProjectMilestone(milestone: InsertProjectMilestone): Promise<ProjectMilestone> {
+    const [created] = await db.insert(projectMilestones).values(milestone).returning();
+    return created;
+  }
+
+  async getProjectDocuments(projectId: string): Promise<ProjectDocument[]> {
+    return db.select().from(projectDocuments).where(eq(projectDocuments.projectId, projectId));
+  }
+
+  async createProjectDocument(document: InsertProjectDocument): Promise<ProjectDocument> {
+    const [created] = await db.insert(projectDocuments).values(document).returning();
+    return created;
+  }
+
+  async getProjectStewards(projectId: string): Promise<Steward[]> {
+    const projectPlots = await db.select().from(plots).where(eq(plots.projectId, projectId));
+    const stewardIdSet = new Set<string>();
+    for (const plot of projectPlots) {
+      if (plot.stewardId) stewardIdSet.add(plot.stewardId);
+    }
+    const stewardIds = Array.from(stewardIdSet);
+    if (stewardIds.length === 0) return [];
+    return db.select().from(stewards).where(inArray(stewards.id, stewardIds));
   }
 }
 

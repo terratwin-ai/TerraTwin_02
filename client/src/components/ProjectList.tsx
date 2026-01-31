@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +10,8 @@ import {
   Leaf, 
   Calendar,
   TrendingUp,
-  MapPin
+  MapPin,
+  ChevronRight
 } from "lucide-react";
 import type { Project } from "@shared/schema";
 import { format } from "date-fns";
@@ -140,27 +142,31 @@ function ProjectCard({ project }: { project: Project }) {
   };
 
   return (
-    <Card className="hover-elevate" data-testid={`project-card-${project.id}`}>
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle className="text-lg" data-testid={`text-project-name-${project.id}`}>
-              {project.name}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1" data-testid={`text-project-description-${project.id}`}>
-              {project.description}
-            </p>
+    <Link href={`/projects/${project.id}`}>
+      <Card className="hover-elevate cursor-pointer" data-testid={`project-card-${project.id}`}>
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg" data-testid={`text-project-name-${project.id}`}>
+                  {project.name}
+                </CardTitle>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground mt-1" data-testid={`text-project-description-${project.id}`}>
+                {project.description}
+              </p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Badge className={statusColors[project.status] || statusColors.active} data-testid={`badge-status-${project.id}`}>
+                {project.status}
+              </Badge>
+              <Badge className={methodologyColors[project.methodology || "verra-bamboo"] || methodologyColors["verra-bamboo"]} data-testid={`badge-methodology-${project.id}`}>
+                {project.methodology === "gold-standard" ? "Gold Standard" : "Verra"}
+              </Badge>
+            </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Badge className={statusColors[project.status] || statusColors.active} data-testid={`badge-status-${project.id}`}>
-              {project.status}
-            </Badge>
-            <Badge className={methodologyColors[project.methodology || "verra-bamboo"] || methodologyColors["verra-bamboo"]} data-testid={`badge-methodology-${project.id}`}>
-              {project.methodology === "gold-standard" ? "Gold Standard" : "Verra"}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
           <Stat
@@ -211,7 +217,8 @@ function ProjectCard({ project }: { project: Project }) {
           </p>
         )}
       </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 

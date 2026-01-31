@@ -1,0 +1,483 @@
+import { useQuery } from "@tanstack/react-query";
+import { useParams, Link } from "wouter";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  ArrowLeft,
+  MapPin, 
+  Users, 
+  TreePine, 
+  Leaf, 
+  Calendar,
+  FileText,
+  Check,
+  Clock,
+  Circle,
+  Building2,
+  ExternalLink
+} from "lucide-react";
+import type { Project, Steward, ProjectMilestone, ProjectDocument, Cooperative, Plot } from "@shared/schema";
+import { format } from "date-fns";
+
+export default function ProjectDetail() {
+  const { id } = useParams<{ id: string }>();
+
+  const { data: project, isLoading: projectLoading } = useQuery<Project>({
+    queryKey: ["/api/projects", id],
+  });
+
+  const { data: stewards = [] } = useQuery<Steward[]>({
+    queryKey: ["/api/projects", id, "stewards"],
+  });
+
+  const { data: milestones = [] } = useQuery<ProjectMilestone[]>({
+    queryKey: ["/api/projects", id, "milestones"],
+  });
+
+  const { data: documents = [] } = useQuery<ProjectDocument[]>({
+    queryKey: ["/api/projects", id, "documents"],
+  });
+
+  const { data: cooperatives = [] } = useQuery<Cooperative[]>({
+    queryKey: ["/api/projects", id, "cooperatives"],
+  });
+
+  const { data: plots = [] } = useQuery<Plot[]>({
+    queryKey: ["/api/projects", id, "plots"],
+  });
+
+  if (projectLoading || !project) {
+    return (
+      <div className="p-6 h-full overflow-auto">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3" />
+          <div className="h-48 bg-muted rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  const methodologyColors: Record<string, string> = {
+    "verra-bamboo": "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+    "gold-standard": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+  };
+
+  const statusColors: Record<string, string> = {
+    active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    verified: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    completed: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+  };
+
+  const sortedMilestones = [...milestones].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+  const sortedDocuments = [...documents].sort((a, b) => 
+    new Date(b.submittedAt || 0).getTime() - new Date(a.submittedAt || 0).getTime()
+  );
+
+  return (
+    <div className="p-6 h-full overflow-auto" data-testid="project-detail">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex items-center gap-4 flex-wrap">
+          <Link href="/">
+            <Button variant="ghost" size="icon" data-testid="button-back">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold" data-testid="text-project-name">{project.name}</h1>
+            <p className="text-muted-foreground" data-testid="text-project-description">{project.description}</p>
+          </div>
+          <div className="flex gap-2">
+            <Badge className={statusColors[project.status] || statusColors.active} data-testid="badge-status">
+              {project.status}
+            </Badge>
+            <Badge className={methodologyColors[project.methodology || "verra-bamboo"]} data-testid="badge-methodology">
+              {project.methodology === "gold-standard" ? "Gold Standard" : "Verra"}
+            </Badge>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            icon={<MapPin className="h-5 w-5" />}
+            label="Total Area"
+            value={`${project.totalHectares?.toFixed(1) || 0} ha`}
+            testId="stat-area"
+          />
+          <StatCard
+            icon={<TreePine className="h-5 w-5" />}
+            label="Plots"
+            value={project.totalPlots?.toString() || "0"}
+            testId="stat-plots"
+          />
+          <StatCard
+            icon={<Users className="h-5 w-5" />}
+            label="Stewards"
+            value={project.totalStewards?.toString() || "0"}
+            testId="stat-stewards"
+          />
+          <StatCard
+            icon={<Leaf className="h-5 w-5" />}
+            label="Carbon Sequestered"
+            value={`${project.totalCarbonTons?.toFixed(1) || 0} tCO2e`}
+            testId="stat-carbon"
+          />
+        </div>
+
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4" data-testid="tabs-list">
+            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="timeline" data-testid="tab-timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="documents" data-testid="tab-documents">Documents</TabsTrigger>
+            <TabsTrigger value="stewards" data-testid="tab-stewards">Stewards</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Project Plots
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {plots.map((plot) => (
+                      <div 
+                        key={plot.id} 
+                        className="flex items-center justify-between gap-2 p-3 bg-muted/50 rounded-lg"
+                        data-testid={`plot-item-${plot.id}`}
+                      >
+                        <div>
+                          <p className="font-medium" data-testid={`text-plot-name-${plot.id}`}>{plot.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {plot.areaHectares} ha • {plot.clumpCount} clumps
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={plot.status === "verified" ? "default" : "secondary"}
+                          data-testid={`badge-plot-status-${plot.id}`}
+                        >
+                          {plot.status}
+                        </Badge>
+                      </div>
+                    ))}
+                    {plots.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No plots assigned yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Cooperatives
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {cooperatives.map((coop) => (
+                      <div 
+                        key={coop.id} 
+                        className="p-4 border rounded-lg"
+                        data-testid={`coop-item-${coop.id}`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <h4 className="font-medium" data-testid={`text-coop-name-${coop.id}`}>{coop.name}</h4>
+                          <Badge variant="outline">{coop.memberCount} members</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{coop.region}</p>
+                        {coop.notes && (
+                          <p className="text-sm text-muted-foreground mt-1">{coop.notes}</p>
+                        )}
+                      </div>
+                    ))}
+                    {cooperatives.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No cooperatives yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Credit Issuance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Credits Issued</p>
+                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400" data-testid="text-credits-issued">
+                      {project.creditsIssued?.toFixed(1) || 0} tCO2e
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Credits Retired</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="text-credits-retired">
+                      {project.creditsRetired?.toFixed(1) || 0} tCO2e
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Vintage Year</p>
+                    <p className="text-2xl font-bold" data-testid="text-vintage">
+                      {project.vintage || "-"}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="timeline" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Project Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="relative">
+                  {sortedMilestones.map((milestone, index) => (
+                    <TimelineItem 
+                      key={milestone.id} 
+                      milestone={milestone} 
+                      isLast={index === sortedMilestones.length - 1}
+                    />
+                  ))}
+                  {sortedMilestones.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">No milestones defined yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="documents" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Project Documentation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-2 font-medium text-muted-foreground">Submission date</th>
+                        <th className="text-left py-3 px-2 font-medium text-muted-foreground">Title</th>
+                        <th className="text-right py-3 px-2 font-medium text-muted-foreground">Download</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedDocuments.map((doc) => (
+                        <tr key={doc.id} className="border-b" data-testid={`doc-row-${doc.id}`}>
+                          <td className="py-4 px-2 text-muted-foreground" data-testid={`text-doc-date-${doc.id}`}>
+                            {doc.submittedAt ? format(new Date(doc.submittedAt), "d MMM yyyy") : "-"}
+                          </td>
+                          <td className="py-4 px-2 font-medium" data-testid={`text-doc-title-${doc.id}`}>
+                            {doc.title}
+                          </td>
+                          <td className="py-4 px-2 text-right">
+                            {doc.fileUrl ? (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="gap-1" 
+                                data-testid={`button-download-${doc.id}`}
+                                asChild
+                              >
+                                <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  PDF <ExternalLink className="h-3 w-3" />
+                                </a>
+                              </Button>
+                            ) : (
+                              <span className="text-muted-foreground text-sm" data-testid={`text-no-file-${doc.id}`}>—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {sortedDocuments.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8">No documents uploaded yet</p>
+                  )}
+                  {sortedDocuments.length > 0 && (
+                    <div className="flex items-center justify-between gap-4 mt-4 text-sm text-muted-foreground">
+                      <span data-testid="text-doc-count">Showing {sortedDocuments.length} of {sortedDocuments.length}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="stewards" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Project Stewards
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {stewards.map((steward) => (
+                    <StewardCard key={steward.id} steward={steward} plots={plots} />
+                  ))}
+                  {stewards.length === 0 && (
+                    <p className="text-muted-foreground text-center py-8 col-span-full">No stewards assigned yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ 
+  icon, 
+  label, 
+  value, 
+  testId 
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  value: string;
+  testId: string;
+}) {
+  return (
+    <Card data-testid={testId}>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="text-muted-foreground">{icon}</div>
+          <div>
+            <p className="text-xs text-muted-foreground" data-testid={`${testId}-label`}>{label}</p>
+            <p className="text-lg font-semibold" data-testid={`${testId}-value`}>{value}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TimelineItem({ 
+  milestone, 
+  isLast 
+}: { 
+  milestone: ProjectMilestone; 
+  isLast: boolean;
+}) {
+  const getStatusIcon = () => {
+    switch (milestone.status) {
+      case "completed":
+        return <Check className="h-4 w-4 text-white" />;
+      case "in_progress":
+        return <Clock className="h-4 w-4 text-white" />;
+      default:
+        return <Circle className="h-3 w-3" />;
+    }
+  };
+
+  const getStatusBg = () => {
+    switch (milestone.status) {
+      case "completed":
+        return "bg-emerald-500 dark:bg-emerald-600";
+      case "in_progress":
+        return "bg-amber-500 dark:bg-amber-600";
+      default:
+        return "bg-muted border-2 border-muted-foreground/30";
+    }
+  };
+
+  const getDateLabel = () => {
+    if (milestone.status === "completed" && milestone.completedAt) {
+      return `Completed ${format(new Date(milestone.completedAt), "d MMM yyyy")}`;
+    }
+    if (milestone.dueDate) {
+      const dueDate = new Date(milestone.dueDate);
+      const quarter = Math.ceil((dueDate.getMonth() + 1) / 3);
+      return `Expected Q${quarter} ${dueDate.getFullYear()}`;
+    }
+    return "";
+  };
+
+  return (
+    <div className="flex gap-4" data-testid={`milestone-item-${milestone.id}`}>
+      <div className="flex flex-col items-center">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusBg()}`}>
+          {getStatusIcon()}
+        </div>
+        {!isLast && (
+          <div className={`w-0.5 flex-1 min-h-[60px] ${milestone.status === "completed" ? "bg-emerald-300 dark:bg-emerald-700" : "bg-muted-foreground/20"}`} />
+        )}
+      </div>
+      <div className="flex-1 pb-8">
+        <div className="flex items-center gap-3 mb-1 flex-wrap">
+          <span className="text-sm text-muted-foreground" data-testid={`text-milestone-date-${milestone.id}`}>
+            {getDateLabel()}
+          </span>
+          {milestone.status === "in_progress" && (
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" data-testid={`badge-milestone-status-${milestone.id}`}>
+              IN PROGRESS
+            </Badge>
+          )}
+        </div>
+        <h4 className="font-semibold text-lg" data-testid={`text-milestone-title-${milestone.id}`}>{milestone.title}</h4>
+        {milestone.description && (
+          <p className="text-muted-foreground mt-1" data-testid={`text-milestone-desc-${milestone.id}`}>{milestone.description}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StewardCard({ 
+  steward, 
+  plots 
+}: { 
+  steward: Steward; 
+  plots: Plot[];
+}) {
+  const stewardPlots = plots.filter(p => p.stewardId === steward.id);
+  const totalHectares = stewardPlots.reduce((sum, p) => sum + (p.areaHectares || 0), 0);
+
+  return (
+    <Card className="hover-elevate" data-testid={`steward-card-${steward.id}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Users className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h4 className="font-semibold" data-testid={`text-steward-name-${steward.id}`}>{steward.name}</h4>
+            <p className="text-sm text-muted-foreground">{steward.barangay}, {steward.province}</p>
+            <div className="flex items-center gap-4 mt-2 text-sm">
+              <span className="flex items-center gap-1">
+                <TreePine className="h-3 w-3" />
+                {stewardPlots.length} plots
+              </span>
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {totalHectares.toFixed(1)} ha
+              </span>
+            </div>
+            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-2" data-testid={`text-steward-earnings-${steward.id}`}>
+              ₱{(steward.totalEarnings || 0).toLocaleString()} earned
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

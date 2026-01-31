@@ -110,6 +110,51 @@ export type Plot = typeof plots.$inferSelect;
 export type InsertVerificationEvent = z.infer<typeof insertVerificationEventSchema>;
 export type VerificationEvent = typeof verificationEvents.$inferSelect;
 
+// Cooperatives - groups of stewards within a project
+export const cooperatives = pgTable("cooperatives", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => projects.id),
+  name: text("name").notNull(),
+  region: text("region"),
+  notes: text("notes"),
+  memberCount: integer("member_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Cooperative members - join table linking stewards to cooperatives
+export const cooperativeMembers = pgTable("cooperative_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  cooperativeId: varchar("cooperative_id").references(() => cooperatives.id),
+  stewardId: varchar("steward_id").references(() => stewards.id),
+  role: text("role").default("member"), // member, leader, treasurer, secretary
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+// Project milestones - timeline events for carbon verification
+export const projectMilestones = pgTable("project_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => projects.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  milestoneType: text("milestone_type").notNull(), // documentation, public_comment, audit, site_visit, approval, credit_issuance
+  status: text("status").notNull().default("pending"), // pending, in_progress, completed
+  orderIndex: integer("order_index").default(0),
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Project documents - documentation for carbon verification
+export const projectDocuments = pgTable("project_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => projects.id),
+  title: text("title").notNull(),
+  documentType: text("document_type").notNull(), // pdd, monitoring_report, verification_report, public_comment
+  fileUrl: text("file_url"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Chat tables for AI agent
 export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
@@ -140,3 +185,30 @@ export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
+
+// Cooperatives insert schemas and types
+export const insertCooperativeSchema = createInsertSchema(cooperatives).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertCooperativeMemberSchema = createInsertSchema(cooperativeMembers).omit({
+  id: true,
+  joinedAt: true,
+});
+export const insertProjectMilestoneSchema = createInsertSchema(projectMilestones).omit({
+  id: true,
+  createdAt: true,
+});
+export const insertProjectDocumentSchema = createInsertSchema(projectDocuments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertCooperative = z.infer<typeof insertCooperativeSchema>;
+export type Cooperative = typeof cooperatives.$inferSelect;
+export type InsertCooperativeMember = z.infer<typeof insertCooperativeMemberSchema>;
+export type CooperativeMember = typeof cooperativeMembers.$inferSelect;
+export type InsertProjectMilestone = z.infer<typeof insertProjectMilestoneSchema>;
+export type ProjectMilestone = typeof projectMilestones.$inferSelect;
+export type InsertProjectDocument = z.infer<typeof insertProjectDocumentSchema>;
+export type ProjectDocument = typeof projectDocuments.$inferSelect;

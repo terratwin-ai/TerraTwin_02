@@ -1,7 +1,16 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertProjectSchema, insertPlotSchema, insertStewardSchema, insertVerificationEventSchema } from "@shared/schema";
+import { 
+  insertProjectSchema, 
+  insertPlotSchema, 
+  insertStewardSchema, 
+  insertVerificationEventSchema,
+  insertCooperativeSchema,
+  insertCooperativeMemberSchema,
+  insertProjectMilestoneSchema,
+  insertProjectDocumentSchema
+} from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { registerChatRoutes } from "./replit_integrations/chat";
@@ -45,6 +54,56 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching project plots:", error);
       res.status(500).json({ error: "Failed to fetch project plots" });
+    }
+  });
+
+  app.get("/api/projects/:id/stewards", async (req, res) => {
+    try {
+      const stewards = await storage.getProjectStewards(req.params.id);
+      res.json(stewards);
+    } catch (error) {
+      console.error("Error fetching project stewards:", error);
+      res.status(500).json({ error: "Failed to fetch project stewards" });
+    }
+  });
+
+  app.get("/api/projects/:id/milestones", async (req, res) => {
+    try {
+      const milestones = await storage.getProjectMilestones(req.params.id);
+      res.json(milestones);
+    } catch (error) {
+      console.error("Error fetching project milestones:", error);
+      res.status(500).json({ error: "Failed to fetch project milestones" });
+    }
+  });
+
+  app.get("/api/projects/:id/documents", async (req, res) => {
+    try {
+      const documents = await storage.getProjectDocuments(req.params.id);
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching project documents:", error);
+      res.status(500).json({ error: "Failed to fetch project documents" });
+    }
+  });
+
+  app.get("/api/projects/:id/cooperatives", async (req, res) => {
+    try {
+      const cooperatives = await storage.getCooperativesByProject(req.params.id);
+      res.json(cooperatives);
+    } catch (error) {
+      console.error("Error fetching project cooperatives:", error);
+      res.status(500).json({ error: "Failed to fetch project cooperatives" });
+    }
+  });
+
+  app.get("/api/cooperatives/:id/members", async (req, res) => {
+    try {
+      const members = await storage.getCooperativeMembers(req.params.id);
+      res.json(members);
+    } catch (error) {
+      console.error("Error fetching cooperative members:", error);
+      res.status(500).json({ error: "Failed to fetch cooperative members" });
     }
   });
 

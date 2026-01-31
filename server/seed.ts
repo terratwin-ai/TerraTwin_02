@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { projects, stewards, plots, verificationEvents } from "@shared/schema";
+import { projects, stewards, plots, verificationEvents, cooperatives, cooperativeMembers, projectMilestones, projectDocuments } from "@shared/schema";
 
 export async function seedDatabase() {
   const existingStewards = await db.select().from(stewards);
@@ -287,6 +287,155 @@ export async function seedDatabase() {
       status: "under_review",
       evidenceUrls: ["ridge1.jpg", "ridge2.jpg", "ridge3.jpg", "ridge4.jpg"],
       notes: "Comprehensive growth data submitted for large plot",
+    },
+  ]);
+
+  // Create cooperatives for project1 (Mindanao Bamboo Collective)
+  const [coop1, coop2] = await db.insert(cooperatives).values([
+    {
+      projectId: project1.id,
+      name: "San Isidro Bamboo Farmers Cooperative",
+      region: "Bukidnon",
+      notes: "Primary cooperative in the San Isidro barangay area",
+      memberCount: 2,
+    },
+    {
+      projectId: project1.id,
+      name: "Tagoloan Valley Stewards Association",
+      region: "Misamis Oriental",
+      notes: "Cooperative serving the Tagoloan and Lumbia areas",
+      memberCount: 2,
+    },
+  ]).returning();
+
+  // Link stewards to cooperatives
+  await db.insert(cooperativeMembers).values([
+    {
+      cooperativeId: coop1.id,
+      stewardId: steward1.id,
+      role: "leader",
+    },
+    {
+      cooperativeId: coop1.id,
+      stewardId: steward2.id,
+      role: "member",
+    },
+    {
+      cooperativeId: coop2.id,
+      stewardId: steward3.id,
+      role: "leader",
+    },
+    {
+      cooperativeId: coop2.id,
+      stewardId: steward4.id,
+      role: "treasurer",
+    },
+  ]);
+
+  // Create milestones for project1 (in progress project)
+  await db.insert(projectMilestones).values([
+    {
+      projectId: project1.id,
+      title: "Initial documentation submission",
+      description: "Project Design Document (PDD) and baseline data submitted to registry",
+      milestoneType: "documentation",
+      status: "completed",
+      orderIndex: 1,
+      dueDate: new Date("2025-09-15"),
+      completedAt: new Date("2025-09-15"),
+    },
+    {
+      projectId: project1.id,
+      title: "Public comment period",
+      description: "30-day public comment period for stakeholder feedback",
+      milestoneType: "public_comment",
+      status: "completed",
+      orderIndex: 2,
+      dueDate: new Date("2026-01-22"),
+      completedAt: new Date("2026-01-22"),
+    },
+    {
+      projectId: project1.id,
+      title: "Audit kick-off",
+      description: "A Validation & Verification Body (VVB) officially commences the project validation and verification process. All VVBs are approved and appointed by Isometric based on the requirements outlined in the Isometric Standard and VVB Policy.",
+      milestoneType: "audit",
+      status: "in_progress",
+      orderIndex: 3,
+      dueDate: new Date("2026-03-31"),
+    },
+    {
+      projectId: project1.id,
+      title: "Site visit",
+      description: "VVB conducts on-site verification of bamboo plots and steward activities",
+      milestoneType: "site_visit",
+      status: "pending",
+      orderIndex: 4,
+      dueDate: new Date("2026-06-15"),
+    },
+    {
+      projectId: project1.id,
+      title: "Approval date",
+      description: "Final approval from registry after successful verification",
+      milestoneType: "approval",
+      status: "pending",
+      orderIndex: 5,
+      dueDate: new Date("2026-06-30"),
+    },
+    {
+      projectId: project1.id,
+      title: "Initial credit issuance",
+      description: "First batch of carbon credits issued based on verified sequestration",
+      milestoneType: "credit_issuance",
+      status: "pending",
+      orderIndex: 6,
+      dueDate: new Date("2026-06-30"),
+    },
+  ]);
+
+  // Create milestones for project2 (newer project)
+  await db.insert(projectMilestones).values([
+    {
+      projectId: project2.id,
+      title: "Initial documentation submission",
+      description: "Project Design Document (PDD) and baseline data",
+      milestoneType: "documentation",
+      status: "in_progress",
+      orderIndex: 1,
+      dueDate: new Date("2026-03-15"),
+    },
+    {
+      projectId: project2.id,
+      title: "Public comment period",
+      description: "30-day public comment period",
+      milestoneType: "public_comment",
+      status: "pending",
+      orderIndex: 2,
+      dueDate: new Date("2026-05-01"),
+    },
+  ]);
+
+  // Create documents for project1
+  await db.insert(projectDocuments).values([
+    {
+      projectId: project1.id,
+      title: "Public Comment Summary",
+      documentType: "public_comment",
+      fileUrl: "/documents/mbc-public-comment-summary.pdf",
+      submittedAt: new Date("2026-01-23"),
+    },
+    {
+      projectId: project1.id,
+      title: "PDD",
+      documentType: "pdd",
+      fileUrl: "/documents/mbc-pdd-v1.pdf",
+      submittedAt: new Date("2025-12-24"),
+    },
+    {
+      projectId: project1.id,
+      title: "Baseline Assessment Report",
+      documentType: "monitoring_report",
+      fileUrl: "/documents/mbc-baseline-assessment.pdf",
+      submittedAt: new Date("2025-09-10"),
     },
   ]);
 
