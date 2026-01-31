@@ -142,8 +142,8 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year }: CesiumPlo
           plotCenter,
           new Cesium.HeadingPitchRange(
             Cesium.Math.toRadians(-45),
-            Cesium.Math.toRadians(-35),
-            250
+            Cesium.Math.toRadians(-40),
+            120
           )
         );
 
