@@ -181,13 +181,40 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         });
       });
       
-      // Search locations via Photon (good open source geocoder)
+      // Local landmarks database for known locations (more accurate than external APIs)
+      const localLandmarks = [
+        { name: "Mount Anggas", aliases: ["mt anggas", "anggas peak", "mt. anggas"], lat: 8.5, lon: 124.36, detail: "Misamis Oriental, Northern Mindanao" },
+        { name: "Cagayan de Oro", aliases: ["cdo", "cagayan"], lat: 8.4542, lon: 124.6319, detail: "Misamis Oriental" },
+        { name: "Bukidnon", aliases: ["bukidnon province"], lat: 8.0515, lon: 125.0988, detail: "Northern Mindanao" },
+        { name: "Mount Kitanglad", aliases: ["mt kitanglad", "kitanglad"], lat: 8.1333, lon: 124.9167, detail: "Bukidnon, Northern Mindanao" },
+        { name: "Tagoloan", aliases: ["tagoloan river"], lat: 8.5372, lon: 124.7456, detail: "Misamis Oriental" },
+        { name: "Iligan City", aliases: ["iligan"], lat: 8.2280, lon: 124.2452, detail: "Lanao del Norte" },
+      ];
+      
       // Normalize query: expand common abbreviations
       const normalizedQuery = query
         .replace(/\bmt\.?\s*/gi, "Mount ")
         .replace(/\bst\.?\s*/gi, "Saint ")
-        .trim();
+        .trim()
+        .toLowerCase();
       
+      // Search local landmarks first
+      const matchingLandmarks = localLandmarks.filter(lm => 
+        lm.name.toLowerCase().includes(normalizedQuery) ||
+        lm.aliases.some(alias => alias.includes(normalizedQuery) || normalizedQuery.includes(alias))
+      );
+      
+      matchingLandmarks.forEach(lm => {
+        results.push({
+          type: "location",
+          name: lm.name,
+          lat: lm.lat,
+          lon: lm.lon,
+          detail: lm.detail
+        });
+      });
+      
+      // Also search via Photon for other locations
       try {
         const response = await fetch(
           `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedQuery)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
@@ -195,20 +222,23 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         const data = await response.json();
         const locationResults = data.features || [];
         
-        // Filter for Philippines results
+        // Filter for Philippines results, exclude duplicates
+        const existingNames = new Set(results.map(r => r.name.toLowerCase()));
         const phResults = locationResults
-          .filter((loc: { properties: { country?: string } }) => loc.properties?.country === "Philippines")
-          .slice(0, 3);
+          .filter((loc: { properties: { country?: string; name?: string } }) => 
+            loc.properties?.country === "Philippines" && 
+            !existingNames.has((loc.properties?.name || "").toLowerCase())
+          )
+          .slice(0, 3 - matchingLandmarks.length);
         
         phResults.forEach((loc: { properties: { name: string; city?: string; state?: string }; geometry: { coordinates: number[] } }) => {
           const props = loc.properties;
-          const coords = loc.geometry.coordinates; // GeoJSON: [lon, lat]
-          console.log("Photon result:", props.name, "coords:", coords);
+          const coords = loc.geometry.coordinates;
           results.push({
             type: "location",
             name: props.name,
-            lat: coords[1], // latitude is second in GeoJSON
-            lon: coords[0], // longitude is first in GeoJSON
+            lat: coords[1],
+            lon: coords[0],
             detail: [props.city, props.state].filter(Boolean).join(", ")
           });
         });
