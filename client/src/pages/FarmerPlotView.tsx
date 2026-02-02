@@ -23,12 +23,14 @@ import {
   Camera,
   CheckCircle,
   Loader2,
+  Satellite,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { Plot, Steward } from "@shared/schema";
 import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
 import { AgentChat } from "@/components/AgentChat";
+import { SatelliteAnalysis } from "@/components/SatelliteAnalysis";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -276,6 +278,10 @@ export default function FarmerPlotView() {
               <BarChart3 className="h-3.5 w-3.5" />
               3D View
             </TabsTrigger>
+            <TabsTrigger value="satellite" className="gap-2" data-testid="tab-satellite">
+              <Satellite className="h-3.5 w-3.5" />
+              Satellite
+            </TabsTrigger>
             <TabsTrigger value="stats" className="gap-2" data-testid="tab-statistics">
               <Activity className="h-3.5 w-3.5" />
               Statistics
@@ -432,6 +438,10 @@ export default function FarmerPlotView() {
               </div>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="satellite" className="mt-0 p-4 overflow-auto" style={{ maxHeight: "calc(100vh - 120px)" }}>
+          <SatelliteAnalysis plot={plot} />
         </TabsContent>
 
         <TabsContent value="stats" className="mt-0 p-4">
