@@ -183,12 +183,18 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       
       // Local landmarks database for known locations (more accurate than external APIs)
       const localLandmarks = [
-        { name: "Mount Anggas", aliases: ["mt anggas", "anggas peak", "mt. anggas"], lat: 8.5, lon: 124.36, detail: "Misamis Oriental, Northern Mindanao" },
+        // Mt. Anggas project area - Gitagum, Misamis Oriental
+        { name: "Mount Anggas", aliases: ["mt anggas", "anggas peak", "mt. anggas", "anggas"], lat: 8.42, lon: 124.42, detail: "Gitagum, Misamis Oriental (482m)" },
+        { name: "Kimalok", aliases: ["brgy kimalok"], lat: 8.43, lon: 124.41, detail: "Barangay in Gitagum, Misamis Oriental" },
+        { name: "Calacapan", aliases: ["brgy calacapan"], lat: 8.38, lon: 124.38, detail: "Barangay in Gitagum, Misamis Oriental" },
+        { name: "Taparak", aliases: ["brgy taparak"], lat: 8.36, lon: 124.45, detail: "Barangay in Gitagum, Misamis Oriental" },
+        { name: "Mapulog", aliases: ["brgy mapulog"], lat: 8.32, lon: 124.38, detail: "Barangay in Gitagum, Misamis Oriental" },
+        { name: "Gitagum", aliases: ["gitagum municipality"], lat: 8.40, lon: 124.40, detail: "Municipality, Misamis Oriental" },
+        // Regional landmarks
         { name: "Cagayan de Oro", aliases: ["cdo", "cagayan"], lat: 8.4542, lon: 124.6319, detail: "Misamis Oriental" },
-        { name: "Bukidnon", aliases: ["bukidnon province"], lat: 8.0515, lon: 125.0988, detail: "Northern Mindanao" },
-        { name: "Mount Kitanglad", aliases: ["mt kitanglad", "kitanglad"], lat: 8.1333, lon: 124.9167, detail: "Bukidnon, Northern Mindanao" },
-        { name: "Tagoloan", aliases: ["tagoloan river"], lat: 8.5372, lon: 124.7456, detail: "Misamis Oriental" },
         { name: "Iligan City", aliases: ["iligan"], lat: 8.2280, lon: 124.2452, detail: "Lanao del Norte" },
+        { name: "Lourdes", aliases: ["brgy lourdes"], lat: 8.48, lon: 124.48, detail: "Near Gitagum, Misamis Oriental" },
+        { name: "La Pad", aliases: ["lapad"], lat: 8.50, lon: 124.46, detail: "Near Gitagum, Misamis Oriental" },
       ];
       
       // Normalize query: expand common abbreviations
