@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +54,56 @@ function FitBounds({ plots }: { plots: Plot[] }) {
   }
   
   return null;
+}
+
+// Search control component
+function MapSearch() {
+  const map = useMap();
+  const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
+      );
+      const results = await response.json();
+      
+      if (results.length > 0) {
+        const { lat, lon } = results[0];
+        map.flyTo([parseFloat(lat), parseFloat(lon)], 14, { duration: 1.5 });
+      }
+    } catch (error) {
+      console.error("Search failed:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div className="absolute top-3 right-3 z-[1000] flex gap-1" data-testid="map-search">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        placeholder="Search location..."
+        className="px-3 py-1.5 text-sm bg-background/90 border border-border rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-primary"
+        data-testid="input-map-search"
+      />
+      <button
+        onClick={handleSearch}
+        disabled={isSearching}
+        className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+        data-testid="button-map-search"
+      >
+        {isSearching ? "..." : "Go"}
+      </button>
+    </div>
+  );
 }
 
 export default function ProjectDetail() {
@@ -178,7 +229,7 @@ export default function ProjectDetail() {
               </CardHeader>
               <CardContent>
                 {plots.length > 0 ? (
-                  <div className="h-[300px] rounded-lg overflow-hidden" data-testid="map-container">
+                  <div className="h-[300px] rounded-lg overflow-hidden relative" data-testid="map-container">
                     <MapContainer
                       center={[plots[0]?.latitude || 8.5, plots[0]?.longitude || 124.6]}
                       zoom={10}
@@ -189,6 +240,7 @@ export default function ProjectDetail() {
                         attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
                         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
                       />
+                      <MapSearch />
                       <FitBounds plots={plots} />
                       {plots.map((plot) => (
                         <Marker 
