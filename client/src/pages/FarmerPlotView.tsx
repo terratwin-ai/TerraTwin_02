@@ -431,10 +431,8 @@ export default function FarmerPlotView() {
                 <IncomeProjection year={year} plot={plot} />
               </div>
 
-              <div className="border-t p-3">
-                <div className="flex gap-2">
-                  <AgentChat plot={plot} steward={steward} />
-                </div>
+              <div className="border-t">
+                <AgentChat plot={plot} steward={steward} />
               </div>
             </div>
           </div>
