@@ -182,9 +182,15 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       });
       
       // Search locations via Photon (better coverage than Nominatim)
+      // Normalize query: expand common abbreviations
+      const normalizedQuery = query
+        .replace(/\bmt\.?\s*/gi, "Mount ")
+        .replace(/\bst\.?\s*/gi, "Saint ")
+        .trim();
+      
       try {
         const response = await fetch(
-          `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
+          `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedQuery)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
         );
         const data = await response.json();
         const locationResults = data.features || [];
