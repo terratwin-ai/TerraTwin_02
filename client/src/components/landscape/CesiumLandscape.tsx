@@ -181,7 +181,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         });
       });
       
-      // Search locations via GeoNames (good coverage for geographic features)
+      // Search locations via Photon (good open source geocoder)
       // Normalize query: expand common abbreviations
       const normalizedQuery = query
         .replace(/\bmt\.?\s*/gi, "Mount ")
@@ -189,49 +189,31 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         .trim();
       
       try {
-        // Use GeoNames search API (free, no key required for basic search)
         const response = await fetch(
-          `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(normalizedQuery)}&country=PH&maxRows=5&username=demo&featureClass=T&featureClass=P&featureClass=L`
+          `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedQuery)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
         );
         const data = await response.json();
-        const locationResults = data.geonames || [];
+        const locationResults = data.features || [];
         
-        locationResults.slice(0, 3).forEach((loc: { name: string; lat: string; lng: string; adminName1?: string; fcodeName?: string }) => {
+        // Filter for Philippines results
+        const phResults = locationResults
+          .filter((loc: { properties: { country?: string } }) => loc.properties?.country === "Philippines")
+          .slice(0, 3);
+        
+        phResults.forEach((loc: { properties: { name: string; city?: string; state?: string }; geometry: { coordinates: number[] } }) => {
+          const props = loc.properties;
+          const coords = loc.geometry.coordinates; // GeoJSON: [lon, lat]
+          console.log("Photon result:", props.name, "coords:", coords);
           results.push({
             type: "location",
-            name: loc.name,
-            lat: parseFloat(loc.lat),
-            lon: parseFloat(loc.lng),
-            detail: [loc.fcodeName, loc.adminName1].filter(Boolean).join(", ")
+            name: props.name,
+            lat: coords[1], // latitude is second in GeoJSON
+            lon: coords[0], // longitude is first in GeoJSON
+            detail: [props.city, props.state].filter(Boolean).join(", ")
           });
         });
       } catch (error) {
         console.error("Location search failed:", error);
-        
-        // Fallback to Photon if GeoNames fails
-        try {
-          const photonResponse = await fetch(
-            `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedQuery)}&limit=5&lat=8.0&lon=125.0`
-          );
-          const photonData = await photonResponse.json();
-          const photonResults = (photonData.features || [])
-            .filter((loc: { properties: { country?: string } }) => loc.properties?.country === "Philippines")
-            .slice(0, 3);
-          
-          photonResults.forEach((loc: { properties: { name: string; city?: string; state?: string }; geometry: { coordinates: number[] } }) => {
-            const props = loc.properties;
-            const coords = loc.geometry.coordinates;
-            results.push({
-              type: "location",
-              name: props.name,
-              lat: coords[1],
-              lon: coords[0],
-              detail: [props.city, props.state].filter(Boolean).join(", ")
-            });
-          });
-        } catch (fallbackError) {
-          console.error("Fallback search also failed:", fallbackError);
-        }
       }
       
       setSearchResults(results);
