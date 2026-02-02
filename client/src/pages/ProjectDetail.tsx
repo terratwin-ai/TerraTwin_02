@@ -96,10 +96,10 @@ function MapSearch({ plots }: { plots: Plot[] }) {
       });
     });
     
-    // Search locations via Nominatim
+    // Search locations via Nominatim (biased to Philippines)
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=3`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery + ", Philippines")}&limit=3&countrycodes=ph`
       );
       const locationResults = await response.json();
       

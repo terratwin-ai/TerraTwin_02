@@ -181,10 +181,10 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         });
       });
       
-      // Search locations via Nominatim
+      // Search locations via Nominatim (biased to Philippines)
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3`
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", Philippines")}&limit=3&countrycodes=ph`
         );
         const locationResults = await response.json();
         locationResults.forEach((loc: { display_name: string; lat: string; lon: string }) => {
