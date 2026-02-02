@@ -33,8 +33,9 @@ function generateMockAnalysis(plot: Plot): AnalysisResult {
   const carbonTons = Number(plot.carbonTons ?? 25);
   const latitude = Number(plot.latitude ?? 8.4);
   const longitude = Number(plot.longitude ?? 124.4);
-  const plotId = Number(plot.id ?? 1);
-  const seed = plotId * 17 + latitude * 1000 + longitude * 500;
+  // Plot ID is a UUID string, so hash it to get a numeric seed
+  const plotIdHash = plot.id ? plot.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 100;
+  const seed = plotIdHash * 17 + latitude * 1000 + longitude * 500;
   const random = (min: number, max: number) => {
     const x = Math.sin(seed + min) * 10000;
     return min + (x - Math.floor(x)) * (max - min);
@@ -45,7 +46,7 @@ function generateMockAnalysis(plot: Plot): AnalysisResult {
   const biomass = Number(carbonTons) * 2.5 + random(-5, 10);
   
   const changeTypes: Array<"growth" | "stable" | "decline" | "cleared"> = ["growth", "stable", "growth", "stable"];
-  const changeType = changeTypes[plotId % 4];
+  const changeType = changeTypes[plotIdHash % 4];
   
   return {
     ndvi: Math.min(0.95, Math.max(0.2, ndvi)),
@@ -111,8 +112,9 @@ function NDVIHeatmap({ plot }: { plot: Plot }) {
   // Normalize inputs for consistency
   const gridSize = 8;
   const cells = [];
-  const plotId = Number(plot.id ?? 1);
-  const seed = plotId * 31;
+  // Plot ID is a UUID string, so hash it to get a numeric seed
+  const plotIdHash = plot.id ? plot.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 100;
+  const seed = plotIdHash * 31;
   const healthScore = Number(plot.healthScore ?? 75);
   
   for (let y = 0; y < gridSize; y++) {

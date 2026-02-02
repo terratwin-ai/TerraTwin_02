@@ -13,6 +13,15 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Satellite Analysis Tab** - Clay Foundation Model prototype visualization in plot detail panel
+  - 3-tab interface in plot detail panel: Details, Satellite, AI Agent
+  - NDVI gauge with color-coded vegetation health (dense/moderate/sparse/low)
+  - 8x8 NDVI heatmap grid with gradient visualization
+  - Biomass estimates, carbon stock, and health score metrics
+  - 6-month time series chart showing NDVI trends
+  - Change detection summary (growth/stable/decline with percentage)
+  - Simulated Sentinel-2 capture information (resolution, cloud cover)
+  - Consistent numeric normalization and data-testid attributes for testing
 - **Project Detail View** - Full detail page for individual projects at /projects/:id
   - 4 tabbed sections: Overview, Timeline, Documents, Stewards
   - Overview shows project plots, cooperatives, and credit issuance stats
