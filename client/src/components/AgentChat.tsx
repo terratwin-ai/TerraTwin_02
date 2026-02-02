@@ -142,65 +142,65 @@ Provide helpful, concise guidance about plot management, verification processes,
   }
 
   return (
-    <div className="flex flex-col h-full bg-background/50">
-      <ScrollArea className="flex-1 p-3" ref={scrollRef as any}>
-        <div className="space-y-3">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              data-testid={`chat-message-${msg.role}-${i}`}
-            >
-              {msg.role === "assistant" && (
-                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Bot className="h-3.5 w-3.5 text-primary" />
-                </div>
-              )}
+    <div className="flex flex-col w-full">
+      {messages.length > 0 && (
+        <ScrollArea className="max-h-[200px] p-3 mb-2" ref={scrollRef as any}>
+          <div className="space-y-3">
+            {messages.map((msg, i) => (
               <div
-                className={`px-3 py-2 rounded-lg text-sm max-w-[85%] ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                }`}
+                key={i}
+                className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                data-testid={`chat-message-${msg.role}-${i}`}
               >
-                {msg.content || (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                {msg.role === "assistant" && (
+                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Bot className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                )}
+                <div
+                  className={`px-3 py-2 rounded-lg text-sm max-w-[85%] ${
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  }`}
+                >
+                  {msg.content || (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  )}
+                </div>
+                {msg.role === "user" && (
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <User className="h-3.5 w-3.5" />
+                  </div>
                 )}
               </div>
-              {msg.role === "user" && (
-                <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User className="h-3.5 w-3.5" />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
 
-      <div className="p-3 border-t border-border/50 mt-auto">
-        <div className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about this plot..."
-            className="min-h-[40px] max-h-[100px] resize-none text-sm"
-            disabled={isStreaming}
-            data-testid="input-chat-message"
-          />
-          <Button
-            size="icon"
-            onClick={sendMessage}
-            disabled={!input.trim() || isStreaming}
-            data-testid="button-send-message"
-          >
-            {isStreaming ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+      <div className="flex gap-2 w-full">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask about this plot..."
+          className="min-h-[40px] max-h-[100px] resize-none text-sm flex-1"
+          disabled={isStreaming}
+          data-testid="input-chat-message"
+        />
+        <Button
+          size="icon"
+          onClick={sendMessage}
+          disabled={!input.trim() || isStreaming}
+          data-testid="button-send-message"
+        >
+          {isStreaming ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+        </Button>
       </div>
     </div>
   );
