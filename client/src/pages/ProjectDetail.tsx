@@ -96,7 +96,7 @@ function MapSearch({ plots }: { plots: Plot[] }) {
       });
     });
     
-    // Search locations via Photon (better coverage than Nominatim)
+    // Search locations via GeoNames (good coverage for geographic features)
     // Normalize query: expand common abbreviations
     const normalizedQuery = searchQuery
       .replace(/\bmt\.?\s*/gi, "Mount ")
@@ -105,25 +105,18 @@ function MapSearch({ plots }: { plots: Plot[] }) {
     
     try {
       const response = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedQuery)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
+        `https://secure.geonames.org/searchJSON?q=${encodeURIComponent(normalizedQuery)}&country=PH&maxRows=5&username=demo&featureClass=T&featureClass=P&featureClass=L`
       );
       const data = await response.json();
-      const locationResults = data.features || [];
+      const locationResults = data.geonames || [];
       
-      // Filter for Philippines results
-      const phResults = locationResults.filter((loc: { properties: { country?: string } }) => 
-        loc.properties?.country === "Philippines"
-      ).slice(0, 3);
-      
-      phResults.forEach((loc: { properties: { name: string; city?: string; state?: string }; geometry: { coordinates: number[] } }) => {
-        const props = loc.properties;
-        const coords = loc.geometry.coordinates;
+      locationResults.slice(0, 3).forEach((loc: { name: string; lat: string; lng: string; adminName1?: string; fcodeName?: string }) => {
         searchResults.push({
           type: "location",
-          name: props.name,
-          lat: coords[1],
-          lon: coords[0],
-          detail: [props.city, props.state].filter(Boolean).join(", ")
+          name: loc.name,
+          lat: parseFloat(loc.lat),
+          lon: parseFloat(loc.lng),
+          detail: [loc.fcodeName, loc.adminName1].filter(Boolean).join(", ")
         });
       });
     } catch (error) {
