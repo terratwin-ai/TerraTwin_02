@@ -142,11 +142,9 @@ Provide helpful, concise guidance about plot management, verification processes,
   }
 
   return (
-    <div className="flex flex-col bg-background/50">
-      {messages.length > 0 && (
-        <ScrollArea className="max-h-[300px] p-3" ref={scrollRef as any}>
-          <div className="space-y-3">
-          
+    <div className="flex flex-col h-full bg-background/50">
+      <ScrollArea className="flex-1 p-3" ref={scrollRef as any}>
+        <div className="space-y-3">
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -176,11 +174,10 @@ Provide helpful, concise guidance about plot management, verification processes,
               )}
             </div>
           ))}
-          </div>
-        </ScrollArea>
-      )}
+        </div>
+      </ScrollArea>
 
-      <div className="p-3 border-t border-border/50">
+      <div className="p-3 border-t border-border/50 mt-auto">
         <div className="flex gap-2">
           <Textarea
             value={input}
