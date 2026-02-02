@@ -146,13 +146,6 @@ Provide helpful, concise guidance about plot management, verification processes,
 
       <ScrollArea className="flex-1 p-3" ref={scrollRef as any}>
         <div className="space-y-3">
-          {messages.length === 0 && (
-            <div className="text-center py-6 text-muted-foreground">
-              <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Ask me about this plot's verification,</p>
-              <p className="text-sm">carbon tracking, or steward earnings.</p>
-            </div>
-          )}
           
           {messages.map((msg, i) => (
             <div
