@@ -96,20 +96,28 @@ function MapSearch({ plots }: { plots: Plot[] }) {
       });
     });
     
-    // Search locations via Nominatim (biased to Philippines)
+    // Search locations via Photon (better coverage than Nominatim)
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery + ", Philippines")}&limit=3&countrycodes=ph`
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&limit=5&lat=8.0&lon=125.0&location_bias_scale=0.5`
       );
-      const locationResults = await response.json();
+      const data = await response.json();
+      const locationResults = data.features || [];
       
-      locationResults.forEach((loc: { display_name: string; lat: string; lon: string }) => {
+      // Filter for Philippines results
+      const phResults = locationResults.filter((loc: { properties: { country?: string } }) => 
+        loc.properties?.country === "Philippines"
+      ).slice(0, 3);
+      
+      phResults.forEach((loc: { properties: { name: string; city?: string; state?: string }; geometry: { coordinates: number[] } }) => {
+        const props = loc.properties;
+        const coords = loc.geometry.coordinates;
         searchResults.push({
           type: "location",
-          name: loc.display_name.split(",")[0],
-          lat: parseFloat(loc.lat),
-          lon: parseFloat(loc.lon),
-          detail: loc.display_name.split(",").slice(1, 3).join(",")
+          name: props.name,
+          lat: coords[1],
+          lon: coords[0],
+          detail: [props.city, props.state].filter(Boolean).join(", ")
         });
       });
     } catch (error) {
