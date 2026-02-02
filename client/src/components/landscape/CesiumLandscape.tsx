@@ -142,29 +142,76 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
   const [viewerReady, setViewerReady] = useState(false);
   const plotsRef = useRef<Plot[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Plot[]>([]);
+  const [searchResults, setSearchResults] = useState<Array<{ type: "plot" | "location"; plot?: Plot; name: string; lat: number; lon: number; detail?: string }>>([]);
   const [showResults, setShowResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.trim().length > 0) {
-      const filtered = plots.filter(plot => 
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    if (query.trim().length === 0) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+    
+    // Debounce the search
+    searchTimeoutRef.current = setTimeout(async () => {
+      setIsSearching(true);
+      const results: Array<{ type: "plot" | "location"; plot?: Plot; name: string; lat: number; lon: number; detail?: string }> = [];
+      
+      // Search plots first
+      const filteredPlots = plots.filter(plot => 
         plot.name.toLowerCase().includes(query.toLowerCase()) ||
         plot.status.toLowerCase().includes(query.toLowerCase())
       );
-      setSearchResults(filtered);
+      filteredPlots.forEach(plot => {
+        results.push({
+          type: "plot",
+          plot,
+          name: plot.name,
+          lat: plot.latitude,
+          lon: plot.longitude,
+          detail: `${plot.carbonTons}t CO₂ • ${plot.status}`
+        });
+      });
+      
+      // Search locations via Nominatim
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3`
+        );
+        const locationResults = await response.json();
+        locationResults.forEach((loc: { display_name: string; lat: string; lon: string }) => {
+          results.push({
+            type: "location",
+            name: loc.display_name.split(",")[0],
+            lat: parseFloat(loc.lat),
+            lon: parseFloat(loc.lon),
+            detail: loc.display_name.split(",").slice(1, 3).join(",").trim()
+          });
+        });
+      } catch (error) {
+        console.error("Location search failed:", error);
+      }
+      
+      setSearchResults(results);
       setShowResults(true);
-    } else {
-      setSearchResults([]);
-      setShowResults(false);
-    }
+      setIsSearching(false);
+    }, 300);
   };
 
-  const flyToPlot = (plot: Plot) => {
+  const flyToResult = (result: { type: "plot" | "location"; plot?: Plot; lat: number; lon: number }) => {
     if (viewerRef.current) {
       const Cesium = window.Cesium;
+      const altitude = result.type === "plot" ? 2000 : 15000;
       viewerRef.current.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(plot.longitude, plot.latitude, 2000),
+        destination: Cesium.Cartesian3.fromDegrees(result.lon, result.lat, altitude),
         orientation: {
           heading: Cesium.Math.toRadians(0),
           pitch: Cesium.Math.toRadians(-45),
@@ -173,7 +220,9 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         duration: 1.5,
       });
     }
-    onPlotSelect(plot.id.toString());
+    if (result.type === "plot" && result.plot) {
+      onPlotSelect(result.plot.id.toString());
+    }
     setSearchQuery("");
     setShowResults(false);
   };
@@ -442,7 +491,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
-            placeholder="Search plots..."
+            placeholder="Search plots or locations..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-9 pr-9 bg-background/90 backdrop-blur-sm border-border/50 shadow-lg"
@@ -461,20 +510,38 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
           )}
         </div>
         
-        {showResults && searchResults.length > 0 && (
+        {isSearching && (
+          <Card className="mt-2 bg-background/95 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-muted-foreground">Searching...</p>
+            </CardContent>
+          </Card>
+        )}
+        
+        {!isSearching && showResults && searchResults.length > 0 && (
           <Card className="mt-2 bg-background/95 backdrop-blur-sm shadow-xl max-h-64 overflow-auto">
             <CardContent className="p-2">
-              {searchResults.map((plot) => (
+              {searchResults.map((result, index) => (
                 <div
-                  key={plot.id}
+                  key={`${result.type}-${result.name}-${index}`}
                   className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover-elevate"
-                  onClick={() => flyToPlot(plot)}
-                  data-testid={`search-result-${plot.id}`}
+                  onClick={() => flyToResult(result)}
+                  data-testid={`search-result-${index}`}
                 >
-                  <MapPin className="h-4 w-4 flex-shrink-0" style={{ color: getStatusColor(plot.status) }} />
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground uppercase">
+                      {result.type === "plot" ? "Plot" : "Map"}
+                    </span>
+                    <MapPin 
+                      className="h-4 w-4" 
+                      style={{ color: result.type === "plot" && result.plot ? getStatusColor(result.plot.status) : "#10b981" }} 
+                    />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{plot.name}</p>
-                    <p className="text-xs text-muted-foreground">{plot.carbonTons}t CO₂ • {plot.status}</p>
+                    <p className="text-sm font-medium truncate">{result.name}</p>
+                    {result.detail && (
+                      <p className="text-xs text-muted-foreground truncate">{result.detail}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -482,10 +549,10 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
           </Card>
         )}
         
-        {showResults && searchQuery && searchResults.length === 0 && (
+        {!isSearching && showResults && searchQuery && searchResults.length === 0 && (
           <Card className="mt-2 bg-background/95 backdrop-blur-sm shadow-xl">
             <CardContent className="p-4 text-center">
-              <p className="text-sm text-muted-foreground">No plots found</p>
+              <p className="text-sm text-muted-foreground">No results found</p>
             </CardContent>
           </Card>
         )}
