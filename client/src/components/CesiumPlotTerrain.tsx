@@ -138,7 +138,7 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
       const Cesium = window.Cesium;
       viewer.entities.removeAll();
       
-      // Re-add plot boundary rectangle with fill
+      // Re-add plot boundary polygon that drapes over terrain
       const hectareMeters = 100;
       const halfSize = hectareMeters / 2;
       const halfSizeDeg = halfSize / 111320;
@@ -147,15 +147,38 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
       const east = plot.longitude + halfSizeDeg;
       const north = plot.latitude + halfSizeDeg;
       
+      // Create polygon positions for the boundary corners
+      const boundaryPositions = Cesium.Cartesian3.fromDegreesArray([
+        west, south,
+        east, south,
+        east, north,
+        west, north,
+        west, south, // close the loop for polyline
+      ]);
+      
+      // Add filled polygon that drapes over terrain
       viewer.entities.add({
-        rectangle: {
-          coordinates: Cesium.Rectangle.fromDegrees(west, south, east, north),
-          material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.3),
-          outline: true,
-          outlineColor: Cesium.Color.fromCssColorString("#fbbf24"),
-          outlineWidth: 3,
-          height: 0,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        polygon: {
+          hierarchy: new Cesium.PolygonHierarchy(
+            Cesium.Cartesian3.fromDegreesArray([
+              west, south,
+              east, south,
+              east, north,
+              west, north,
+            ])
+          ),
+          material: Cesium.Color.fromCssColorString("#22c55e").withAlpha(0.25),
+          classificationType: Cesium.ClassificationType.TERRAIN,
+        },
+      });
+      
+      // Add outline polyline that follows terrain
+      viewer.entities.add({
+        polyline: {
+          positions: boundaryPositions,
+          width: 3,
+          material: Cesium.Color.fromCssColorString("#fbbf24"),
+          clampToGround: true,
         },
       });
       
