@@ -56,52 +56,118 @@ function FitBounds({ plots }: { plots: Plot[] }) {
   return null;
 }
 
+// Search result type
+type SearchResult = {
+  type: "plot" | "location";
+  name: string;
+  lat: number;
+  lon: number;
+  detail?: string;
+};
+
 // Search control component
-function MapSearch() {
+function MapSearch({ plots }: { plots: Plot[] }) {
   const map = useMap();
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  const handleSearch = async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setResults([]);
+      return;
+    }
     
     setIsSearching(true);
+    const searchResults: SearchResult[] = [];
+    
+    // Search plots first
+    const matchingPlots = plots.filter(p => 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    matchingPlots.forEach(p => {
+      searchResults.push({
+        type: "plot",
+        name: p.name,
+        lat: p.latitude,
+        lon: p.longitude,
+        detail: `${p.areaHectares} ha • ${p.status}`
+      });
+    });
+    
+    // Search locations via Nominatim
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=3`
       );
-      const results = await response.json();
+      const locationResults = await response.json();
       
-      if (results.length > 0) {
-        const { lat, lon } = results[0];
-        map.flyTo([parseFloat(lat), parseFloat(lon)], 14, { duration: 1.5 });
-      }
+      locationResults.forEach((loc: { display_name: string; lat: string; lon: string }) => {
+        searchResults.push({
+          type: "location",
+          name: loc.display_name.split(",")[0],
+          lat: parseFloat(loc.lat),
+          lon: parseFloat(loc.lon),
+          detail: loc.display_name.split(",").slice(1, 3).join(",")
+        });
+      });
     } catch (error) {
-      console.error("Search failed:", error);
-    } finally {
-      setIsSearching(false);
+      console.error("Location search failed:", error);
     }
+    
+    setResults(searchResults);
+    setShowResults(true);
+    setIsSearching(false);
+  };
+
+  const selectResult = (result: SearchResult) => {
+    map.flyTo([result.lat, result.lon], result.type === "plot" ? 15 : 14, { duration: 1.5 });
+    setShowResults(false);
+    setQuery(result.name);
   };
 
   return (
-    <div className="absolute top-3 right-3 z-[1000] flex gap-1" data-testid="map-search">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        placeholder="Search location..."
-        className="px-3 py-1.5 text-sm bg-background/90 border border-border rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-primary"
-        data-testid="input-map-search"
-      />
-      <button
-        onClick={handleSearch}
-        disabled={isSearching}
-        className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
-        data-testid="button-map-search"
-      >
-        {isSearching ? "..." : "Go"}
-      </button>
+    <div className="absolute top-3 right-3 z-[1000]" data-testid="map-search">
+      <div className="flex gap-1">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            handleSearch(e.target.value);
+          }}
+          onFocus={() => results.length > 0 && setShowResults(true)}
+          placeholder="Search plots or locations..."
+          className="px-3 py-1.5 text-sm bg-background/95 border border-border rounded-md w-56 focus:outline-none focus:ring-1 focus:ring-primary"
+          data-testid="input-map-search"
+        />
+        {isSearching && (
+          <span className="absolute right-2 top-2 text-xs text-muted-foreground">...</span>
+        )}
+      </div>
+      {showResults && results.length > 0 && (
+        <div className="mt-1 bg-background/95 border border-border rounded-md shadow-lg max-h-48 overflow-y-auto" data-testid="search-results">
+          {results.map((result, i) => (
+            <button
+              key={i}
+              onClick={() => selectResult(result)}
+              className="w-full px-3 py-2 text-left hover:bg-muted/50 flex items-start gap-2 border-b border-border last:border-0"
+              data-testid={`search-result-${i}`}
+            >
+              <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground mt-0.5">
+                {result.type === "plot" ? "Plot" : "Map"}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{result.name}</p>
+                {result.detail && (
+                  <p className="text-xs text-muted-foreground truncate">{result.detail}</p>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -240,7 +306,7 @@ export default function ProjectDetail() {
                         attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
                         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
                       />
-                      <MapSearch />
+                      <MapSearch plots={plots} />
                       <FitBounds plots={plots} />
                       {plots.map((plot) => (
                         <Marker 
