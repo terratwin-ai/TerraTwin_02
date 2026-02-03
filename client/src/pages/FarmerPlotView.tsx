@@ -421,11 +421,11 @@ export default function FarmerPlotView() {
               </div>
             </TabsContent>
 
-            <TabsContent value="satellite" className="mt-0 flex-1 overflow-y-auto">
+            <TabsContent value="satellite" className="mt-0 overflow-y-auto h-full">
               <SatelliteAnalysis plot={plot} />
             </TabsContent>
 
-            <TabsContent value="stats" className="mt-0 flex-1 overflow-y-auto p-4 space-y-4">
+            <TabsContent value="stats" className="mt-0 overflow-y-auto h-full p-4 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <SensorCard
                   icon={Thermometer}
