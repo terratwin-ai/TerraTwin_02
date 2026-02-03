@@ -45,7 +45,7 @@ export function FloatingNavMenu({
 
   return (
     <div className="fixed top-4 left-4 z-50" data-testid="floating-nav-menu">
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-fit max-w-[240px]">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-fit">
         <CardContent className="p-0">
           <div className="flex items-center gap-2 p-3 border-b">
             <Button
@@ -79,7 +79,7 @@ export function FloatingNavMenu({
           </div>
 
           {isExpanded && (
-            <div className="p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200 min-w-[200px]">
               {navItems.map((item) => (
                 <Button
                   key={item.id}
