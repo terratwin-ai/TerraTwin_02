@@ -20,7 +20,7 @@ export async function seedDatabase() {
       methodology: "verra-bamboo",
       status: "active",
       totalHectares: 15.5,
-      totalStewards: 3,
+      totalStewards: 6,
       totalPlots: 8,
       totalCarbonTons: 88.5,
       creditsIssued: 45.2,
@@ -36,7 +36,7 @@ export async function seedDatabase() {
       methodology: "gold-standard",
       status: "active",
       totalHectares: 3.8,
-      totalStewards: 1,
+      totalStewards: 2,
       totalPlots: 2,
       totalCarbonTons: 7.3,
       creditsIssued: 0,
@@ -46,7 +46,7 @@ export async function seedDatabase() {
     },
   ]).returning();
 
-  const [steward1, steward2, steward3, steward4] = await db.insert(stewards).values([
+  const [steward1, steward2, steward3, steward4, steward5, steward6, steward7, steward8] = await db.insert(stewards).values([
     {
       name: "Maria Santos",
       phone: "+63 917 123 4567",
@@ -82,6 +82,42 @@ export async function seedDatabase() {
       totalPlots: 2,
       verifiedPlots: 0,
       totalEarnings: 0,
+    },
+    {
+      name: "Elena Villanueva",
+      phone: "+63 921 567 8901",
+      barangay: "Gitagum",
+      province: "Misamis Oriental",
+      totalPlots: 1,
+      verifiedPlots: 1,
+      totalEarnings: 6500,
+    },
+    {
+      name: "Roberto Aquino",
+      phone: "+63 922 678 9012",
+      barangay: "Kimalok",
+      province: "Misamis Oriental",
+      totalPlots: 1,
+      verifiedPlots: 0,
+      totalEarnings: 2000,
+    },
+    {
+      name: "Carmen Flores",
+      phone: "+63 923 789 0123",
+      barangay: "Calacapan",
+      province: "Misamis Oriental",
+      totalPlots: 1,
+      verifiedPlots: 1,
+      totalEarnings: 9200,
+    },
+    {
+      name: "Antonio Ramos",
+      phone: "+63 924 890 1234",
+      barangay: "Taparak",
+      province: "Misamis Oriental",
+      totalPlots: 1,
+      verifiedPlots: 1,
+      totalEarnings: 7800,
     },
   ]).returning();
 
