@@ -49,7 +49,7 @@ interface QueryResult {
 
 export function FloatingChatPanel({ plot, steward, onQueryResult }: FloatingChatPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -247,11 +247,10 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 left-6 z-50 h-14 px-5 rounded-full shadow-xl bg-primary hover:bg-primary/90 gap-2"
+        className="fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90"
         data-testid="button-open-chat"
       >
-        <Sparkles className="h-5 w-5" />
-        <span className="text-sm font-medium">Ask AI</span>
+        <Sparkles className="h-6 w-6" />
       </Button>
     );
   }
