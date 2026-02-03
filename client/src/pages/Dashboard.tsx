@@ -124,7 +124,7 @@ export default function Dashboard() {
           stewardCount={stewards.length}
           onLogout={handleLogout}
         />
-        <div className="pt-20 px-4 pb-4 h-full overflow-auto">
+        <div className="pt-28 px-4 pb-4 h-full overflow-auto">
           {renderNonLandscapeContent()}
         </div>
       </div>
