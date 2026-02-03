@@ -60,8 +60,8 @@ export function FloatingDataCards({
   const totalClumps = Math.round(plot.areaHectares * clumpsPerHa);
   const polesPerClump = Math.min(100, 5 + progress * 95);
   const totalPoles = totalClumps * polesPerClump;
-  const harvestablePercentPerClump = canHarvest ? 0.20 : 0;
-  const harvestablePolesPerYear = totalClumps * polesPerClump * harvestablePercentPerClump;
+  const harvestablePolesPerClumpPerYear = 20;
+  const harvestablePolesPerYear = canHarvest ? totalClumps * harvestablePolesPerClumpPerYear : 0;
   const polePrice = 12;
   const harvestIncome = harvestablePolesPerYear * polePrice;
   
