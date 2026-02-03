@@ -56,7 +56,11 @@ export function FloatingDataCards({
   const carbonPricePerTon = 30;
   const carbonIncome = annualCarbon * carbonPricePerTon;
   
-  const clumpsPerHa = 150;
+  const spacingMeters = 5;
+  const hectareMeters = 100;
+  const clumpsPerRow = Math.floor(hectareMeters / spacingMeters);
+  const clumpsPerHa = clumpsPerRow * clumpsPerRow;
+  const totalClumps = Math.floor(plot.areaHectares * clumpsPerHa);
   const polesPerClump = Math.min(100, 5 + progress * 95);
   const harvestablePercent = canHarvest ? 0.20 : 0;
   const totalPoles = plot.areaHectares * clumpsPerHa * polesPerClump;
@@ -219,8 +223,8 @@ export function FloatingDataCards({
                     <span>{currentCarbonRate.toFixed(1)} t CO2e/ha/yr</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Clumps per hectare</span>
-                    <span>{clumpsPerHa}</span>
+                    <span className="text-muted-foreground">Total clumps</span>
+                    <span>{totalClumps} ({spacingMeters}m spacing)</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Poles per clump</span>
