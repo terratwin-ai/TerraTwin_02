@@ -78,6 +78,21 @@ export default function Dashboard() {
     window.location.href = "/";
   };
 
+  const handlePlotSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredPlotIds(null);
+      return;
+    }
+    const lowerQuery = query.toLowerCase();
+    const matchedIds = plots
+      .filter(p => 
+        p.name.toLowerCase().includes(lowerQuery) ||
+        p.status.toLowerCase().includes(lowerQuery)
+      )
+      .map(p => p.id);
+    setFilteredPlotIds(matchedIds.length > 0 ? matchedIds : []);
+  };
+
   const renderNonLandscapeContent = () => {
     switch (activeView) {
       case "projects":
@@ -162,6 +177,7 @@ export default function Dashboard() {
         stewardCount={stewards.length}
         onLogout={handleLogout}
         onOpenSatellite={() => setShowSatellite(true)}
+        onSearch={handlePlotSearch}
       />
 
       <FloatingProjectsPanel

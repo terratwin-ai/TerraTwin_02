@@ -51,8 +51,19 @@ export function FloatingNavMenu({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onSearch && searchQuery.trim()) {
+    if (onSearch) {
       onSearch(searchQuery.trim());
+    }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (onSearch) {
+      if (value.trim()) {
+        onSearch(value.trim());
+      } else {
+        onSearch("");
+      }
     }
   };
 
@@ -154,7 +165,7 @@ export function FloatingNavMenu({
                   type="text"
                   placeholder="Search plots..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="h-8 pl-8 text-sm bg-muted/50"
                   data-testid="input-search-plots"
                 />
