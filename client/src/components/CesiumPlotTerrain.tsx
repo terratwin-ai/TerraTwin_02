@@ -293,20 +293,20 @@ function addBambooPlants(
     (1 + Math.exp(-growthRate * (progress - midpoint)));
   
   const minPoles = 5;
-  const maxPoles = 100;
+  const maxPoles = 50;
   const poleCountPerClump = Math.floor(minPoles + (maxPoles - minPoles) / 
     (1 + Math.exp(-15 * (progress - 0.3))));
   
-  const clumpsPerHa = 150;
+  const clumpsPerHa = 40;
   const totalClumps = Math.floor(plot.areaHectares * clumpsPerHa);
-  const visibleClumps = Math.min(totalClumps, 30);
+  const visibleClumps = Math.min(totalClumps, 20);
   
   const hectareMeters = 100;
   const halfSize = hectareMeters / 2;
 
   for (let i = 0; i < visibleClumps; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = Math.random() * halfSize * 0.85;
+    const angle = (i / visibleClumps) * Math.PI * 2 + Math.random() * 0.5;
+    const radius = 10 + Math.random() * (halfSize - 15);
     
     const offsetLat = (radius * Math.cos(angle)) / 111320;
     const offsetLng = (radius * Math.sin(angle)) / (111320 * Math.cos(plot.latitude * Math.PI / 180));
@@ -314,42 +314,70 @@ function addBambooPlants(
     const clumpLat = plot.latitude + offsetLat;
     const clumpLng = plot.longitude + offsetLng;
     
-    const polesInThisClump = Math.min(Math.floor(poleCountPerClump * (0.5 + Math.random() * 0.5)), 12);
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(clumpLng, clumpLat, 0.15),
+      ellipsoid: {
+        radii: new Cesium.Cartesian3(1.5, 1.5, 0.3),
+        material: Cesium.Color.fromCssColorString("#8B4513"),
+        heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+      },
+    });
+    
+    const polesInThisClump = Math.min(poleCountPerClump, 35);
     
     for (let p = 0; p < polesInThisClump; p++) {
-      const poleAngle = (p / polesInThisClump) * Math.PI * 2 + Math.random() * 0.3;
-      const poleRadius = 0.5 + Math.random() * 1.5;
+      let poleOffsetX: number, poleOffsetZ: number;
       
-      const poleOffsetLat = (poleRadius * Math.cos(poleAngle)) / 111320;
-      const poleOffsetLng = (poleRadius * Math.sin(poleAngle)) / (111320 * Math.cos(clumpLat * Math.PI / 180));
+      if (Math.random() < 0.3) {
+        const r = Math.random() * 0.4;
+        const a = Math.random() * Math.PI * 2;
+        poleOffsetX = Math.cos(a) * r;
+        poleOffsetZ = Math.sin(a) * r;
+      } else {
+        const r = 0.5 + Math.random() * 1.0;
+        const a = Math.random() * Math.PI * 2;
+        poleOffsetX = Math.cos(a) * r;
+        poleOffsetZ = Math.sin(a) * r;
+      }
+      
+      const poleOffsetLat = poleOffsetZ / 111320;
+      const poleOffsetLng = poleOffsetX / (111320 * Math.cos(clumpLat * Math.PI / 180));
       
       const poleLat = clumpLat + poleOffsetLat;
       const poleLng = clumpLng + poleOffsetLng;
       
-      const heightVariation = 0.7 + Math.random() * 0.6;
+      const heightVariation = 0.7 + Math.random() * 0.5;
       const poleHeight = baseHeight * heightVariation;
       
-      const poleRadius_m = 0.08 + progress * 0.12;
+      const thickness = 0.06 + Math.random() * 0.08 + progress * 0.06;
       
-      const greenShade = Math.random();
-      const poleColor = greenShade < 0.3 
-        ? Cesium.Color.fromCssColorString("#4ade80")
-        : greenShade < 0.7 
-        ? Cesium.Color.fromCssColorString("#22c55e")
-        : Cesium.Color.fromCssColorString("#16a34a");
+      const maturityFactor = Math.min(progress * 2, 1);
+      const hue = 0.28 + maturityFactor * 0.05;
+      const saturation = 0.7 - maturityFactor * 0.15;
+      const lightness = 0.35 + Math.random() * 0.1;
+      
+      const r = Math.floor((1 - saturation + saturation * Math.max(0, Math.abs(hue * 6 - 3) - 1)) * lightness * 255);
+      const g = Math.floor((1 - saturation + saturation * Math.max(0, 2 - Math.abs(hue * 6 - 2))) * lightness * 255 * 1.4);
+      const b = Math.floor((1 - saturation + saturation * Math.max(0, 2 - Math.abs(hue * 6 - 4))) * lightness * 255 * 0.5);
+      
+      const poleColor = new Cesium.Color(
+        Math.min(1, r / 255),
+        Math.min(1, g / 255),
+        Math.min(1, b / 255),
+        1
+      );
 
       viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, poleHeight / 2),
         cylinder: {
           length: poleHeight,
-          topRadius: poleRadius_m * 0.7,
-          bottomRadius: poleRadius_m,
+          topRadius: thickness * 0.7,
+          bottomRadius: thickness,
           material: poleColor,
           outline: false,
           heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
         },
       });
-
     }
   }
 
