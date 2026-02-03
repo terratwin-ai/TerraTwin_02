@@ -302,25 +302,30 @@ function addBambooPlants(
   const poleCountPerClump = Math.floor(minPoles + (maxPoles - minPoles) / 
     (1 + Math.exp(-15 * (progress - 0.3))));
   
-  const clumpsPerHa = 40;
-  const totalClumps = Math.floor(plot.areaHectares * clumpsPerHa);
-  const visibleClumps = Math.min(totalClumps, 20);
-  
+  const spacingMeters = 5;
   const hectareMeters = 100;
-  const halfSize = hectareMeters / 2;
+  const clumpsPerRow = Math.floor(hectareMeters / spacingMeters);
+  const totalClumps = clumpsPerRow * clumpsPerRow;
+  const visibleClumps = Math.min(totalClumps, 25);
   
+  const halfSize = hectareMeters / 2;
   const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);
+  
+  const gridSize = Math.ceil(Math.sqrt(visibleClumps));
 
   for (let i = 0; i < visibleClumps; i++) {
+    const row = Math.floor(i / gridSize);
+    const col = i % gridSize;
+    
     const clumpSeed = plotSeed + i * 100;
-    const angleOffset = seededRandom(clumpSeed) * 0.5;
-    const radiusRandom = seededRandom(clumpSeed + 1);
+    const jitterX = (seededRandom(clumpSeed) - 0.5) * 1.5;
+    const jitterZ = (seededRandom(clumpSeed + 1) - 0.5) * 1.5;
     
-    const angle = (i / visibleClumps) * Math.PI * 2 + angleOffset;
-    const radius = 10 + radiusRandom * (halfSize - 15);
+    const offsetX = -halfSize + spacingMeters * 2 + col * spacingMeters + jitterX;
+    const offsetZ = -halfSize + spacingMeters * 2 + row * spacingMeters + jitterZ;
     
-    const offsetLat = (radius * Math.cos(angle)) / 111320;
-    const offsetLng = (radius * Math.sin(angle)) / (111320 * Math.cos(plot.latitude * Math.PI / 180));
+    const offsetLat = offsetZ / 111320;
+    const offsetLng = offsetX / (111320 * Math.cos(plot.latitude * Math.PI / 180));
     
     const clumpLat = plot.latitude + offsetLat;
     const clumpLng = plot.longitude + offsetLng;
