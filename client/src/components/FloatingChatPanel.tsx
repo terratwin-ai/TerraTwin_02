@@ -247,10 +247,11 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+        className="fixed bottom-6 left-6 z-50 h-14 px-5 rounded-full shadow-xl bg-primary hover:bg-primary/90 gap-2"
         data-testid="button-open-chat"
       >
-        <Sparkles className="h-6 w-6" />
+        <Sparkles className="h-5 w-5" />
+        <span className="text-sm font-medium">Ask AI</span>
       </Button>
     );
   }
