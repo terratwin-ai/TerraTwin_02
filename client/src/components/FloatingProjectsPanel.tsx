@@ -89,10 +89,10 @@ export function FloatingProjectsPanel({
             </div>
             <div className="bg-amber-500/10 rounded-lg p-3">
               <div className="flex items-center gap-1.5 text-amber-400 text-xs mb-1">
-                <TrendingUp className="h-3 w-3" />
-                <span>Retired</span>
+                <TreePine className="h-3 w-3" />
+                <span>Plots</span>
               </div>
-              <div className="text-lg font-bold">{totals.creditsRetired.toFixed(1)} tCO2e</div>
+              <div className="text-lg font-bold">{projects.reduce((sum, p) => sum + (p.totalPlots || 0), 0)}</div>
             </div>
             <div className="bg-sky-500/10 rounded-lg p-3">
               <div className="flex items-center gap-1.5 text-sky-400 text-xs mb-1">
