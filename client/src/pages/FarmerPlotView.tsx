@@ -2,13 +2,16 @@ import { useState, useRef } from "react";
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Search, X } from "lucide-react";
+import { ArrowLeft, Loader2, Search, X, Trees } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
+import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
 import BambooSimulationComponent, { BambooSimulationRef } from "@/components/BambooSimulationComponent";
 import { FloatingChatPanel } from "@/components/FloatingChatPanel";
 import { FloatingDataCards } from "@/components/FloatingDataCards";
 import { FloatingSatellitePanel } from "@/components/FloatingSatellitePanel";
 import { Card, CardContent } from "@/components/ui/card";
+
+const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
 interface QueryResult {
   action: "filter" | "highlight" | "zoom";
@@ -22,6 +25,7 @@ export default function FarmerPlotView() {
   
   const [year, setYear] = useState(2026);
   const [showSatellite, setShowSatellite] = useState(false);
+  const [showBambooSim, setShowBambooSim] = useState(false);
   const [activeQuery, setActiveQuery] = useState<QueryResult | null>(null);
   const [isHighlighted, setIsHighlighted] = useState(false);
   const simulationRef = useRef<BambooSimulationRef>(null);
@@ -99,14 +103,40 @@ export default function FarmerPlotView() {
       <div className={`absolute inset-0 transition-all duration-500 ${
         isHighlighted ? "ring-4 ring-inset ring-primary/50" : ""
       }`}>
-        <BambooSimulationComponent 
-          ref={simulationRef}
-          initialYear={year}
-          autoPlay={false}
-          showControls={false}
-          onYearChange={setYear}
+        <CesiumPlotTerrain 
+          plot={plot} 
+          cesiumToken={CESIUM_ION_TOKEN} 
+          year={year}
+          showLidar={false}
         />
       </div>
+
+      {/* Bamboo Simulation Overlay */}
+      {showBambooSim && (
+        <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center">
+          <Card className="w-[800px] h-[600px] relative overflow-hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 z-50 bg-white/80"
+              onClick={() => setShowBambooSim(false)}
+              data-testid="button-close-bamboo-sim"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <div className="absolute top-2 left-2 z-50 bg-white/90 px-3 py-1.5 rounded-md">
+              <span className="text-sm font-medium">Bamboo Growth Simulation • Year {year}</span>
+            </div>
+            <BambooSimulationComponent 
+              ref={simulationRef}
+              initialYear={year}
+              autoPlay={false}
+              showControls={true}
+              onYearChange={handleYearChange}
+            />
+          </Card>
+        </div>
+      )}
 
       {isHighlighted && (
         <div className="fixed inset-0 pointer-events-none z-40">
@@ -154,6 +184,7 @@ export default function FarmerPlotView() {
         year={year}
         onYearChange={handleYearChange}
         onOpenSatellite={() => setShowSatellite(true)}
+        onOpenBambooSim={() => setShowBambooSim(true)}
         sensorData={sensorData}
       />
 

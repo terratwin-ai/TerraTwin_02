@@ -13,7 +13,8 @@ import {
   Activity,
   ChevronRight,
   Layers,
-  X
+  X,
+  Trees
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
 
@@ -23,6 +24,7 @@ interface FloatingDataCardsProps {
   year: number;
   onYearChange: (year: number) => void;
   onOpenSatellite?: () => void;
+  onOpenBambooSim?: () => void;
   sensorData: {
     temperature: number;
     soilMoisture: number;
@@ -36,6 +38,7 @@ export function FloatingDataCards({
   year, 
   onYearChange,
   onOpenSatellite,
+  onOpenBambooSim,
   sensorData 
 }: FloatingDataCardsProps) {
   const [showDetails, setShowDetails] = useState(true);
@@ -162,6 +165,22 @@ export function FloatingDataCards({
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </>
+            )}
+
+            {/* Bamboo Simulation Button */}
+            {onOpenBambooSim && (
+              <Button
+                variant="ghost"
+                className="w-full justify-between hover:bg-muted/50"
+                onClick={onOpenBambooSim}
+                data-testid="button-open-bamboo-sim"
+              >
+                <div className="flex items-center gap-2">
+                  <Trees className="h-4 w-4 text-emerald-500" />
+                  <span>3D Bamboo Simulation</span>
+                </div>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             )}
           </CardContent>
         </Card>
