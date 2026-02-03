@@ -315,11 +315,11 @@ function addBambooPlants(
     const clumpLng = plot.longitude + offsetLng;
     
     viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(clumpLng, clumpLat, 0.15),
+      position: Cesium.Cartesian3.fromDegrees(clumpLng, clumpLat, 0),
       ellipsoid: {
         radii: new Cesium.Cartesian3(1.5, 1.5, 0.3),
         material: Cesium.Color.fromCssColorString("#8B4513"),
-        heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
     });
     
@@ -368,14 +368,14 @@ function addBambooPlants(
       );
 
       viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, poleHeight / 2),
+        position: Cesium.Cartesian3.fromDegrees(poleLng, poleLat, 0),
         cylinder: {
           length: poleHeight,
           topRadius: thickness * 0.7,
           bottomRadius: thickness,
           material: poleColor,
           outline: false,
-          heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
       });
     }
