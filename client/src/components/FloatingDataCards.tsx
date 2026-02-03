@@ -14,7 +14,6 @@ import {
   ChevronDown,
   Layers,
   X,
-  Trees,
   Sprout,
   TrendingUp
 } from "lucide-react";
@@ -92,7 +91,7 @@ export function FloatingDataCards({
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                    <Trees className="h-5 w-5 text-emerald-500" />
+                    <Leaf className="h-5 w-5 text-emerald-500" />
                   </div>
                   <div>
                     <p className="font-semibold" data-testid="text-plot-name">{plot.name}</p>
@@ -241,37 +240,20 @@ export function FloatingDataCards({
               <div className="border-t border-border/50" />
 
               {/* Action Buttons */}
-              <div className="space-y-1">
-                {onOpenBambooSim && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between hover:bg-muted/50"
-                    onClick={onOpenBambooSim}
-                    data-testid="button-open-bamboo-sim"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Trees className="h-4 w-4 text-emerald-500" />
-                      <span>View 3D Growth</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                )}
-                
-                {onOpenSatellite && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-between hover:bg-muted/50"
-                    onClick={onOpenSatellite}
-                    data-testid="button-open-satellite"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Satellite className="h-4 w-4 text-blue-500" />
-                      <span>Satellite Analysis</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              {onOpenSatellite && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between hover:bg-muted/50"
+                  onClick={onOpenSatellite}
+                  data-testid="button-open-satellite"
+                >
+                  <div className="flex items-center gap-2">
+                    <Satellite className="h-4 w-4 text-blue-500" />
+                    <span>Satellite Analysis</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </CardContent>
           </ScrollArea>
         </Card>
