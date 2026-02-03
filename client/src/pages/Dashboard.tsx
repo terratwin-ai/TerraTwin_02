@@ -13,6 +13,7 @@ import { FloatingLandscapeStats } from "@/components/FloatingLandscapeStats";
 import { FloatingLandscapeChat } from "@/components/FloatingLandscapeChat";
 import { FloatingPlotDetail } from "@/components/FloatingPlotDetail";
 import { FloatingLandscapeSatellite } from "@/components/FloatingLandscapeSatellite";
+import { FloatingProjectsPanel } from "@/components/FloatingProjectsPanel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState("landscape");
   const [filteredPlotIds, setFilteredPlotIds] = useState<string[] | null>(null);
   const [showSatellite, setShowSatellite] = useState(false);
+  const [showProjectsPanel, setShowProjectsPanel] = useState(false);
 
   const { data: plots = [], isLoading: plotsLoading } = useQuery<Plot[]>({
     queryKey: ["/api/plots"],
@@ -46,8 +48,22 @@ export default function Dashboard() {
     ? stewards.find((s) => s.id === selectedPlot.stewardId)
     : undefined;
 
+  const handleViewChange = (view: string) => {
+    if (view === "projects") {
+      setShowProjectsPanel(true);
+      setActiveView("landscape");
+    } else if (view === "landscape") {
+      setShowProjectsPanel(false);
+      setActiveView("landscape");
+    } else {
+      setShowProjectsPanel(false);
+      setActiveView(view);
+    }
+  };
+
   const handlePlotSelect = (id: string) => {
     setSelectedPlotId(id);
+    setShowProjectsPanel(false);
     if (activeView !== "landscape") {
       setActiveView("landscape");
     }
@@ -103,7 +119,7 @@ export default function Dashboard() {
       <div className="h-screen w-full bg-background">
         <FloatingNavMenu
           activeView={activeView}
-          onViewChange={setActiveView}
+          onViewChange={handleViewChange}
           plotCount={plots.length}
           stewardCount={stewards.length}
           onLogout={handleLogout}
@@ -140,12 +156,18 @@ export default function Dashboard() {
       </div>
 
       <FloatingNavMenu
-        activeView={activeView}
-        onViewChange={setActiveView}
+        activeView={showProjectsPanel ? "projects" : activeView}
+        onViewChange={handleViewChange}
         plotCount={plots.length}
         stewardCount={stewards.length}
         onLogout={handleLogout}
         onOpenSatellite={() => setShowSatellite(true)}
+      />
+
+      <FloatingProjectsPanel
+        isOpen={showProjectsPanel}
+        onClose={() => setShowProjectsPanel(false)}
+        onSelectProject={(projectId) => navigate(`/projects/${projectId}`)}
       />
 
       <FloatingLandscapeStats plots={plots} stewards={stewards} />
