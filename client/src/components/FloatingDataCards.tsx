@@ -63,7 +63,7 @@ export function FloatingDataCards({
   const totalPoles = totalClumps * polesPerClump;
   const harvestablePolesPerClumpPerYear = 20;
   const harvestablePolesPerYear = canHarvest ? totalClumps * harvestablePolesPerClumpPerYear : 0;
-  const polePrice = 12;
+  const polePrice = 10;
   const harvestIncome = harvestablePolesPerYear * polePrice;
   
   const totalIncome = carbonIncome + harvestIncome;
