@@ -298,10 +298,10 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
   return (
     <div 
       className="fixed bottom-4 left-4 transition-all duration-300 ease-out w-[380px]"
-      style={{ maxHeight: "180px" }}
+      style={{ maxHeight: "500px" }}
       data-testid="floating-chat-panel"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden max-h-[180px] flex flex-col">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden max-h-[500px] flex flex-col">
         <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
