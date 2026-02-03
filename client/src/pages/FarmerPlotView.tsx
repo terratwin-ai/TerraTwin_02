@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, Search, X } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
-import { BambooViewer } from "@/components/BambooViewer";
+import BambooSimulationComponent, { BambooSimulationRef } from "@/components/BambooSimulationComponent";
 import { FloatingChatPanel } from "@/components/FloatingChatPanel";
 import { FloatingDataCards } from "@/components/FloatingDataCards";
 import { FloatingSatellitePanel } from "@/components/FloatingSatellitePanel";
@@ -24,6 +24,14 @@ export default function FarmerPlotView() {
   const [showSatellite, setShowSatellite] = useState(false);
   const [activeQuery, setActiveQuery] = useState<QueryResult | null>(null);
   const [isHighlighted, setIsHighlighted] = useState(false);
+  const simulationRef = useRef<BambooSimulationRef>(null);
+
+  function handleYearChange(newYear: number) {
+    setYear(newYear);
+    if (simulationRef.current) {
+      simulationRef.current.setYear(newYear);
+    }
+  }
 
   const { data: plot, isLoading: plotLoading } = useQuery<Plot>({
     queryKey: ["/api/plots", plotId],
@@ -91,7 +99,13 @@ export default function FarmerPlotView() {
       <div className={`absolute inset-0 transition-all duration-500 ${
         isHighlighted ? "ring-4 ring-inset ring-primary/50" : ""
       }`}>
-        <BambooViewer year={year} />
+        <BambooSimulationComponent 
+          ref={simulationRef}
+          initialYear={year}
+          autoPlay={false}
+          showControls={false}
+          onYearChange={setYear}
+        />
       </div>
 
       {isHighlighted && (
@@ -138,7 +152,7 @@ export default function FarmerPlotView() {
         plot={plot}
         steward={steward}
         year={year}
-        onYearChange={setYear}
+        onYearChange={handleYearChange}
         onOpenSatellite={() => setShowSatellite(true)}
         sensorData={sensorData}
       />

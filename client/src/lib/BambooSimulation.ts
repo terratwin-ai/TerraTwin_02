@@ -163,6 +163,10 @@ export class BambooSimulation {
     this.controls.update();
   }
 
+  loadTerrain(terrainUrl: string): void {
+    console.log("Terrain loading requested:", terrainUrl);
+  }
+
   private animate = (): void => {
     requestAnimationFrame(this.animate);
     this.controls.update();
