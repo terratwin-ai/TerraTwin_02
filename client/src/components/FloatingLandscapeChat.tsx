@@ -13,13 +13,12 @@ import {
   ChevronDown,
   ChevronUp,
   X,
-  MapPin,
-  Filter,
-  Search,
   TreePine,
-  CheckCircle,
-  AlertCircle
+  Leaf,
+  TrendingUp
 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import type { Plot } from "@shared/schema";
 
 interface FloatingLandscapeChatProps {
@@ -32,7 +31,6 @@ interface FloatingLandscapeChatProps {
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
-  plotResults?: Plot[];
 }
 
 export function FloatingLandscapeChat({ 
@@ -41,11 +39,12 @@ export function FloatingLandscapeChat({
   onHighlightPlot,
   onSelectPlot 
 }: FloatingLandscapeChatProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,102 +53,113 @@ export function FloatingLandscapeChat({
     }
   }, [messages]);
 
-  function parseQuery(query: string): { action: string; results: Plot[] } {
-    const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes("verified") || lowerQuery.includes("complete")) {
-      const results = plots.filter(p => p.status === "verified");
-      return { action: "filter_verified", results };
-    }
-    
-    if (lowerQuery.includes("pending") || lowerQuery.includes("waiting")) {
-      const results = plots.filter(p => p.status === "pending");
-      return { action: "filter_pending", results };
-    }
-    
-    if (lowerQuery.includes("low health") || lowerQuery.includes("poor health") || lowerQuery.includes("unhealthy")) {
-      const results = plots.filter(p => (p.healthScore || 0) < 50);
-      return { action: "filter_low_health", results };
-    }
-    
-    if (lowerQuery.includes("high health") || lowerQuery.includes("healthy")) {
-      const results = plots.filter(p => (p.healthScore || 0) >= 75);
-      return { action: "filter_high_health", results };
-    }
-    
-    if (lowerQuery.includes("largest") || lowerQuery.includes("biggest")) {
-      const results = [...plots].sort((a, b) => b.areaHectares - a.areaHectares).slice(0, 5);
-      return { action: "filter_largest", results };
-    }
-    
-    if (lowerQuery.includes("most carbon") || lowerQuery.includes("highest carbon")) {
-      const results = [...plots].sort((a, b) => (b.carbonTons || 0) - (a.carbonTons || 0)).slice(0, 5);
-      return { action: "filter_carbon", results };
-    }
-    
-    if (lowerQuery.includes("all plots") || lowerQuery.includes("show all") || lowerQuery.includes("reset")) {
-      return { action: "show_all", results: plots };
-    }
+  const createConversationMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/conversations", {
+        title: "Landscape Analysis",
+        plotId: plots[0]?.id || "landscape"
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setConversationId(data.id);
+    },
+  });
 
-    const plotNameMatch = plots.find(p => 
-      lowerQuery.includes(p.name.toLowerCase())
-    );
-    if (plotNameMatch) {
-      return { action: "find_plot", results: [plotNameMatch] };
+  useEffect(() => {
+    if (!conversationId && plots.length > 0) {
+      createConversationMutation.mutate();
     }
-    
-    return { action: "unknown", results: [] };
-  }
+  }, [plots.length]);
 
-  function generateResponse(action: string, results: Plot[]): string {
-    switch (action) {
-      case "filter_verified":
-        return `Found ${results.length} verified plots. These plots have completed the verification process and are actively generating carbon credits.`;
-      case "filter_pending":
-        return `Found ${results.length} plots pending verification. These are awaiting steward submission or review.`;
-      case "filter_low_health":
-        return `Found ${results.length} plots with health scores below 50%. These may need attention or intervention.`;
-      case "filter_high_health":
-        return `Found ${results.length} healthy plots with scores above 75%. These are performing well.`;
-      case "filter_largest":
-        return `Here are the 5 largest plots by area. The biggest is ${results[0]?.name} at ${results[0]?.areaHectares.toFixed(1)} hectares.`;
-      case "filter_carbon":
-        return `Here are the top 5 plots by carbon sequestration. ${results[0]?.name} leads with ${results[0]?.carbonTons?.toFixed(1) || 0} tons CO2e.`;
-      case "show_all":
-        return `Showing all ${results.length} plots. The filter has been cleared.`;
-      case "find_plot":
-        return `Found "${results[0]?.name}". Click on the result below to view details.`;
-      default:
-        return `I can help you search and filter plots. Try asking:\n• "Show verified plots"\n• "Find plots with low health"\n• "Show largest plots"\n• "Which plots have the most carbon?"`;
-    }
-  }
+  const totalHectares = plots.reduce((sum, p) => sum + p.areaHectares, 0);
+  const totalCarbon = plots.reduce((sum, p) => sum + (p.carbonTons || 0), 0);
+  const verifiedPlots = plots.filter(p => p.status === "verified").length;
+  const avgHealth = plots.length > 0 
+    ? Math.round(plots.reduce((sum, p) => sum + (p.healthScore || 0), 0) / plots.length)
+    : 0;
 
   async function sendMessage() {
-    if (!input.trim() || isProcessing) return;
+    if (!input.trim() || isStreaming || !conversationId) return;
 
     const userMessage = input.trim();
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
-    setIsProcessing(true);
-    setIsExpanded(true);
+    setIsStreaming(true);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const contextPrompt = `You are TerraTwin AI, an expert assistant for bamboo stewardship and agroforestry in the Philippines, specifically for the Mt. Anggas region in Gitagum, Misamis Oriental.
 
-    const { action, results } = parseQuery(userMessage);
-    const response = generateResponse(action, results);
+Project Landscape Context:
+- Total Project Area: 4,160 hectares (Mt. Anggas region)
+- Active Plots: ${plots.length} registered bamboo plots
+- Total Managed Area: ${totalHectares.toFixed(1)} hectares
+- Carbon Sequestered: ${totalCarbon.toFixed(1)} tons CO2e
+- Verified Plots: ${verifiedPlots} of ${plots.length}
+- Average Health Score: ${avgHealth}%
 
-    if (action !== "unknown" && action !== "show_all") {
-      onFilterPlots(results.map(p => p.id));
-    } else if (action === "show_all") {
-      onFilterPlots(null);
+Plot Details:
+${plots.slice(0, 10).map(p => `- ${p.name}: ${p.areaHectares.toFixed(1)} ha, ${p.status}, ${p.healthScore}% health, ${(p.carbonTons || 0).toFixed(1)} tons CO2`).join('\n')}
+
+User Question: ${userMessage}
+
+Provide helpful, practical guidance about bamboo species selection, land management, carbon credits, stewardship practices, or the Mt. Anggas restoration project. Be concise but thorough.`;
+
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: contextPrompt }),
+      });
+
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = "";
+
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        let isDone = false;
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.done) {
+                isDone = true;
+                break;
+              }
+              if (data.content) {
+                assistantMessage += data.content;
+                setMessages((prev) => {
+                  const newMessages = [...prev];
+                  newMessages[newMessages.length - 1] = {
+                    role: "assistant",
+                    content: assistantMessage,
+                  };
+                  return newMessages;
+                });
+              }
+            } catch {}
+          }
+        }
+        if (isDone) break;
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { role: "assistant", content: "Sorry, I encountered an error. Please try again." },
+      ]);
+    } finally {
+      setIsStreaming(false);
     }
-
-    setMessages((prev) => [...prev, { 
-      role: "assistant", 
-      content: response,
-      plotResults: results.length > 0 && results.length <= 10 ? results : undefined
-    }]);
-    setIsProcessing(false);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -173,19 +183,19 @@ export function FloatingLandscapeChat({
 
   return (
     <div 
-      className={`fixed bottom-6 left-6 z-50 transition-all duration-300 ease-out w-[380px]`}
+      className="fixed bottom-6 left-6 z-50 transition-all duration-300 ease-out w-[380px]"
       style={{ maxHeight: "calc(100vh - 280px)" }}
       data-testid="floating-landscape-chat"
     >
       <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col max-h-[inherit]">
-        <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2">
+        <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <Search className="h-4 w-4 text-primary" />
+              <Bot className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium">Search & Filter</p>
-              <p className="text-xs text-muted-foreground">Ask about plots, status, or carbon</p>
+              <p className="text-sm font-medium">TerraTwin AI</p>
+              <p className="text-xs text-muted-foreground">Ask about bamboo & carbon</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -208,145 +218,113 @@ export function FloatingLandscapeChat({
           </div>
         </CardHeader>
 
-        {isExpanded && messages.length > 0 && (
-          <ScrollArea className="flex-1 max-h-[300px] p-3" ref={scrollRef as any}>
-            <div className="space-y-3">
-              {messages.map((msg, i) => (
-                <div key={i} className="space-y-2">
-                  <div
-                    className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                  >
-                    {msg.role === "assistant" && (
-                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Bot className="h-3.5 w-3.5 text-primary" />
-                      </div>
-                    )}
-                    <div
-                      className={`px-3 py-2 rounded-lg text-sm max-w-[85%] whitespace-pre-line ${
-                        msg.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                    >
-                      {msg.content}
-                    </div>
-                    {msg.role === "user" && (
-                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <User className="h-3.5 w-3.5" />
-                      </div>
-                    )}
+        {isExpanded && (
+          <>
+            {messages.length === 0 && (
+              <div className="p-3 space-y-3 flex-shrink-0">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-muted/50 rounded-lg p-2 text-center">
+                    <TreePine className="h-4 w-4 mx-auto mb-1 text-primary" />
+                    <p className="text-xs font-medium">{plots.length}</p>
+                    <p className="text-[10px] text-muted-foreground">Plots</p>
                   </div>
-                  
-                  {msg.plotResults && msg.role === "assistant" && (
-                    <div className="ml-8 space-y-1">
-                      {msg.plotResults.map((plot) => (
-                        <Button
-                          key={plot.id}
-                          variant="ghost"
-                          className="w-full justify-start gap-2 h-auto py-2 px-3 bg-background/50"
-                          onClick={() => onSelectPlot(plot.id)}
-                        >
-                          <TreePine className="h-4 w-4 text-primary flex-shrink-0" />
-                          <div className="flex-1 text-left">
-                            <p className="text-sm font-medium">{plot.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {plot.areaHectares.toFixed(1)} ha • {plot.healthScore}% health
-                            </p>
-                          </div>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${
-                              plot.status === "verified" ? "border-emerald-500/50 text-emerald-500" :
-                              plot.status === "pending" ? "border-amber-500/50 text-amber-500" :
-                              "border-orange-500/50 text-orange-500"
-                            }`}
-                          >
-                            {plot.status}
-                          </Badge>
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-              {isProcessing && (
-                <div className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />
+                  <div className="bg-muted/50 rounded-lg p-2 text-center">
+                    <Leaf className="h-4 w-4 mx-auto mb-1 text-green-500" />
+                    <p className="text-xs font-medium">{totalCarbon.toFixed(0)}</p>
+                    <p className="text-[10px] text-muted-foreground">t CO2e</p>
                   </div>
-                  <div className="px-3 py-2 rounded-lg bg-muted text-sm">
-                    Searching...
+                  <div className="bg-muted/50 rounded-lg p-2 text-center">
+                    <TrendingUp className="h-4 w-4 mx-auto mb-1 text-emerald-500" />
+                    <p className="text-xs font-medium">{avgHealth}%</p>
+                    <p className="text-[10px] text-muted-foreground">Health</p>
                   </div>
                 </div>
-              )}
-            </div>
-          </ScrollArea>
-        )}
+                
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">Try asking:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      "Best bamboo species for Mindanao?",
+                      "Carbon credit pricing",
+                      "Plot verification process"
+                    ].map((suggestion) => (
+                      <Badge
+                        key={suggestion}
+                        variant="secondary"
+                        className="cursor-pointer text-[10px] hover:bg-secondary/80"
+                        onClick={() => setInput(suggestion)}
+                      >
+                        {suggestion}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
-        <CardContent className="p-3 border-t">
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsExpanded(true)}
-              placeholder="Search plots... e.g. 'Show verified plots'"
-              className="min-h-[44px] max-h-[100px] resize-none text-sm flex-1 bg-muted/50"
-              disabled={isProcessing}
-              data-testid="input-landscape-search"
-            />
-            <Button
-              size="icon"
-              onClick={sendMessage}
-              disabled={!input.trim() || isProcessing}
-              className="h-11 w-11"
-              data-testid="button-send-search"
-            >
-              {isProcessing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          
-          {!isExpanded && (
-            <div className="flex gap-2 mt-2 flex-wrap">
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover-elevate text-xs"
-                onClick={() => { setInput("Show verified plots"); setIsExpanded(true); }}
-              >
-                <CheckCircle className="h-3 w-3 mr-1 text-emerald-500" />
-                Verified
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover-elevate text-xs"
-                onClick={() => { setInput("Show pending plots"); setIsExpanded(true); }}
-              >
-                <AlertCircle className="h-3 w-3 mr-1 text-amber-500" />
-                Pending
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover-elevate text-xs"
-                onClick={() => { setInput("Show largest plots"); setIsExpanded(true); }}
-              >
-                <TreePine className="h-3 w-3 mr-1" />
-                Largest
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover-elevate text-xs"
-                onClick={() => { setInput("Show all plots"); setIsExpanded(true); }}
-              >
-                <Filter className="h-3 w-3 mr-1" />
-                Clear filter
-              </Badge>
-            </div>
-          )}
-        </CardContent>
+            {messages.length > 0 && (
+              <ScrollArea className="flex-1 min-h-0 max-h-[300px] p-3" ref={scrollRef as any}>
+                <div className="space-y-3">
+                  {messages.map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.role === "assistant" && (
+                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Bot className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                      )}
+                      <div
+                        className={`px-3 py-2 rounded-lg text-sm max-w-[85%] whitespace-pre-line ${
+                          msg.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
+                        }`}
+                      >
+                        {msg.content || (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
+                      </div>
+                      {msg.role === "user" && (
+                        <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <User className="h-3.5 w-3.5" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+
+            <CardContent className="p-3 border-t flex-shrink-0">
+              <div className="flex gap-2">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask about bamboo, carbon, land..."
+                  className="min-h-[40px] max-h-[80px] resize-none text-sm"
+                  disabled={isStreaming || !conversationId}
+                  data-testid="input-landscape-chat"
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!input.trim() || isStreaming || !conversationId}
+                  size="icon"
+                  className="h-10 w-10 flex-shrink-0"
+                  data-testid="button-send-landscape-chat"
+                >
+                  {isStreaming ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </>
+        )}
       </Card>
     </div>
   );
