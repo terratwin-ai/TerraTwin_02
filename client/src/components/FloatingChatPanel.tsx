@@ -335,7 +335,10 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
         </CardHeader>
 
         {isExpanded && messages.length > 0 && (
-          <ScrollArea className="max-h-[350px] p-3" ref={scrollRef as any}>
+          <div 
+            className="max-h-[400px] overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" 
+            ref={scrollRef}
+          >
             <div className="space-y-3">
               {messages.map((msg, i) => (
                 <div key={i} className="space-y-2">
@@ -393,7 +396,7 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
                 </div>
               ))}
             </div>
-          </ScrollArea>
+          </div>
         )}
 
         <CardContent className="p-3 border-t">
