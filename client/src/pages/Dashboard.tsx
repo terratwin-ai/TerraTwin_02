@@ -1,21 +1,21 @@
 import { useState, Suspense } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { LandscapeScene } from "@/components/landscape/LandscapeScene";
 import { CesiumLandscape } from "@/components/landscape/CesiumLandscape";
-import { PlotDetailPanel } from "@/components/PlotDetailPanel";
 import { PlotList } from "@/components/PlotList";
 import { ProjectList } from "@/components/ProjectList";
 import { StewardList } from "@/components/StewardList";
 import { VerificationList } from "@/components/VerificationList";
 import { LoadingState, SceneLoadingOverlay } from "@/components/LoadingState";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { FloatingNavMenu } from "@/components/FloatingNavMenu";
+import { FloatingLandscapeStats } from "@/components/FloatingLandscapeStats";
+import { FloatingLandscapeChat } from "@/components/FloatingLandscapeChat";
+import { FloatingPlotDetail } from "@/components/FloatingPlotDetail";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
-import { Button } from "@/components/ui/button";
-import { Leaf, Wifi, LogOut } from "lucide-react";
+import { Leaf, Wifi } from "lucide-react";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
   const [activeView, setActiveView] = useState("landscape");
+  const [filteredPlotIds, setFilteredPlotIds] = useState<string[] | null>(null);
 
   const { data: plots = [], isLoading: plotsLoading } = useQuery<Plot[]>({
     queryKey: ["/api/plots"],
@@ -43,11 +44,6 @@ export default function Dashboard() {
     ? stewards.find((s) => s.id === selectedPlot.stewardId)
     : undefined;
 
-  const sidebarStyle = {
-    "--sidebar-width": "18rem",
-    "--sidebar-width-icon": "3.5rem",
-  };
-
   const handlePlotSelect = (id: string) => {
     setSelectedPlotId(id);
     if (activeView !== "landscape") {
@@ -59,7 +55,12 @@ export default function Dashboard() {
     navigate(`/plot/${id}`);
   };
 
-  const renderContent = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("adminAuth");
+    window.location.href = "/";
+  };
+
+  const renderNonLandscapeContent = () => {
     switch (activeView) {
       case "projects":
         return <ProjectList />;
@@ -82,63 +83,8 @@ export default function Dashboard() {
             stewards={stewards}
           />
         );
-      case "landscape":
       default:
-        return (
-          <div className="absolute inset-0" data-testid="landscape-container">
-            <Suspense fallback={<SceneLoadingOverlay />}>
-              {CESIUM_ION_TOKEN ? (
-                <CesiumLandscape
-                  plots={plots}
-                  selectedPlotId={selectedPlotId}
-                  onPlotSelect={handlePlotSelect}
-                  onPlotDoubleClick={handlePlotDoubleClick}
-                  cesiumToken={CESIUM_ION_TOKEN}
-                />
-              ) : (
-                <LandscapeScene
-                  plots={plots}
-                  selectedPlotId={selectedPlotId}
-                  onPlotSelect={handlePlotSelect}
-                />
-              )}
-            </Suspense>
-
-            {selectedPlot && (
-              <PlotDetailPanel
-                plot={selectedPlot}
-                steward={selectedSteward}
-                onClose={() => setSelectedPlotId(null)}
-              />
-            )}
-
-            {!selectedPlot && (
-              <div className="absolute left-4 bottom-4 z-10 hidden md:block">
-                <div className="p-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Leaf className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Legend</span>
-                  </div>
-                  <div className="space-y-1.5 text-xs">
-                    <LegendItem color="bg-emerald-500" label="Verified" />
-                    <LegendItem color="bg-amber-400" label="Pending" />
-                    <LegendItem color="bg-orange-500" label="Submitted" />
-                    <LegendItem color="bg-red-500" label="Under Review" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!selectedPlot && (
-              <div className="absolute right-4 bottom-4 z-10 hidden md:block">
-                <div className="p-2 px-3 rounded-lg bg-card/90 backdrop-blur-sm border shadow-lg flex items-center gap-2">
-                  <Wifi className="h-3.5 w-3.5 text-green-500" />
-                  <span className="text-xs text-muted-foreground">Live Data</span>
-                </div>
-              </div>
-            )}
-          </div>
-        );
+        return null;
     }
   };
 
@@ -150,62 +96,99 @@ export default function Dashboard() {
     );
   }
 
-  return (
-    <SidebarProvider style={sidebarStyle as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <DashboardSidebar
-          plots={plots}
-          stewards={stewards}
-          selectedPlotId={selectedPlotId}
-          onPlotSelect={handlePlotSelect}
+  if (activeView !== "landscape") {
+    return (
+      <div className="h-screen w-full bg-background">
+        <FloatingNavMenu
           activeView={activeView}
           onViewChange={setActiveView}
+          plotCount={plots.length}
+          stewardCount={stewards.length}
+          onLogout={handleLogout}
         />
-
-        <div className="flex flex-col flex-1 min-w-0">
-          <header className="flex items-center justify-between gap-4 px-4 py-2 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-20">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger data-testid="button-sidebar-toggle" />
-              <div className="h-4 w-px bg-border" />
-              <div className="flex items-center gap-2">
-                <h2 className="font-medium capitalize" data-testid="text-current-view">
-                  {activeView === "landscape" ? "Landscape View" : activeView}
-                </h2>
-                {activeView === "landscape" && (
-                  <Badge variant="secondary" className="text-xs">
-                    {plots.length} plots
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1.5 text-xs hidden sm:flex">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                Connected
-              </Badge>
-              <ThemeToggle />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  localStorage.removeItem("adminAuth");
-                  window.location.href = "/";
-                }}
-                title="Log out"
-                data-testid="button-logout"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </header>
-
-          <main className="flex-1 overflow-hidden relative" style={{ minHeight: "500px" }}>
-            {renderContent()}
-          </main>
+        <div className="pt-20 px-4 pb-4 h-full overflow-auto">
+          {renderNonLandscapeContent()}
         </div>
       </div>
-    </SidebarProvider>
+    );
+  }
+
+  return (
+    <div className="h-screen w-full relative overflow-hidden bg-background">
+      <div className="absolute inset-0" data-testid="landscape-container">
+        <Suspense fallback={<SceneLoadingOverlay />}>
+          {CESIUM_ION_TOKEN ? (
+            <CesiumLandscape
+              plots={plots}
+              selectedPlotId={selectedPlotId}
+              onPlotSelect={handlePlotSelect}
+              onPlotDoubleClick={handlePlotDoubleClick}
+              cesiumToken={CESIUM_ION_TOKEN}
+              filteredPlotIds={filteredPlotIds}
+              hideSearch={true}
+            />
+          ) : (
+            <LandscapeScene
+              plots={plots}
+              selectedPlotId={selectedPlotId}
+              onPlotSelect={handlePlotSelect}
+            />
+          )}
+        </Suspense>
+      </div>
+
+      <FloatingNavMenu
+        activeView={activeView}
+        onViewChange={setActiveView}
+        plotCount={plots.length}
+        stewardCount={stewards.length}
+        onLogout={handleLogout}
+      />
+
+      <FloatingLandscapeStats plots={plots} stewards={stewards} />
+
+      <FloatingPlotDetail
+        plot={selectedPlot || null}
+        steward={selectedSteward}
+        onClose={() => setSelectedPlotId(null)}
+      />
+
+      <FloatingLandscapeChat
+        plots={plots}
+        onFilterPlots={setFilteredPlotIds}
+        onHighlightPlot={(id) => {
+          if (id) setSelectedPlotId(id);
+        }}
+        onSelectPlot={handlePlotSelect}
+      />
+
+      {!selectedPlot && (
+        <div className="fixed left-4 bottom-4 z-10 hidden md:block">
+          <Card className="bg-card/90 backdrop-blur-xl border-border/50 shadow-lg">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Leaf className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Legend</span>
+              </div>
+              <div className="space-y-1.5 text-xs">
+                <LegendItem color="bg-emerald-500" label="Verified" />
+                <LegendItem color="bg-amber-400" label="Pending" />
+                <LegendItem color="bg-orange-500" label="Submitted" />
+                <LegendItem color="bg-red-500" label="Under Review" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {filteredPlotIds && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
+          <Badge className="bg-primary/90 backdrop-blur-sm shadow-lg text-sm px-4 py-2">
+            Showing {filteredPlotIds.length} of {plots.length} plots
+          </Badge>
+        </div>
+      )}
+    </div>
   );
 }
 

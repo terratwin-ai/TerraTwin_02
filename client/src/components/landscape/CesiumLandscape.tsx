@@ -19,6 +19,8 @@ interface CesiumLandscapeProps {
   onPlotSelect: (id: string) => void;
   onPlotDoubleClick?: (id: string) => void;
   cesiumToken: string;
+  filteredPlotIds?: string[] | null;
+  hideSearch?: boolean;
 }
 
 function getStatusColor(status: string): string {
@@ -131,7 +133,7 @@ function FallbackMapView({ plots, selectedPlotId, onPlotSelect }: Omit<CesiumLan
   );
 }
 
-export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDoubleClick, cesiumToken }: CesiumLandscapeProps) {
+export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDoubleClick, cesiumToken, filteredPlotIds, hideSearch }: CesiumLandscapeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
@@ -146,6 +148,10 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
   const [showResults, setShowResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const visiblePlots = filteredPlotIds 
+    ? plots.filter(p => filteredPlotIds.includes(p.id))
+    : plots;
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
@@ -444,7 +450,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       }
     });
 
-    plots.forEach((plot) => {
+    visiblePlots.forEach((plot) => {
       const plotId = plot.id.toString();
       const lat = plot.latitude;
       const lng = plot.longitude;
@@ -497,10 +503,10 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       }
     });
 
-    const plotsChanged = JSON.stringify(plots.map(p => p.id)) !== JSON.stringify(plotsRef.current.map(p => p.id));
-    if (plotsChanged && plots.length > 0) {
-      const avgLat = plots.reduce((sum, p) => sum + p.latitude, 0) / plots.length;
-      const avgLng = plots.reduce((sum, p) => sum + p.longitude, 0) / plots.length;
+    const plotsChanged = JSON.stringify(visiblePlots.map(p => p.id)) !== JSON.stringify(plotsRef.current.map(p => p.id));
+    if (plotsChanged && visiblePlots.length > 0) {
+      const avgLat = visiblePlots.reduce((sum, p) => sum + p.latitude, 0) / visiblePlots.length;
+      const avgLng = visiblePlots.reduce((sum, p) => sum + p.longitude, 0) / visiblePlots.length;
 
       viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(avgLng, avgLat - 0.16, 45000),
@@ -513,8 +519,8 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
       });
     }
     
-    plotsRef.current = plots;
-  }, [viewerReady, plots]);
+    plotsRef.current = visiblePlots;
+  }, [viewerReady, visiblePlots]);
 
   useEffect(() => {
     if (!viewerReady || !viewerRef.current || !selectedPlotId) return;
@@ -538,6 +544,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
         style={{ minHeight: "600px" }}
       />
       
+      {!hideSearch && (
       <div className="absolute top-4 left-4 z-20 w-72">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -609,6 +616,7 @@ export function CesiumLandscape({ plots, selectedPlotId, onPlotSelect, onPlotDou
           </Card>
         )}
       </div>
+      )}
       
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-900/20 via-emerald-800/10 to-teal-900/20 z-10">
