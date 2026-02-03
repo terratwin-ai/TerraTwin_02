@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { 
   Menu, 
   X, 
@@ -11,7 +12,9 @@ import {
   CheckCircle,
   FolderKanban,
   LogOut,
-  Satellite
+  Satellite,
+  Search,
+  MapPin
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import logoImage from "@/assets/terratwin-logo.png";
@@ -23,6 +26,7 @@ interface FloatingNavMenuProps {
   stewardCount: number;
   onLogout: () => void;
   onOpenSatellite?: () => void;
+  onSearch?: (query: string) => void;
 }
 
 const navItems = [
@@ -39,9 +43,18 @@ export function FloatingNavMenu({
   plotCount, 
   stewardCount,
   onLogout,
-  onOpenSatellite
+  onOpenSatellite,
+  onSearch
 }: FloatingNavMenuProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onSearch && searchQuery.trim()) {
+      onSearch(searchQuery.trim());
+    }
+  };
 
   return (
     <div className="fixed top-4 left-4 z-50" data-testid="floating-nav-menu">
@@ -111,26 +124,41 @@ export function FloatingNavMenu({
           )}
 
           {!isExpanded && (
-            <div className="px-3 py-2 flex items-center gap-2">
-              <Badge variant="outline" className="text-xs gap-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                Live
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                {plotCount} plots
-              </Badge>
-              {onOpenSatellite && activeView === "landscape" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 gap-1.5 ml-auto"
-                  onClick={onOpenSatellite}
-                  data-testid="button-open-satellite"
-                >
-                  <Satellite className="h-3.5 w-3.5" />
-                  <span className="text-xs">Satellite</span>
-                </Button>
-              )}
+            <div className="px-3 py-2 space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  Live
+                </Badge>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3" />
+                  <span>Mt. Anggas, Mindanao</span>
+                </div>
+                {onOpenSatellite && activeView === "landscape" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 gap-1.5 ml-auto"
+                    onClick={onOpenSatellite}
+                    data-testid="button-open-satellite"
+                  >
+                    <Satellite className="h-3.5 w-3.5" />
+                    <span className="text-xs">Satellite</span>
+                  </Button>
+                )}
+              </div>
+              
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search plots..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 pl-8 text-sm bg-muted/50"
+                  data-testid="input-search-plots"
+                />
+              </form>
             </div>
           )}
         </CardContent>
