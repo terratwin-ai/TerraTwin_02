@@ -287,7 +287,7 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90"
+        className="fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90"
         data-testid="button-open-chat"
       >
         <Sparkles className="h-6 w-6" />
@@ -297,11 +297,11 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
 
   return (
     <div 
-      className="fixed bottom-6 left-6 transition-all duration-300 ease-out w-[380px]"
-      style={{ maxHeight: "calc(100vh - 280px)" }}
+      className="fixed bottom-4 left-4 transition-all duration-300 ease-out w-[380px]"
+      style={{ maxHeight: "180px" }}
       data-testid="floating-chat-panel"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden max-h-[180px] flex flex-col">
         <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -336,7 +336,7 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
 
         {isExpanded && messages.length > 0 && (
           <div 
-            className="max-h-[400px] overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" 
+            className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" 
             ref={scrollRef}
           >
             <div className="space-y-3">
