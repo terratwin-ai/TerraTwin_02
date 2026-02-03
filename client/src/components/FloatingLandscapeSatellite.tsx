@@ -300,7 +300,7 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
 
   return (
     <div
-      className={`fixed top-16 right-4 bottom-4 w-96 z-50 transition-all duration-300 ease-out ${
+      className={`fixed top-16 right-4 bottom-4 w-80 z-50 transition-all duration-300 ease-out ${
         isAnimating ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       }`}
       data-testid="landscape-satellite-panel"
