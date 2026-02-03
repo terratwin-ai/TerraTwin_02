@@ -45,8 +45,9 @@ export function FloatingDataCards({
   const [showDetails, setShowDetails] = useState(true);
   const [showTechnical, setShowTechnical] = useState(false);
   
-  const yearsGrown = Math.max(0, year - 2024);
-  const harvestStartYear = 3;
+  const plantingYear = 2026;
+  const yearsGrown = Math.max(0, year - plantingYear);
+  const harvestStartYear = 5;
   const canHarvest = yearsGrown >= harvestStartYear;
   
   const carbonRatePerHa = 87.5;
@@ -134,15 +135,15 @@ export function FloatingDataCards({
                 <Slider
                   value={[year]}
                   onValueChange={([v]) => onYearChange(v)}
-                  min={2024}
-                  max={2035}
+                  min={2026}
+                  max={2040}
                   step={1}
                   className="w-full"
                   data-testid="slider-year"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>2024</span>
-                  <span>2035</span>
+                  <span>2026</span>
+                  <span>2040</span>
                 </div>
               </div>
 
@@ -181,7 +182,7 @@ export function FloatingDataCards({
                   ) : (
                     <>
                       <p className="text-lg font-bold text-muted-foreground">—</p>
-                      <p className="text-xs text-muted-foreground">Ready in year {harvestStartYear + 2024}</p>
+                      <p className="text-xs text-muted-foreground">Ready in year {plantingYear + harvestStartYear}</p>
                     </>
                   )}
                 </div>
