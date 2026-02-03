@@ -296,8 +296,12 @@ export function SatelliteAnalysis({ plot, selectedModel = "clay", onModelChange 
 
   return (
     <div className="space-y-4 p-4">
-      {/* Refresh Button */}
-      <div className="flex items-center justify-end">
+      {/* Header with Model Selector */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Satellite className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold">Satellite Analysis</h3>
+        </div>
         <Button variant="ghost" size="sm" onClick={handleRefresh} data-testid="button-refresh-analysis">
           <RefreshCw className="w-4 h-4 mr-1" />
           Refresh

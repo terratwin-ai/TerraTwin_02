@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Satellite } from "lucide-react";
+import { X } from "lucide-react";
 import type { Plot } from "@shared/schema";
-import { SatelliteAnalysis, SATELLITE_MODELS, type SatelliteModel } from "./SatelliteAnalysis";
+import { SatelliteAnalysis, type SatelliteModel } from "./SatelliteAnalysis";
 
 interface FloatingSatellitePanelProps {
   plot: Plot;
@@ -16,8 +16,6 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedModel, setSelectedModel] = useState<SatelliteModel>("clay");
-
-  const modelInfo = SATELLITE_MODELS[selectedModel];
 
   useEffect(() => {
     if (isOpen) {
@@ -40,16 +38,7 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
       data-testid="floating-satellite-panel"
     >
       <Card className="h-full rounded-none bg-card/95 backdrop-blur-xl border-l border-border/50 shadow-2xl">
-        <CardHeader className="p-4 border-b flex flex-row items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <Satellite className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="font-semibold">Satellite Analysis</p>
-              <p className="text-xs text-muted-foreground">{modelInfo.name}</p>
-            </div>
-          </div>
+        <div className="absolute top-2 right-2 z-10">
           <Button
             variant="ghost"
             size="icon"
@@ -58,8 +47,8 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
           >
             <X className="h-4 w-4" />
           </Button>
-        </CardHeader>
-        <ScrollArea className="h-[calc(100%-80px)]">
+        </div>
+        <ScrollArea className="h-full">
           <SatelliteAnalysis 
             plot={plot} 
             selectedModel={selectedModel}
