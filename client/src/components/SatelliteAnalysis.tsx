@@ -268,14 +268,6 @@ export function SatelliteAnalysis({ plot, selectedModel = "clay", onModelChange 
     }
   };
 
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setAnalysis(generateMockAnalysis(plot, currentModel));
-      setIsLoading(false);
-    }, 1200);
-  };
-
   if (isLoading || !analysis) {
     return (
       <div className="p-6 flex flex-col items-center justify-center gap-4">
@@ -296,16 +288,10 @@ export function SatelliteAnalysis({ plot, selectedModel = "clay", onModelChange 
 
   return (
     <div className="space-y-4 p-4">
-      {/* Header with Model Selector */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Satellite className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold">Satellite Analysis</h3>
-        </div>
-        <Button variant="ghost" size="sm" onClick={handleRefresh} data-testid="button-refresh-analysis">
-          <RefreshCw className="w-4 h-4 mr-1" />
-          Refresh
-        </Button>
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <Satellite className="w-5 h-5 text-primary" />
+        <h3 className="font-semibold">Satellite Analysis</h3>
       </div>
 
       {/* Model Selector */}
