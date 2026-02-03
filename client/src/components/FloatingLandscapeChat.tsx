@@ -12,10 +12,7 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
-  X,
-  TreePine,
-  Leaf,
-  TrendingUp
+  X
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -221,43 +218,23 @@ Provide helpful, practical guidance about bamboo species selection, land managem
         {isExpanded && (
           <>
             {messages.length === 0 && (
-              <div className="p-3 space-y-3 flex-shrink-0">
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="bg-muted/50 rounded-lg p-2 text-center">
-                    <TreePine className="h-4 w-4 mx-auto mb-1 text-primary" />
-                    <p className="text-xs font-medium">{plots.length}</p>
-                    <p className="text-[10px] text-muted-foreground">Plots</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-2 text-center">
-                    <Leaf className="h-4 w-4 mx-auto mb-1 text-green-500" />
-                    <p className="text-xs font-medium">{totalCarbon.toFixed(0)}</p>
-                    <p className="text-[10px] text-muted-foreground">t CO2e</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-2 text-center">
-                    <TrendingUp className="h-4 w-4 mx-auto mb-1 text-emerald-500" />
-                    <p className="text-xs font-medium">{avgHealth}%</p>
-                    <p className="text-[10px] text-muted-foreground">Health</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">Try asking:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      "Best bamboo species for Mindanao?",
-                      "Carbon credit pricing",
-                      "Plot verification process"
-                    ].map((suggestion) => (
-                      <Badge
-                        key={suggestion}
-                        variant="secondary"
-                        className="cursor-pointer text-[10px] hover:bg-secondary/80"
-                        onClick={() => setInput(suggestion)}
-                      >
-                        {suggestion}
-                      </Badge>
-                    ))}
-                  </div>
+              <div className="p-3 space-y-1.5 flex-shrink-0">
+                <p className="text-xs text-muted-foreground">Try asking:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    "Best bamboo species for Mindanao?",
+                    "Carbon credit pricing",
+                    "Plot verification process"
+                  ].map((suggestion) => (
+                    <Badge
+                      key={suggestion}
+                      variant="secondary"
+                      className="cursor-pointer text-[10px] hover:bg-secondary/80"
+                      onClick={() => setInput(suggestion)}
+                    >
+                      {suggestion}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             )}
