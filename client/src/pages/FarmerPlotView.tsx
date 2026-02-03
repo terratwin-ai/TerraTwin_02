@@ -29,7 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { Plot, Steward } from "@shared/schema";
 import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
-import { AgentChat } from "@/components/AgentChat";
+import { PlotPanel } from "@/components/PlotPanel";
 import { SatelliteAnalysis } from "@/components/SatelliteAnalysis";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
@@ -314,161 +314,155 @@ export default function FarmerPlotView() {
               </TabsList>
             </div>
 
-            <TabsContent value="3d" className="mt-0 flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Year: {year}
-                    </p>
-                  </div>
-                  <Slider
-                    value={[year]}
-                    onValueChange={([v]) => setYear(v)}
-                    min={2024}
-                    max={2035}
-                    step={1}
-                    className="w-full"
-                    data-testid="slider-year"
-                  />
-                </div>
-
-                <Card className="border-border/50">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Scan className="h-4 w-4 text-cyan-500" />
-                      LiDAR Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+            <TabsContent value="3d" className="mt-0 flex-1 overflow-hidden">
+              <PlotPanel plot={plot} steward={steward}>
+                <div className="p-4 space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Layers className="h-4 w-4 text-muted-foreground" />
-                        <Label htmlFor="lidar-toggle" className="text-xs">Point Cloud</Label>
-                      </div>
-                      <Switch
-                        id="lidar-toggle"
-                        checked={showLidar}
-                        onCheckedChange={setShowLidar}
-                        data-testid="switch-lidar"
-                      />
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Year: {year}
+                      </p>
                     </div>
-                    
-                    {showLidar && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-green-500" />
-                          <span>Low</span>
+                    <Slider
+                      value={[year]}
+                      onValueChange={([v]) => setYear(v)}
+                      min={2024}
+                      max={2035}
+                      step={1}
+                      className="w-full"
+                      data-testid="slider-year"
+                    />
+                  </div>
+
+                  <Card className="border-border/50">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Scan className="h-4 w-4 text-cyan-500" />
+                        LiDAR Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Layers className="h-4 w-4 text-muted-foreground" />
+                          <Label htmlFor="lidar-toggle" className="text-xs">Point Cloud</Label>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-lime-500" />
-                          <span>Med</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                          <span>High</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-red-500" />
-                          <span>Max</span>
-                        </div>
+                        <Switch
+                          id="lidar-toggle"
+                          checked={showLidar}
+                          onCheckedChange={setShowLidar}
+                          data-testid="switch-lidar"
+                        />
                       </div>
-                    )}
-
-                    <Button
-                      variant={scanComplete ? "outline" : "default"}
-                      size="sm"
-                      className="w-full gap-2"
-                      disabled={isScanning}
-                      onClick={() => {
-                        setIsScanning(true);
-                        setScanComplete(false);
-                        scanTimeoutRef.current = setTimeout(() => {
-                          setIsScanning(false);
-                          setScanComplete(true);
-                          setShowLidar(true);
-                        }, 3000);
-                      }}
-                      data-testid="button-lidar-scan"
-                    >
-                      {isScanning ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Scanning...
-                        </>
-                      ) : scanComplete ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          Complete
-                        </>
-                      ) : (
-                        <>
-                          <Camera className="h-4 w-4" />
-                          Capture LiDAR
-                        </>
+                      
+                      {showLidar && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                            <span>Low</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-lime-500" />
+                            <span>Med</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                            <span>High</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div className="w-2 h-2 rounded-full bg-red-500" />
+                            <span>Max</span>
+                          </div>
+                        </div>
                       )}
-                    </Button>
-                  </CardContent>
-                </Card>
 
-                <GrowthStats year={year} plot={plot} />
-                <IncomeProjection year={year} plot={plot} />
-              </div>
+                      <Button
+                        variant={scanComplete ? "outline" : "default"}
+                        size="sm"
+                        className="w-full gap-2"
+                        disabled={isScanning}
+                        onClick={() => {
+                          setIsScanning(true);
+                          setScanComplete(false);
+                          scanTimeoutRef.current = setTimeout(() => {
+                            setIsScanning(false);
+                            setScanComplete(true);
+                            setShowLidar(true);
+                          }, 3000);
+                        }}
+                        data-testid="button-lidar-scan"
+                      >
+                        {isScanning ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Scanning...
+                          </>
+                        ) : scanComplete ? (
+                          <>
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            Complete
+                          </>
+                        ) : (
+                          <>
+                            <Camera className="h-4 w-4" />
+                            Capture LiDAR
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-              <div className="border-t shrink-0">
-                <AgentChat plot={plot} steward={steward} />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="satellite" className="mt-0 flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto">
-                <SatelliteAnalysis plot={plot} />
-              </div>
-              <div className="border-t shrink-0">
-                <AgentChat plot={plot} steward={steward} />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="stats" className="mt-0 flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <SensorCard
-                    icon={Thermometer}
-                    label="Temperature"
-                    value={sensorData.temperature.toFixed(1)}
-                    unit="°C"
-                    color="bg-red-500/10 text-red-500"
-                  />
-                  <SensorCard
-                    icon={Droplets}
-                    label="Moisture"
-                    value={sensorData.soilMoisture.toFixed(0)}
-                    unit="%"
-                    color="bg-blue-500/10 text-blue-500"
-                  />
-                  <SensorCard
-                    icon={Droplets}
-                    label="Humidity"
-                    value={sensorData.humidity.toFixed(0)}
-                    unit="%"
-                    color="bg-cyan-500/10 text-cyan-500"
-                  />
-                  <SensorCard
-                    icon={Sun}
-                    label="Light"
-                    value={(sensorData.lux / 1000).toFixed(0)}
-                    unit="k lux"
-                    color="bg-yellow-500/10 text-yellow-500"
-                  />
+                  <GrowthStats year={year} plot={plot} />
+                  <IncomeProjection year={year} plot={plot} />
                 </div>
+              </PlotPanel>
+            </TabsContent>
 
-                <GrowthStats year={year} plot={plot} />
-                <IncomeProjection year={year} plot={plot} />
-              </div>
-              <div className="border-t shrink-0">
-                <AgentChat plot={plot} steward={steward} />
-              </div>
+            <TabsContent value="satellite" className="mt-0 flex-1 overflow-hidden">
+              <PlotPanel plot={plot} steward={steward}>
+                <SatelliteAnalysis plot={plot} />
+              </PlotPanel>
+            </TabsContent>
+
+            <TabsContent value="stats" className="mt-0 flex-1 overflow-hidden">
+              <PlotPanel plot={plot} steward={steward}>
+                <div className="p-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <SensorCard
+                      icon={Thermometer}
+                      label="Temperature"
+                      value={sensorData.temperature.toFixed(1)}
+                      unit="°C"
+                      color="bg-red-500/10 text-red-500"
+                    />
+                    <SensorCard
+                      icon={Droplets}
+                      label="Moisture"
+                      value={sensorData.soilMoisture.toFixed(0)}
+                      unit="%"
+                      color="bg-blue-500/10 text-blue-500"
+                    />
+                    <SensorCard
+                      icon={Droplets}
+                      label="Humidity"
+                      value={sensorData.humidity.toFixed(0)}
+                      unit="%"
+                      color="bg-cyan-500/10 text-cyan-500"
+                    />
+                    <SensorCard
+                      icon={Sun}
+                      label="Light"
+                      value={(sensorData.lux / 1000).toFixed(0)}
+                      unit="k lux"
+                      color="bg-yellow-500/10 text-yellow-500"
+                    />
+                  </div>
+
+                  <GrowthStats year={year} plot={plot} />
+                  <IncomeProjection year={year} plot={plot} />
+                </div>
+              </PlotPanel>
             </TabsContent>
           </Tabs>
         </div>
