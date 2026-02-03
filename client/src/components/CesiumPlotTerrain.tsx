@@ -308,9 +308,8 @@ function addBambooPlants(
   const clumpsPerRow = Math.floor(plotSizeMeters / spacingMeters);
   const totalClumps = clumpsPerRow * clumpsPerRow;
   
-  const maxVisibleClumps = 64;
-  const visibleClumps = Math.min(totalClumps, maxVisibleClumps);
-  const visibleGridSize = Math.ceil(Math.sqrt(visibleClumps));
+  const visibleGridSize = 6;
+  const visibleClumps = visibleGridSize * visibleGridSize;
   
   const halfSize = plotSizeMeters / 2;
   const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);

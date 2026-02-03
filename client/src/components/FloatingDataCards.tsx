@@ -87,8 +87,8 @@ export function FloatingDataCards({
   return (
     <>
       <div className="fixed top-4 left-4 w-[380px]" data-testid="floating-data-cards">
-        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl max-h-[calc(100vh-320px)] overflow-hidden flex flex-col">
-          <ScrollArea className="flex-1">
+        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl max-h-[calc(100vh-280px)] flex flex-col">
+          <ScrollArea className="flex-1 overflow-y-auto">
             <CardContent className="p-4 space-y-4">
               {/* Plot Info - Simplified */}
               <div className="flex items-start justify-between">
