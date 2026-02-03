@@ -421,44 +421,54 @@ export default function FarmerPlotView() {
               </div>
             </TabsContent>
 
-            <TabsContent value="satellite" className="mt-0 overflow-y-auto h-full">
-              <SatelliteAnalysis plot={plot} />
+            <TabsContent value="satellite" className="mt-0 flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto">
+                <SatelliteAnalysis plot={plot} />
+              </div>
+              <div className="border-t shrink-0">
+                <AgentChat plot={plot} steward={steward} />
+              </div>
             </TabsContent>
 
-            <TabsContent value="stats" className="mt-0 overflow-y-auto h-full p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <SensorCard
-                  icon={Thermometer}
-                  label="Temperature"
-                  value={sensorData.temperature.toFixed(1)}
-                  unit="°C"
-                  color="bg-red-500/10 text-red-500"
-                />
-                <SensorCard
-                  icon={Droplets}
-                  label="Moisture"
-                  value={sensorData.soilMoisture.toFixed(0)}
-                  unit="%"
-                  color="bg-blue-500/10 text-blue-500"
-                />
-                <SensorCard
-                  icon={Droplets}
-                  label="Humidity"
-                  value={sensorData.humidity.toFixed(0)}
-                  unit="%"
-                  color="bg-cyan-500/10 text-cyan-500"
-                />
-                <SensorCard
-                  icon={Sun}
-                  label="Light"
-                  value={(sensorData.lux / 1000).toFixed(0)}
-                  unit="k lux"
-                  color="bg-yellow-500/10 text-yellow-500"
-                />
-              </div>
+            <TabsContent value="stats" className="mt-0 flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <SensorCard
+                    icon={Thermometer}
+                    label="Temperature"
+                    value={sensorData.temperature.toFixed(1)}
+                    unit="°C"
+                    color="bg-red-500/10 text-red-500"
+                  />
+                  <SensorCard
+                    icon={Droplets}
+                    label="Moisture"
+                    value={sensorData.soilMoisture.toFixed(0)}
+                    unit="%"
+                    color="bg-blue-500/10 text-blue-500"
+                  />
+                  <SensorCard
+                    icon={Droplets}
+                    label="Humidity"
+                    value={sensorData.humidity.toFixed(0)}
+                    unit="%"
+                    color="bg-cyan-500/10 text-cyan-500"
+                  />
+                  <SensorCard
+                    icon={Sun}
+                    label="Light"
+                    value={(sensorData.lux / 1000).toFixed(0)}
+                    unit="k lux"
+                    color="bg-yellow-500/10 text-yellow-500"
+                  />
+                </div>
 
-              <GrowthStats year={year} plot={plot} />
-              <IncomeProjection year={year} plot={plot} />
+                <GrowthStats year={year} plot={plot} />
+                <IncomeProjection year={year} plot={plot} />
+              </div>
+              <div className="border-t shrink-0">
+                <AgentChat plot={plot} steward={steward} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
