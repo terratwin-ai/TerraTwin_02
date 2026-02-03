@@ -247,7 +247,7 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
         data-testid="button-open-chat"
       >
         <Sparkles className="h-6 w-6" />
@@ -257,9 +257,8 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
 
   return (
     <div 
-      className={`fixed bottom-6 right-6 transition-all duration-300 ease-out ${
-        isExpanded ? "w-[420px]" : "w-[380px]"
-      }`}
+      className="fixed bottom-6 left-6 transition-all duration-300 ease-out w-[380px]"
+      style={{ maxHeight: "calc(100vh - 280px)" }}
       data-testid="floating-chat-panel"
     >
       <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden">

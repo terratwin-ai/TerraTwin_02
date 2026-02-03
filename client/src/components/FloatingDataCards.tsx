@@ -64,7 +64,7 @@ export function FloatingDataCards({
 
   return (
     <>
-      <div className="fixed top-20 left-4 w-72 space-y-3" data-testid="floating-data-cards">
+      <div className="fixed top-20 left-4 w-[240px] space-y-3" data-testid="floating-data-cards">
         <Card className="bg-card/90 backdrop-blur-xl border-border/50 shadow-xl">
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-3">
@@ -160,39 +160,22 @@ export function FloatingDataCards({
         )}
       </div>
 
-      <div className="fixed top-20 right-4 flex gap-2" data-testid="sensor-cards">
-        <Card className="bg-card/90 backdrop-blur-xl border-border/50 shadow-xl">
-          <CardContent className="p-3 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-              <Thermometer className="h-4 w-4 text-red-500" />
+      <div className="fixed top-4 right-4" data-testid="sensor-cards">
+        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
+          <CardContent className="p-2 flex items-center gap-3">
+            <div className="flex items-center gap-2 px-2 border-r border-border/50">
+              <Thermometer className="h-3.5 w-3.5 text-red-500" />
+              <span className="text-sm font-bold">{sensorData.temperature.toFixed(1)}°C</span>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Temp</p>
-              <p className="text-sm font-bold">{sensorData.temperature.toFixed(1)}°C</p>
+            
+            <div className="flex items-center gap-2 px-2 border-r border-border/50">
+              <Droplets className="h-3.5 w-3.5 text-blue-500" />
+              <span className="text-sm font-bold">{sensorData.soilMoisture.toFixed(0)}%</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/90 backdrop-blur-xl border-border/50 shadow-xl">
-          <CardContent className="p-3 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Droplets className="h-4 w-4 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Moisture</p>
-              <p className="text-sm font-bold">{sensorData.soilMoisture.toFixed(0)}%</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/90 backdrop-blur-xl border-border/50 shadow-xl">
-          <CardContent className="p-3 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <Activity className="h-4 w-4 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Health</p>
-              <p className="text-sm font-bold">{plot.healthScore}%</p>
+            
+            <div className="flex items-center gap-2 px-2">
+              <Activity className="h-3.5 w-3.5 text-emerald-500" />
+              <span className="text-sm font-bold">{plot.healthScore}%</span>
             </div>
           </CardContent>
         </Card>

@@ -32,7 +32,7 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
 
   return (
     <div 
-      className={`fixed inset-y-0 right-0 w-[340px] z-50 transition-transform duration-300 ease-out ${
+      className={`fixed inset-y-0 right-0 w-[380px] z-50 transition-transform duration-300 ease-out ${
         isAnimating ? "translate-x-0" : "translate-x-full"
       }`}
       data-testid="floating-satellite-panel"
