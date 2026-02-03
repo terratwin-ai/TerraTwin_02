@@ -11,7 +11,7 @@ import {
   CheckCircle,
   FolderKanban,
   LogOut,
-  Leaf
+  Satellite
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import logoImage from "@/assets/terratwin-logo.png";
@@ -22,6 +22,7 @@ interface FloatingNavMenuProps {
   plotCount: number;
   stewardCount: number;
   onLogout: () => void;
+  onOpenSatellite?: () => void;
 }
 
 const navItems = [
@@ -37,7 +38,8 @@ export function FloatingNavMenu({
   onViewChange, 
   plotCount, 
   stewardCount,
-  onLogout 
+  onLogout,
+  onOpenSatellite
 }: FloatingNavMenuProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -117,6 +119,18 @@ export function FloatingNavMenu({
               <Badge variant="secondary" className="text-xs">
                 {plotCount} plots
               </Badge>
+              {onOpenSatellite && activeView === "landscape" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 gap-1.5 ml-auto"
+                  onClick={onOpenSatellite}
+                  data-testid="button-open-satellite"
+                >
+                  <Satellite className="h-3.5 w-3.5" />
+                  <span className="text-xs">Satellite</span>
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

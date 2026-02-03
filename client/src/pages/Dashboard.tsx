@@ -15,9 +15,8 @@ import { FloatingPlotDetail } from "@/components/FloatingPlotDetail";
 import { FloatingLandscapeSatellite } from "@/components/FloatingLandscapeSatellite";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
-import { Leaf, Satellite } from "lucide-react";
+import { Leaf } from "lucide-react";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -146,22 +145,10 @@ export default function Dashboard() {
         plotCount={plots.length}
         stewardCount={stewards.length}
         onLogout={handleLogout}
+        onOpenSatellite={() => setShowSatellite(true)}
       />
 
       <FloatingLandscapeStats plots={plots} stewards={stewards} />
-
-      <div className="fixed top-20 right-4 z-30">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowSatellite(true)}
-          className="bg-card/90 backdrop-blur-xl border-border/50 shadow-lg gap-2"
-          data-testid="button-open-satellite"
-        >
-          <Satellite className="h-4 w-4" />
-          <span className="hidden sm:inline">Satellite Analysis</span>
-        </Button>
-      </div>
 
       <FloatingLandscapeSatellite
         plots={plots}
