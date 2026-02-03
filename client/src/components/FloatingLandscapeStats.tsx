@@ -5,79 +5,53 @@ import {
   Users, 
   Leaf, 
   TrendingUp,
-  CheckCircle,
-  Clock
+  CheckCircle
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
 
 interface FloatingLandscapeStatsProps {
   plots: Plot[];
   stewards: Steward[];
+  isHidden?: boolean;
 }
 
-export function FloatingLandscapeStats({ plots, stewards }: FloatingLandscapeStatsProps) {
+export function FloatingLandscapeStats({ plots, stewards, isHidden }: FloatingLandscapeStatsProps) {
   const verifiedPlots = plots.filter(p => p.status === "verified").length;
-  const pendingPlots = plots.filter(p => p.status === "pending").length;
   const totalHectares = plots.reduce((sum, p) => sum + p.areaHectares, 0);
   const totalCarbon = plots.reduce((sum, p) => sum + (p.carbonTons || 0), 0);
-  const avgHealth = plots.length > 0 
-    ? plots.reduce((sum, p) => sum + (p.healthScore || 0), 0) / plots.length 
-    : 0;
+
+  if (isHidden) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-40 flex gap-2" data-testid="floating-landscape-stats">
+    <div className="fixed top-4 right-4 z-40" data-testid="floating-landscape-stats">
       <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <TreePine className="h-4 w-4 text-emerald-500" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Plots</p>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold">{plots.length}</span>
-              <Badge variant="outline" className="text-xs gap-1">
-                <CheckCircle className="h-3 w-3 text-emerald-500" />
+        <CardContent className="p-2 flex items-center gap-3">
+          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+            <TreePine className="h-3.5 w-3.5 text-emerald-500" />
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold">{plots.length}</span>
+              <Badge variant="outline" className="text-[10px] h-5 gap-0.5 px-1">
+                <CheckCircle className="h-2.5 w-2.5 text-emerald-500" />
                 {verifiedPlots}
               </Badge>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-            <Users className="h-4 w-4 text-blue-500" />
+          
+          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+            <Users className="h-3.5 w-3.5 text-blue-500" />
+            <span className="text-sm font-bold">{stewards.length}</span>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Stewards</p>
-            <span className="text-lg font-bold">{stewards.length}</span>
+          
+          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+            <Leaf className="h-3.5 w-3.5 text-primary" />
+            <span className="text-sm font-bold">{totalCarbon.toFixed(0)}</span>
+            <span className="text-[10px] text-muted-foreground">t CO₂</span>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Leaf className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Carbon</p>
-            <span className="text-lg font-bold">{totalCarbon.toFixed(0)}</span>
-            <span className="text-xs text-muted-foreground ml-1">t CO2e</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl hidden lg:block">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <TrendingUp className="h-4 w-4 text-amber-500" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Area</p>
-            <span className="text-lg font-bold">{totalHectares.toFixed(0)}</span>
-            <span className="text-xs text-muted-foreground ml-1">ha</span>
+          
+          <div className="flex items-center gap-2 px-2">
+            <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
+            <span className="text-sm font-bold">{totalHectares.toFixed(0)}</span>
+            <span className="text-[10px] text-muted-foreground">ha</span>
           </div>
         </CardContent>
       </Card>

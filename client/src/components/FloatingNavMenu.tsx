@@ -45,7 +45,7 @@ export function FloatingNavMenu({
 
   return (
     <div className="fixed top-4 left-4 z-50" data-testid="floating-nav-menu">
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-fit max-w-[280px]">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-[380px]">
         <CardContent className="p-0">
           <div className="flex items-center gap-2 p-3 border-b">
             <Button

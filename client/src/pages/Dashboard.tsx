@@ -170,7 +170,7 @@ export default function Dashboard() {
         onSelectProject={(projectId) => navigate(`/projects/${projectId}`)}
       />
 
-      {!showProjectsPanel && !selectedPlot && (
+      {!showProjectsPanel && !selectedPlot && !showSatellite && (
         <FloatingLandscapeStats plots={plots} stewards={stewards} />
       )}
 

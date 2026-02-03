@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -241,7 +240,7 @@ Provide helpful, practical guidance about bamboo species selection, land managem
             )}
 
             {messages.length > 0 && (
-              <ScrollArea className="flex-1 min-h-0 max-h-[300px] p-3" ref={scrollRef as any}>
+              <div className="flex-1 min-h-0 max-h-[350px] overflow-y-auto p-3" ref={scrollRef}>
                 <div className="space-y-3">
                   {messages.map((msg, i) => (
                     <div
@@ -289,7 +288,7 @@ Provide helpful, practical guidance about bamboo species selection, land managem
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             )}
 
             <CardContent className="p-3 border-t flex-shrink-0">
