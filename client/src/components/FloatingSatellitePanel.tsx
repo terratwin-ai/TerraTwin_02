@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Satellite } from "lucide-react";
 import type { Plot } from "@shared/schema";
-import { SatelliteAnalysis } from "./SatelliteAnalysis";
+import { SatelliteAnalysis, SATELLITE_MODELS, type SatelliteModel } from "./SatelliteAnalysis";
 
 interface FloatingSatellitePanelProps {
   plot: Plot;
@@ -15,6 +15,9 @@ interface FloatingSatellitePanelProps {
 export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatellitePanelProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<SatelliteModel>("clay");
+
+  const modelInfo = SATELLITE_MODELS[selectedModel];
 
   useEffect(() => {
     if (isOpen) {
@@ -44,7 +47,7 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
             </div>
             <div>
               <p className="font-semibold">Satellite Analysis</p>
-              <p className="text-xs text-muted-foreground">Clay Foundation Model</p>
+              <p className="text-xs text-muted-foreground">{modelInfo.name}</p>
             </div>
           </div>
           <Button
@@ -57,7 +60,11 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
           </Button>
         </CardHeader>
         <ScrollArea className="h-[calc(100%-80px)]">
-          <SatelliteAnalysis plot={plot} />
+          <SatelliteAnalysis 
+            plot={plot} 
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+          />
         </ScrollArea>
       </Card>
     </div>

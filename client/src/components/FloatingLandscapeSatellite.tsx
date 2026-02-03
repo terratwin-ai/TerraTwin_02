@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   X, 
   Satellite, 
@@ -21,6 +22,7 @@ import {
   Globe
 } from "lucide-react";
 import type { Plot } from "@shared/schema";
+import { SATELLITE_MODELS, type SatelliteModel } from "./SatelliteAnalysis";
 
 interface FloatingLandscapeSatelliteProps {
   plots: Plot[];
@@ -51,7 +53,7 @@ interface LandscapeAnalysis {
   coverage: number;
 }
 
-function generateLandscapeAnalysis(plots: Plot[]): LandscapeAnalysis {
+function generateLandscapeAnalysis(plots: Plot[], model: SatelliteModel = "clay"): LandscapeAnalysis {
   if (plots.length === 0) {
     return {
       totalArea: 0,
@@ -73,8 +75,10 @@ function generateLandscapeAnalysis(plots: Plot[]): LandscapeAnalysis {
   const avgHealth = plots.reduce((sum, p) => sum + Number(p.healthScore || 75), 0) / plots.length;
   
   const healthMultiplier = avgHealth / 100;
-  const avgNdvi = 0.4 + healthMultiplier * 0.45;
-  const totalBiomass = totalCarbon * 2.5;
+  // AlphaEarth uses multi-modal data for slightly better accuracy
+  const modelBonus = model === "alphaearth" ? 0.02 : 0;
+  const avgNdvi = 0.4 + healthMultiplier * 0.45 + modelBonus;
+  const totalBiomass = totalCarbon * 2.5 + (model === "alphaearth" ? plots.length * 0.5 : 0);
 
   const plotsByHealth = { dense: 0, moderate: 0, sparse: 0, low: 0 };
   plots.forEach(plot => {
@@ -94,6 +98,14 @@ function generateLandscapeAnalysis(plots: Plot[]): LandscapeAnalysis {
     else changeDetection.decline++;
   });
 
+  // Different sensors based on model
+  const sensor = model === "alphaearth" 
+    ? "Multi-modal (Sentinel-2, SAR, LiDAR)" 
+    : "Sentinel-2 L2A";
+  
+  // AlphaEarth has better cloud penetration
+  const coverage = model === "alphaearth" ? 98.2 : 94.5;
+
   return {
     totalArea,
     avgNdvi: Math.min(0.95, Math.max(0.2, avgNdvi)),
@@ -103,9 +115,9 @@ function generateLandscapeAnalysis(plots: Plot[]): LandscapeAnalysis {
     plotsByHealth,
     changeDetection,
     lastCapture: "2026-01-28",
-    sensor: "Sentinel-2 L2A",
+    sensor: sensor,
     resolution: "10m",
-    coverage: 94.5
+    coverage: coverage
   };
 }
 
@@ -250,6 +262,9 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
   const [isAnimating, setIsAnimating] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<LandscapeAnalysis | null>(null);
+  const [selectedModel, setSelectedModel] = useState<SatelliteModel>("clay");
+
+  const modelInfo = SATELLITE_MODELS[selectedModel];
 
   useEffect(() => {
     if (isOpen) {
@@ -258,7 +273,7 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
       
       setIsAnalyzing(true);
       const timer = setTimeout(() => {
-        setAnalysis(generateLandscapeAnalysis(plots));
+        setAnalysis(generateLandscapeAnalysis(plots, selectedModel));
         setIsAnalyzing(false);
       }, 1500);
       return () => clearTimeout(timer);
@@ -267,14 +282,18 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
       const timer = setTimeout(() => setIsVisible(false), 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, plots]);
+  }, [isOpen, plots, selectedModel]);
 
   const handleRefresh = () => {
     setIsAnalyzing(true);
     setTimeout(() => {
-      setAnalysis(generateLandscapeAnalysis(plots));
+      setAnalysis(generateLandscapeAnalysis(plots, selectedModel));
       setIsAnalyzing(false);
     }, 2000);
+  };
+
+  const handleModelChange = (model: SatelliteModel) => {
+    setSelectedModel(model);
   };
 
   if (!isVisible) return null;
@@ -295,7 +314,7 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
               </div>
               <div>
                 <h3 className="font-semibold text-sm">Landscape Analysis</h3>
-                <p className="text-xs text-muted-foreground">Clay Foundation Model</p>
+                <p className="text-xs text-muted-foreground">{modelInfo.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -320,6 +339,34 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
               </Button>
             </div>
           </div>
+          
+          {/* Model Selector */}
+          <div className="flex items-center gap-2 mt-3">
+            <Select value={selectedModel} onValueChange={(v) => handleModelChange(v as SatelliteModel)}>
+              <SelectTrigger className="flex-1 h-8 text-xs" data-testid="select-landscape-model">
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="clay" data-testid="option-landscape-model-clay">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">Clay Foundation Model</span>
+                    <span className="text-xs text-muted-foreground">Made With ML • Sentinel-2</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="alphaearth" data-testid="option-landscape-model-alphaearth">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">AlphaEarth Foundations</span>
+                    <span className="text-xs text-muted-foreground">Google DeepMind • Multi-modal</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {selectedModel === "alphaearth" && (
+              <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20">
+                New
+              </Badge>
+            )}
+          </div>
         </CardHeader>
 
         <ScrollArea className="flex-1">
@@ -335,7 +382,7 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
                 <div className="text-center">
                   <p className="text-sm font-medium">Processing Satellite Imagery</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Running Clay Foundation embeddings...
+                    Running {modelInfo.name} embeddings...
                   </p>
                 </div>
                 <Progress value={45} className="w-48" />

@@ -4,11 +4,35 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Satellite, Leaf, TrendingUp, Calendar, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { Plot } from "@shared/schema";
 
+export type SatelliteModel = "clay" | "alphaearth";
+
+export const SATELLITE_MODELS = {
+  clay: {
+    id: "clay" as const,
+    name: "Clay Foundation Model",
+    provider: "Made With ML",
+    description: "Open-source Earth observation model",
+    embedDimensions: 768,
+    source: "Sentinel-2"
+  },
+  alphaearth: {
+    id: "alphaearth" as const,
+    name: "AlphaEarth Foundations",
+    provider: "Google DeepMind",
+    description: "AI-powered satellite embedding",
+    embedDimensions: 64,
+    source: "Multi-modal (optical, radar, LiDAR)"
+  }
+};
+
 interface SatelliteAnalysisProps {
   plot: Plot;
+  selectedModel?: SatelliteModel;
+  onModelChange?: (model: SatelliteModel) => void;
 }
 
 interface AnalysisResult {
@@ -27,13 +51,11 @@ interface AnalysisResult {
   sensor: string;
 }
 
-function generateMockAnalysis(plot: Plot): AnalysisResult {
-  // Normalize all numeric inputs at the top for consistency
+function generateMockAnalysis(plot: Plot, model: SatelliteModel): AnalysisResult {
   const healthScore = Number(plot.healthScore ?? 75);
   const carbonTons = Number(plot.carbonTons ?? 25);
   const latitude = Number(plot.latitude ?? 8.4);
   const longitude = Number(plot.longitude ?? 124.4);
-  // Plot ID is a UUID string, so hash it to get a numeric seed
   const plotIdHash = plot.id ? plot.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : 100;
   const seed = plotIdHash * 17 + latitude * 1000 + longitude * 500;
   const random = (min: number, max: number) => {
@@ -42,11 +64,24 @@ function generateMockAnalysis(plot: Plot): AnalysisResult {
   };
 
   const healthMultiplier = healthScore / 100;
-  const ndvi = 0.4 + healthMultiplier * 0.45 + random(-0.05, 0.05);
-  const biomass = Number(carbonTons) * 2.5 + random(-5, 10);
+  
+  // AlphaEarth uses multi-modal data so slightly different results
+  const modelBonus = model === "alphaearth" ? 0.03 : 0;
+  const ndvi = 0.4 + healthMultiplier * 0.45 + random(-0.05, 0.05) + modelBonus;
+  const biomass = Number(carbonTons) * 2.5 + random(-5, 10) + (model === "alphaearth" ? 2 : 0);
   
   const changeTypes: Array<"growth" | "stable" | "decline" | "cleared"> = ["growth", "stable", "growth", "stable"];
   const changeType = changeTypes[plotIdHash % 4];
+  
+  // Different sensors based on model
+  const sensor = model === "alphaearth" 
+    ? "Multi-modal (Sentinel-2, SAR, LiDAR)" 
+    : "Sentinel-2 L2A";
+  
+  // AlphaEarth handles cloud cover better
+  const cloudCover = model === "alphaearth" 
+    ? random(0, 8) 
+    : random(5, 25);
   
   return {
     ndvi: Math.min(0.95, Math.max(0.2, ndvi)),
@@ -59,9 +94,9 @@ function generateMockAnalysis(plot: Plot): AnalysisResult {
       period: "Last 6 months"
     },
     lastCapture: "2026-01-28",
-    cloudCover: random(5, 25),
+    cloudCover: cloudCover,
     resolution: "10m",
-    sensor: "Sentinel-2 L2A"
+    sensor: sensor
   };
 }
 
@@ -207,25 +242,36 @@ function TimeSeriesChart({ plot }: { plot: Plot }) {
   );
 }
 
-export function SatelliteAnalysis({ plot }: SatelliteAnalysisProps) {
+export function SatelliteAnalysis({ plot, selectedModel = "clay", onModelChange }: SatelliteAnalysisProps) {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [internalModel, setInternalModel] = useState<SatelliteModel>(selectedModel);
+
+  const currentModel = onModelChange ? selectedModel : internalModel;
+  const modelInfo = SATELLITE_MODELS[currentModel];
 
   useEffect(() => {
-    // Simulate loading analysis
     setIsLoading(true);
     const timer = setTimeout(() => {
-      setAnalysis(generateMockAnalysis(plot));
+      setAnalysis(generateMockAnalysis(plot, currentModel));
       setIsLoading(false);
     }, 800);
     return () => clearTimeout(timer);
-  }, [plot.id]);
+  }, [plot.id, currentModel]);
+
+  const handleModelChange = (model: SatelliteModel) => {
+    if (onModelChange) {
+      onModelChange(model);
+    } else {
+      setInternalModel(model);
+    }
+  };
 
   const handleRefresh = () => {
     setIsLoading(true);
     setTimeout(() => {
-      setAnalysis(generateMockAnalysis(plot));
+      setAnalysis(generateMockAnalysis(plot, currentModel));
       setIsLoading(false);
     }, 1200);
   };
@@ -235,7 +281,7 @@ export function SatelliteAnalysis({ plot }: SatelliteAnalysisProps) {
       <div className="p-6 flex flex-col items-center justify-center gap-4">
         <RefreshCw className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Analyzing satellite imagery...</p>
-        <p className="text-xs text-muted-foreground">Powered by Clay Foundation Model</p>
+        <p className="text-xs text-muted-foreground">Powered by {modelInfo.name}</p>
       </div>
     );
   }
@@ -250,19 +296,44 @@ export function SatelliteAnalysis({ plot }: SatelliteAnalysisProps) {
 
   return (
     <div className="space-y-4 p-4">
-      {/* Header */}
+      {/* Header with Model Selector */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Satellite className="w-5 h-5 text-primary" />
           <h3 className="font-semibold">Satellite Analysis</h3>
-          <Badge variant="outline" className="text-xs">
-            Clay Foundation Model
-          </Badge>
         </div>
         <Button variant="ghost" size="sm" onClick={handleRefresh} data-testid="button-refresh-analysis">
           <RefreshCw className="w-4 h-4 mr-1" />
           Refresh
         </Button>
+      </div>
+
+      {/* Model Selector */}
+      <div className="flex items-center gap-2">
+        <Select value={currentModel} onValueChange={(v) => handleModelChange(v as SatelliteModel)}>
+          <SelectTrigger className="w-[220px] h-8 text-xs" data-testid="select-satellite-model">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="clay" data-testid="option-model-clay">
+              <div className="flex flex-col items-start">
+                <span className="font-medium">Clay Foundation Model</span>
+                <span className="text-xs text-muted-foreground">Made With ML • Sentinel-2</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="alphaearth" data-testid="option-model-alphaearth">
+              <div className="flex flex-col items-start">
+                <span className="font-medium">AlphaEarth Foundations</span>
+                <span className="text-xs text-muted-foreground">Google DeepMind • Multi-modal</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {currentModel === "alphaearth" && (
+          <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20">
+            New
+          </Badge>
+        )}
       </div>
 
       {/* Capture Info */}
@@ -395,7 +466,7 @@ export function SatelliteAnalysis({ plot }: SatelliteAnalysisProps) {
               </div>
 
               <div className="text-xs text-muted-foreground text-center p-2 bg-muted/20 rounded">
-                Analysis based on Sentinel-2 L2A imagery processed through Clay Foundation Model embeddings
+                Analysis based on {modelInfo.source} imagery processed through {modelInfo.name} embeddings
               </div>
             </CardContent>
           </Card>

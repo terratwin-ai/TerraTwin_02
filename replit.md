@@ -13,7 +13,17 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
-- **Landscape-Level Satellite Analysis** - Clay Foundation Model visualization at the project level
+- **Multi-Model Satellite Analysis** - Support for multiple Earth observation AI models
+  - Model selector dropdown in satellite analysis panels (plot-level and landscape-level)
+  - Clay Foundation Model (Made With ML): Open-source, Sentinel-2 based, 768-dimension embeddings
+  - AlphaEarth Foundations (Google DeepMind): Multi-modal (optical, radar, LiDAR), 64-dimension embeddings
+  - Dynamic loading messages and footer attribution based on selected model
+  - Model-specific differences: AlphaEarth shows better cloud penetration (98% vs 94% coverage)
+  - "New" badge indicator for AlphaEarth model
+- **AI Chat Switched to Claude** - Replaced OpenAI with Anthropic Claude (claude-sonnet-4-5)
+  - Streaming responses via Replit AI Integrations
+  - No API key required - billed to Replit credits
+- **Landscape-Level Satellite Analysis** - Earth observation model visualization at the project level
   - FloatingLandscapeSatellite: Slide-in panel with landscape-wide satellite metrics
   - 3-tab interface: Overview, NDVI, Trends
   - Overview tab: Total hectares, plot count, carbon stock, biomass totals
@@ -22,7 +32,7 @@ Key features include:
   - NDVI tab: Landscape average NDVI gauge, 10x10 heatmap grid
   - Trends tab: 6-month NDVI time series, sensor/capture info
   - "Satellite Analysis" button in Dashboard header to open panel
-  - Simulated Clay Foundation embedding processing animation
+  - Model selector to switch between Clay and AlphaEarth
 - **LGND Discover-Style Immersive Plot View** - Full redesign of FarmerPlotView inspired by lgnd.ai/discover
   - Full-screen Cesium 3D terrain map as immersive background
   - FloatingChatPanel: Expandable AI chat with glass-morphism styling
