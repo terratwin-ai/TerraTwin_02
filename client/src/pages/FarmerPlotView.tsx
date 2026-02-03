@@ -1,17 +1,14 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, MapPin, Search, X } from "lucide-react";
+import { ArrowLeft, Loader2, Search, X } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
-import CesiumPlotTerrain from "@/components/CesiumPlotTerrain";
+import { BambooViewer } from "@/components/BambooViewer";
 import { FloatingChatPanel } from "@/components/FloatingChatPanel";
 import { FloatingDataCards } from "@/components/FloatingDataCards";
 import { FloatingSatellitePanel } from "@/components/FloatingSatellitePanel";
 import { Card, CardContent } from "@/components/ui/card";
-
-const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
 interface QueryResult {
   action: "filter" | "highlight" | "zoom";
@@ -24,20 +21,9 @@ export default function FarmerPlotView() {
   const plotId = params?.id;
   
   const [year, setYear] = useState(2026);
-  const [showLidar, setShowLidar] = useState(false);
   const [showSatellite, setShowSatellite] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
   const [activeQuery, setActiveQuery] = useState<QueryResult | null>(null);
   const [isHighlighted, setIsHighlighted] = useState(false);
-  const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (scanTimeoutRef.current) {
-        clearTimeout(scanTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const { data: plot, isLoading: plotLoading } = useQuery<Plot>({
     queryKey: ["/api/plots", plotId],
@@ -105,12 +91,7 @@ export default function FarmerPlotView() {
       <div className={`absolute inset-0 transition-all duration-500 ${
         isHighlighted ? "ring-4 ring-inset ring-primary/50" : ""
       }`}>
-        <CesiumPlotTerrain 
-          plot={plot} 
-          cesiumToken={CESIUM_ION_TOKEN} 
-          year={year}
-          showLidar={showLidar}
-        />
+        <BambooViewer year={year} />
       </div>
 
       {isHighlighted && (
