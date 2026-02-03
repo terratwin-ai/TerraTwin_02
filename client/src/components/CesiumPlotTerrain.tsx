@@ -308,8 +308,9 @@ function addBambooPlants(
   const clumpsPerRow = Math.floor(plotSizeMeters / spacingMeters);
   const totalClumps = clumpsPerRow * clumpsPerRow;
   
-  const visibleGridSize = 6;
-  const visibleClumps = visibleGridSize * visibleGridSize;
+  const clumpsPerHa = 150;
+  const visibleClumps = Math.round(plot.areaHectares * clumpsPerHa);
+  const visibleGridSize = Math.ceil(Math.sqrt(visibleClumps));
   
   const halfSize = plotSizeMeters / 2;
   const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);
@@ -344,7 +345,7 @@ function addBambooPlants(
       },
     });
     
-    const polesInThisClump = Math.min(poleCountPerClump, 35);
+    const polesInThisClump = Math.min(poleCountPerClump, 12);
     
     for (let p = 0; p < polesInThisClump; p++) {
       const poleSeed = clumpSeed + p * 10;
