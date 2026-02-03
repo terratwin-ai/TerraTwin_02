@@ -12,10 +12,12 @@ import { FloatingNavMenu } from "@/components/FloatingNavMenu";
 import { FloatingLandscapeStats } from "@/components/FloatingLandscapeStats";
 import { FloatingLandscapeChat } from "@/components/FloatingLandscapeChat";
 import { FloatingPlotDetail } from "@/components/FloatingPlotDetail";
+import { FloatingLandscapeSatellite } from "@/components/FloatingLandscapeSatellite";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Plot, Steward, VerificationEvent } from "@shared/schema";
-import { Leaf, Wifi } from "lucide-react";
+import { Leaf, Satellite } from "lucide-react";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
 
@@ -24,6 +26,7 @@ export default function Dashboard() {
   const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
   const [activeView, setActiveView] = useState("landscape");
   const [filteredPlotIds, setFilteredPlotIds] = useState<string[] | null>(null);
+  const [showSatellite, setShowSatellite] = useState(false);
 
   const { data: plots = [], isLoading: plotsLoading } = useQuery<Plot[]>({
     queryKey: ["/api/plots"],
@@ -146,6 +149,25 @@ export default function Dashboard() {
       />
 
       <FloatingLandscapeStats plots={plots} stewards={stewards} />
+
+      <div className="fixed top-20 right-4 z-30">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSatellite(true)}
+          className="bg-card/90 backdrop-blur-xl border-border/50 shadow-lg gap-2"
+          data-testid="button-open-satellite"
+        >
+          <Satellite className="h-4 w-4" />
+          <span className="hidden sm:inline">Satellite Analysis</span>
+        </Button>
+      </div>
+
+      <FloatingLandscapeSatellite
+        plots={plots}
+        isOpen={showSatellite}
+        onClose={() => setShowSatellite(false)}
+      />
 
       <FloatingPlotDetail
         plot={selectedPlot || null}

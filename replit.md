@@ -13,6 +13,16 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Landscape-Level Satellite Analysis** - Clay Foundation Model visualization at the project level
+  - FloatingLandscapeSatellite: Slide-in panel with landscape-wide satellite metrics
+  - 3-tab interface: Overview, NDVI, Trends
+  - Overview tab: Total hectares, plot count, carbon stock, biomass totals
+  - Health distribution chart showing plots by vegetation density category
+  - Change detection summary (growth/stable/decline counts)
+  - NDVI tab: Landscape average NDVI gauge, 10x10 heatmap grid
+  - Trends tab: 6-month NDVI time series, sensor/capture info
+  - "Satellite Analysis" button in Dashboard header to open panel
+  - Simulated Clay Foundation embedding processing animation
 - **LGND Discover-Style Immersive Plot View** - Full redesign of FarmerPlotView inspired by lgnd.ai/discover
   - Full-screen Cesium 3D terrain map as immersive background
   - FloatingChatPanel: Expandable AI chat with glass-morphism styling
