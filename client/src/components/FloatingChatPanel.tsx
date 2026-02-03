@@ -22,6 +22,46 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Plot, Steward } from "@shared/schema";
 
+function renderMarkdown(content: string) {
+  const lines = content.split('\n');
+  return lines.map((line, lineIndex) => {
+    const parts: (string | JSX.Element)[] = [];
+    let remaining = line;
+    let keyIndex = 0;
+    
+    while (remaining.length > 0) {
+      const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+      if (boldMatch && boldMatch.index !== undefined) {
+        if (boldMatch.index > 0) {
+          parts.push(remaining.slice(0, boldMatch.index));
+        }
+        parts.push(<strong key={`b-${lineIndex}-${keyIndex++}`}>{boldMatch[1]}</strong>);
+        remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
+      } else {
+        parts.push(remaining);
+        break;
+      }
+    }
+    
+    const isBullet = line.trim().startsWith('- ');
+    if (isBullet) {
+      return (
+        <div key={lineIndex} className="flex gap-1.5 ml-1">
+          <span className="text-muted-foreground">•</span>
+          <span>{parts.slice(1).length > 0 ? parts.map((p, i) => typeof p === 'string' ? p.replace(/^- /, '') : p) : line.replace(/^- /, '')}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <span key={lineIndex}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    );
+  });
+}
+
 interface FloatingChatPanelProps {
   plot: Plot;
   steward?: Steward;
@@ -315,7 +355,9 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
                           : "bg-muted"
                       }`}
                     >
-                      {msg.content || (
+                      {msg.content ? (
+                        <div className="whitespace-pre-wrap">{renderMarkdown(msg.content)}</div>
+                      ) : (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       )}
                     </div>
