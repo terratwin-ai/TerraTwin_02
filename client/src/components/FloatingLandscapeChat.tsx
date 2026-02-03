@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import ReactMarkdown from "react-markdown";
 import type { Plot } from "@shared/schema";
 
 interface FloatingLandscapeChatProps {
@@ -253,13 +254,30 @@ Provide helpful, practical guidance about bamboo species selection, land managem
                         </div>
                       )}
                       <div
-                        className={`px-3 py-2 rounded-lg text-sm max-w-[85%] whitespace-pre-line ${
+                        className={`px-3 py-2 rounded-lg text-sm max-w-[85%] ${
                           msg.role === "user"
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted"
                         }`}
                       >
-                        {msg.content || (
+                        {msg.content ? (
+                          msg.role === "assistant" ? (
+                            <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5">
+                              <ReactMarkdown
+                                components={{
+                                  p: ({ children }) => <p className="text-sm">{children}</p>,
+                                  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                                  ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5">{children}</ul>,
+                                  li: ({ children }) => <li className="text-sm">{children}</li>,
+                                }}
+                              >
+                                {msg.content}
+                              </ReactMarkdown>
+                            </div>
+                          ) : (
+                            msg.content
+                          )
+                        ) : (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         )}
                       </div>
