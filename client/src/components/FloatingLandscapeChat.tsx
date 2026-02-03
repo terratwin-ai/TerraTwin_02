@@ -163,7 +163,7 @@ export function FloatingLandscapeChat({
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
         data-testid="button-open-landscape-chat"
       >
         <Sparkles className="h-6 w-6" />
@@ -173,12 +173,11 @@ export function FloatingLandscapeChat({
 
   return (
     <div 
-      className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ease-out ${
-        isExpanded ? "w-[420px]" : "w-[380px]"
-      }`}
+      className={`fixed bottom-6 left-6 z-50 transition-all duration-300 ease-out w-[380px]`}
+      style={{ maxHeight: "calc(100vh - 280px)" }}
       data-testid="floating-landscape-chat"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col max-h-[inherit]">
         <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -210,7 +209,7 @@ export function FloatingLandscapeChat({
         </CardHeader>
 
         {isExpanded && messages.length > 0 && (
-          <ScrollArea className="max-h-[350px] p-3" ref={scrollRef as any}>
+          <ScrollArea className="flex-1 max-h-[300px] p-3" ref={scrollRef as any}>
             <div className="space-y-3">
               {messages.map((msg, i) => (
                 <div key={i} className="space-y-2">
