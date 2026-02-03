@@ -314,7 +314,9 @@ function addBambooPlants(
   const halfSize = plotSizeMeters / 2;
   const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);
   
-  const stepSize = plotSizeMeters / visibleGridSize;
+  const clumpSpacing = 5;
+  const gridExtent = (visibleGridSize - 1) * clumpSpacing;
+  const gridOffset = gridExtent / 2;
 
   for (let i = 0; i < visibleClumps; i++) {
     const row = Math.floor(i / visibleGridSize);
@@ -324,8 +326,8 @@ function addBambooPlants(
     const jitterX = (seededRandom(clumpSeed) - 0.5) * 2;
     const jitterZ = (seededRandom(clumpSeed + 1) - 0.5) * 2;
     
-    const offsetX = -halfSize + stepSize / 2 + col * stepSize + jitterX;
-    const offsetZ = -halfSize + stepSize / 2 + row * stepSize + jitterZ;
+    const offsetX = -gridOffset + col * clumpSpacing + jitterX;
+    const offsetZ = -gridOffset + row * clumpSpacing + jitterZ;
     
     const offsetLat = offsetZ / 111320;
     const offsetLng = offsetX / (111320 * Math.cos(plot.latitude * Math.PI / 180));

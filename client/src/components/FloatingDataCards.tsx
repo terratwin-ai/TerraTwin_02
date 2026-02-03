@@ -221,7 +221,7 @@ export function FloatingDataCards({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total clumps</span>
-                    <span>{totalClumps}</span>
+                    <span>{totalClumps} (5m × 5m spacing)</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Poles per clump</span>
