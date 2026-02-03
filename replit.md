@@ -13,6 +13,16 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **LGND Discover-Style Immersive Plot View** - Full redesign of FarmerPlotView inspired by lgnd.ai/discover
+  - Full-screen Cesium 3D terrain map as immersive background
+  - FloatingChatPanel: Expandable AI chat with glass-morphism styling
+    - Quick action badges (Carbon potential, Vegetation health, Earnings)
+    - Embedded data visualizations in AI responses (stats cards with metrics)
+    - Conversational search that parses natural language queries
+  - FloatingDataCards: Overlay panels with plot info, year slider, carbon metrics
+  - FloatingSatellitePanel: Slide-in/out panel for satellite analysis
+  - Sensor cards (temperature, moisture, health) as floating overlays
+  - Visual feedback for search queries (border highlight, query indicator badge)
 - **Satellite Analysis Tab** - Clay Foundation Model prototype visualization in plot detail panel
   - 3-tab interface in plot detail panel: Details, Satellite, AI Agent
   - NDVI gauge with color-coded vegetation health (dense/moderate/sparse/low)
