@@ -276,6 +276,11 @@ function loadCesiumScript(): Promise<void> {
   });
 }
 
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 9999) * 10000;
+  return x - Math.floor(x);
+}
+
 function addBambooPlants(
   viewer: InstanceType<typeof window.Cesium.Viewer>,
   plot: Plot,
@@ -303,10 +308,16 @@ function addBambooPlants(
   
   const hectareMeters = 100;
   const halfSize = hectareMeters / 2;
+  
+  const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);
 
   for (let i = 0; i < visibleClumps; i++) {
-    const angle = (i / visibleClumps) * Math.PI * 2 + Math.random() * 0.5;
-    const radius = 10 + Math.random() * (halfSize - 15);
+    const clumpSeed = plotSeed + i * 100;
+    const angleOffset = seededRandom(clumpSeed) * 0.5;
+    const radiusRandom = seededRandom(clumpSeed + 1);
+    
+    const angle = (i / visibleClumps) * Math.PI * 2 + angleOffset;
+    const radius = 10 + radiusRandom * (halfSize - 15);
     
     const offsetLat = (radius * Math.cos(angle)) / 111320;
     const offsetLng = (radius * Math.sin(angle)) / (111320 * Math.cos(plot.latitude * Math.PI / 180));
@@ -326,19 +337,13 @@ function addBambooPlants(
     const polesInThisClump = Math.min(poleCountPerClump, 35);
     
     for (let p = 0; p < polesInThisClump; p++) {
-      let poleOffsetX: number, poleOffsetZ: number;
+      const poleSeed = clumpSeed + p * 10;
+      const isCenter = seededRandom(poleSeed) < 0.3;
+      const poleRadius = isCenter ? seededRandom(poleSeed + 1) * 0.4 : 0.5 + seededRandom(poleSeed + 1) * 1.0;
+      const poleAngle = seededRandom(poleSeed + 2) * Math.PI * 2;
       
-      if (Math.random() < 0.3) {
-        const r = Math.random() * 0.4;
-        const a = Math.random() * Math.PI * 2;
-        poleOffsetX = Math.cos(a) * r;
-        poleOffsetZ = Math.sin(a) * r;
-      } else {
-        const r = 0.5 + Math.random() * 1.0;
-        const a = Math.random() * Math.PI * 2;
-        poleOffsetX = Math.cos(a) * r;
-        poleOffsetZ = Math.sin(a) * r;
-      }
+      const poleOffsetX = Math.cos(poleAngle) * poleRadius;
+      const poleOffsetZ = Math.sin(poleAngle) * poleRadius;
       
       const poleOffsetLat = poleOffsetZ / 111320;
       const poleOffsetLng = poleOffsetX / (111320 * Math.cos(clumpLat * Math.PI / 180));
@@ -346,15 +351,17 @@ function addBambooPlants(
       const poleLat = clumpLat + poleOffsetLat;
       const poleLng = clumpLng + poleOffsetLng;
       
-      const heightVariation = 0.7 + Math.random() * 0.5;
+      const heightVariation = 0.7 + seededRandom(poleSeed + 3) * 0.5;
       const poleHeight = baseHeight * heightVariation;
       
-      const thickness = 0.06 + Math.random() * 0.08 + progress * 0.06;
+      const thicknessRandom = seededRandom(poleSeed + 4);
+      const thickness = 0.06 + thicknessRandom * 0.08 + progress * 0.06;
       
       const maturityFactor = Math.min(progress * 2, 1);
       const hue = 0.28 + maturityFactor * 0.05;
       const saturation = 0.7 - maturityFactor * 0.15;
-      const lightness = 0.35 + Math.random() * 0.1;
+      const lightnessRandom = seededRandom(poleSeed + 5);
+      const lightness = 0.35 + lightnessRandom * 0.1;
       
       const r = Math.floor((1 - saturation + saturation * Math.max(0, Math.abs(hue * 6 - 3) - 1)) * lightness * 255);
       const g = Math.floor((1 - saturation + saturation * Math.max(0, 2 - Math.abs(hue * 6 - 2))) * lightness * 255 * 1.4);
