@@ -66,7 +66,6 @@ export default function StewardIntent() {
   const [isListening, setIsListening] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState<string>("");
   const [urgencyWeeks, setUrgencyWeeks] = useState([2]);
-  const [bondAmount, setBondAmount] = useState(500);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState<{
     verifiers: number;
@@ -389,37 +388,6 @@ export default function StewardIntent() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Bond</label>
-              <Badge variant="outline" className="text-xs">
-                Refundable
-              </Badge>
-            </div>
-            <Card className="bg-muted/50">
-              <CardContent className="p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Banknote className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-lg font-bold">
-                    {bondAmount.toLocaleString()} PHP
-                  </span>
-                </div>
-                <div className="flex gap-1">
-                  {[250, 500, 1000].map((amount) => (
-                    <Button
-                      key={amount}
-                      variant={bondAmount === amount ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setBondAmount(amount)}
-                      data-testid={`button-bond-${amount}`}
-                    >
-                      {amount}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
 
         <Button
