@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Radio,
+  Plus,
   ClipboardCheck,
   BadgeCheck,
   Handshake,
@@ -58,6 +59,8 @@ const intentTypes = [
 export default function StewardIntent() {
   const [, setLocation] = useLocation();
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
+  const [customIntent, setCustomIntent] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState<string>("");
   const [urgencyWeeks, setUrgencyWeeks] = useState([2]);
   const [bondAmount, setBondAmount] = useState(500);
@@ -118,7 +121,7 @@ export default function StewardIntent() {
       ? "1 week"
       : `${urgencyWeeks[0]} weeks`;
 
-  const isReady = selectedIntent && selectedPlot;
+  const isReady = selectedIntent && selectedPlot && (selectedIntent !== "custom" || customIntent.trim());
 
   return (
     <StewardLayout activeTab="intent">
@@ -188,6 +191,71 @@ export default function StewardIntent() {
               </Card>
             );
           })}
+
+          <Card
+            className={`cursor-pointer transition-colors ${
+              selectedIntent === "custom"
+                ? "border-primary bg-primary/5"
+                : "hover-elevate"
+            }`}
+            onClick={() => {
+              setSelectedIntent("custom");
+              setShowCustomInput(true);
+            }}
+            data-testid="intent-option-custom"
+          >
+            <CardContent className="p-3 flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  selectedIntent === "custom"
+                    ? "bg-primary/20"
+                    : "bg-muted"
+                }`}
+              >
+                <Plus
+                  className={`h-5 w-5 ${
+                    selectedIntent === "custom" ? "text-primary" : "text-muted-foreground"
+                  }`}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className={`text-sm font-medium ${
+                    selectedIntent === "custom" ? "text-primary" : ""
+                  }`}
+                >
+                  Something else...
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Tell us what you need
+                </p>
+              </div>
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  selectedIntent === "custom"
+                    ? "border-primary"
+                    : "border-muted-foreground/30"
+                }`}
+              >
+                {selectedIntent === "custom" && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {showCustomInput && selectedIntent === "custom" && (
+            <div className="pl-2">
+              <Textarea
+                placeholder="Describe what you need..."
+                value={customIntent}
+                onChange={(e) => setCustomIntent(e.target.value)}
+                className="text-sm resize-none"
+                rows={2}
+                data-testid="input-custom-intent"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
