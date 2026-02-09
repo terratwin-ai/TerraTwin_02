@@ -73,7 +73,7 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
       className={`fixed top-4 right-6 w-[380px] z-50 transition-all duration-300 ease-out ${
         isAnimating ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
       }`}
-      style={{ maxHeight: "calc(100vh - 280px)" }}
+      style={{ maxHeight: "calc(100vh - 32px)" }}
       data-testid="floating-plot-detail"
     >
       <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col">
@@ -107,7 +107,7 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
           </Button>
         </CardHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-4 space-y-4">
             {steward && (
               <Card className="border-border/50">
@@ -190,7 +190,7 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
           </div>
         </ScrollArea>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card/95 backdrop-blur-sm">
+        <div className="p-4 border-t bg-card/95 backdrop-blur-sm flex-shrink-0">
           <div className="flex gap-2">
             <Button
               variant="outline"
