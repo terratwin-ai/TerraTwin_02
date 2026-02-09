@@ -97,6 +97,16 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/stewards/:id/memberships", async (req, res) => {
+    try {
+      const memberships = await storage.getCooperativeMembershipsBySteward(req.params.id);
+      res.json(memberships);
+    } catch (error) {
+      console.error("Error fetching steward memberships:", error);
+      res.status(500).json({ error: "Failed to fetch steward memberships" });
+    }
+  });
+
   app.get("/api/cooperatives/:id/members", async (req, res) => {
     try {
       const members = await storage.getCooperativeMembers(req.params.id);

@@ -61,6 +61,7 @@ export interface IStorage {
   getCooperativesByProject(projectId: string): Promise<Cooperative[]>;
   getCooperative(id: string): Promise<Cooperative | undefined>;
   createCooperative(cooperative: InsertCooperative): Promise<Cooperative>;
+  getCooperativeMembershipsBySteward(stewardId: string): Promise<{ membership: CooperativeMember; cooperative: Cooperative; project: Project | null }[]>;
   
   getCooperativeMembers(cooperativeId: string): Promise<CooperativeMember[]>;
   createCooperativeMember(member: InsertCooperativeMember): Promise<CooperativeMember>;
@@ -217,6 +218,23 @@ export class DatabaseStorage implements IStorage {
   async createProjectDocument(document: InsertProjectDocument): Promise<ProjectDocument> {
     const [created] = await db.insert(projectDocuments).values(document).returning();
     return created;
+  }
+
+  async getCooperativeMembershipsBySteward(stewardId: string): Promise<{ membership: CooperativeMember; cooperative: Cooperative; project: Project | null }[]> {
+    const memberships = await db.select().from(cooperativeMembers).where(eq(cooperativeMembers.stewardId, stewardId));
+    const results: { membership: CooperativeMember; cooperative: Cooperative; project: Project | null }[] = [];
+    for (const membership of memberships) {
+      if (!membership.cooperativeId) continue;
+      const [coop] = await db.select().from(cooperatives).where(eq(cooperatives.id, membership.cooperativeId));
+      if (!coop) continue;
+      let project: Project | null = null;
+      if (coop.projectId) {
+        const [proj] = await db.select().from(projects).where(eq(projects.id, coop.projectId));
+        project = proj || null;
+      }
+      results.push({ membership, cooperative: coop, project });
+    }
+    return results;
   }
 
   async getProjectStewards(projectId: string): Promise<Steward[]> {
