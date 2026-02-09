@@ -1,9 +1,9 @@
 import { useLocation } from "wouter";
-import { Home, Camera, Wallet, Zap, Users, LogOut, Leaf } from "lucide-react";
+import { Home, Camera, Wallet, Zap, Users, Map, LogOut, Leaf } from "lucide-react";
 
 interface StewardLayoutProps {
   children: React.ReactNode;
-  activeTab: "home" | "capture" | "intent" | "community" | "earnings";
+  activeTab: "home" | "map" | "capture" | "intent" | "community" | "earnings";
 }
 
 export function StewardLayout({ children, activeTab }: StewardLayoutProps) {
@@ -18,8 +18,8 @@ export function StewardLayout({ children, activeTab }: StewardLayoutProps) {
 
   const tabs = [
     { id: "home", label: "Plots", icon: Home, path: "/steward/home" },
+    { id: "map", label: "Map", icon: Map, path: "/steward/map" },
     { id: "capture", label: "Capture", icon: Camera, path: "/steward/capture" },
-    { id: "intent", label: "Intent", icon: Zap, path: "/steward/intent" },
     { id: "community", label: "Community", icon: Users, path: "/steward/community" },
     { id: "earnings", label: "Earnings", icon: Wallet, path: "/steward/earnings" },
   ];

@@ -18,6 +18,7 @@ import StewardCapture from "@/pages/steward/StewardCapture";
 import StewardEarnings from "@/pages/steward/StewardEarnings";
 import StewardIntent from "@/pages/steward/StewardIntent";
 import StewardCommunity from "@/pages/steward/StewardCommunity";
+import StewardMap from "@/pages/steward/StewardMap";
 
 function ProtectedDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/steward/capture" component={StewardCapture} />
       <Route path="/steward/plot/:id" component={StewardPlotDetail} />
       <Route path="/steward/submit/:plotId" component={StewardSubmit} />
+      <Route path="/steward/map" component={StewardMap} />
       <Route path="/steward/intent" component={StewardIntent} />
       <Route path="/steward/community" component={StewardCommunity} />
       <Route path="/steward/earnings" component={StewardEarnings} />
