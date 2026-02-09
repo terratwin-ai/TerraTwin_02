@@ -128,7 +128,7 @@ export default function StewardIntent() {
             I need...
           </h1>
           <p className="text-sm text-muted-foreground">
-            Broadcast your intent to the verifier network
+            Broadcast your intent to the network
           </p>
         </div>
 
