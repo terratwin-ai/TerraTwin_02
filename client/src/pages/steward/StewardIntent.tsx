@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { StewardLayout } from "@/components/steward/StewardLayout";
@@ -26,6 +26,8 @@ import {
   Users,
   Banknote,
   Zap,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import type { Plot } from "@shared/schema";
 
@@ -61,6 +63,7 @@ export default function StewardIntent() {
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
   const [customIntent, setCustomIntent] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState<string>("");
   const [urgencyWeeks, setUrgencyWeeks] = useState([2]);
   const [bondAmount, setBondAmount] = useState(500);
@@ -86,6 +89,59 @@ export default function StewardIntent() {
   const stewardPlots = plots.filter(
     (p) => String(p.stewardId) === stewardId
   );
+
+  const recognitionRef = useRef<any>(null);
+
+  const toggleVoice = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) return;
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    let finalTranscript = customIntent;
+
+    recognition.onresult = (event: any) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += (finalTranscript ? " " : "") + transcript;
+        } else {
+          interim = transcript;
+        }
+      }
+      setCustomIntent(finalTranscript + (interim ? " " + interim : ""));
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+    setIsListening(true);
+    setSelectedIntent("custom");
+    setShowCustomInput(true);
+  };
+
+  const hasSpeechSupport =
+    typeof window !== "undefined" &&
+    !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
 
   const handleBroadcast = async () => {
     if (!selectedIntent || !selectedPlot) return;
@@ -245,16 +301,53 @@ export default function StewardIntent() {
           </Card>
 
           {showCustomInput && selectedIntent === "custom" && (
-            <div className="pl-2">
-              <Textarea
-                placeholder="Describe what you need..."
-                value={customIntent}
-                onChange={(e) => setCustomIntent(e.target.value)}
-                className="text-sm resize-none"
-                rows={2}
-                data-testid="input-custom-intent"
-              />
+            <div className="pl-2 space-y-2">
+              <div className="relative">
+                <Textarea
+                  placeholder="Describe what you need..."
+                  value={customIntent}
+                  onChange={(e) => setCustomIntent(e.target.value)}
+                  className="text-sm resize-none pr-12"
+                  rows={2}
+                  data-testid="input-custom-intent"
+                />
+                {hasSpeechSupport && (
+                  <Button
+                    size="icon"
+                    variant={isListening ? "default" : "ghost"}
+                    className={`absolute right-1.5 top-1.5 ${
+                      isListening ? "bg-red-500 hover:bg-red-600 text-white" : ""
+                    }`}
+                    onClick={toggleVoice}
+                    data-testid="button-voice-input"
+                  >
+                    {isListening ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
+              </div>
+              {isListening && (
+                <p className="text-xs text-red-500 animate-pulse">Listening...</p>
+              )}
             </div>
+          )}
+
+          {hasSpeechSupport && !showCustomInput && (
+            <Card
+              className="cursor-pointer border-dashed hover-elevate"
+              onClick={toggleVoice}
+              data-testid="button-voice-intent"
+            >
+              <CardContent className="p-3 flex items-center justify-center gap-2">
+                <Mic className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Or speak your intent
+                </p>
+              </CardContent>
+            </Card>
           )}
         </div>
 
