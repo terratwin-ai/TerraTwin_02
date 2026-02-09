@@ -16,7 +16,7 @@ import { FloatingLandscapeSatellite } from "@/components/FloatingLandscapeSatell
 import { FloatingProjectsPanel } from "@/components/FloatingProjectsPanel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Plot, Steward, VerificationEvent } from "@shared/schema";
+import type { Plot, Steward, VerificationEvent, Project } from "@shared/schema";
 import { Leaf } from "lucide-react";
 
 const CESIUM_ION_TOKEN = import.meta.env.VITE_CESIUM_ION_TOKEN || "";
@@ -41,6 +41,10 @@ export default function Dashboard() {
     queryKey: ["/api/verification-events"],
   });
 
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ["/api/projects"],
+  });
+
   const isLoading = plotsLoading || stewardsLoading || eventsLoading;
 
   const selectedPlot = plots.find((p) => p.id === selectedPlotId);
@@ -50,8 +54,8 @@ export default function Dashboard() {
 
   const handleViewChange = (view: string) => {
     if (view === "projects") {
-      setShowProjectsPanel(true);
-      setActiveView("landscape");
+      setShowProjectsPanel(false);
+      setActiveView(view);
     } else if (view === "landscape") {
       setShowProjectsPanel(false);
       setActiveView("landscape");
@@ -137,6 +141,7 @@ export default function Dashboard() {
           onViewChange={handleViewChange}
           plotCount={plots.length}
           stewardCount={stewards.length}
+          projectCount={projects.length}
           onLogout={handleLogout}
         />
         <div className="pt-28 px-4 pb-4 h-full overflow-auto">
@@ -175,6 +180,7 @@ export default function Dashboard() {
         onViewChange={handleViewChange}
         plotCount={plots.length}
         stewardCount={stewards.length}
+        projectCount={projects.length}
         onLogout={handleLogout}
         onOpenSatellite={() => setShowSatellite(true)}
         onSearch={handlePlotSearch}

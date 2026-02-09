@@ -24,6 +24,7 @@ interface FloatingNavMenuProps {
   onViewChange: (view: string) => void;
   plotCount: number;
   stewardCount: number;
+  projectCount: number;
   onLogout: () => void;
   onOpenSatellite?: () => void;
   onSearch?: (query: string) => void;
@@ -42,6 +43,7 @@ export function FloatingNavMenu({
   onViewChange, 
   plotCount, 
   stewardCount,
+  projectCount,
   onLogout,
   onOpenSatellite,
   onSearch
@@ -119,13 +121,18 @@ export function FloatingNavMenu({
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.label}</span>
+                  {item.id === "projects" && (
+                    <Badge variant="outline" className="ml-auto text-xs" data-testid="badge-project-count">
+                      {projectCount}
+                    </Badge>
+                  )}
                   {item.id === "plots" && (
-                    <Badge variant="outline" className="ml-auto text-xs">
+                    <Badge variant="outline" className="ml-auto text-xs" data-testid="badge-plot-count">
                       {plotCount}
                     </Badge>
                   )}
                   {item.id === "stewards" && (
-                    <Badge variant="outline" className="ml-auto text-xs">
+                    <Badge variant="outline" className="ml-auto text-xs" data-testid="badge-steward-count">
                       {stewardCount}
                     </Badge>
                   )}
