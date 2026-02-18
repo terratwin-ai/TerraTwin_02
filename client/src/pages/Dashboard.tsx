@@ -150,7 +150,7 @@ export default function Dashboard() {
           projectCount={projects.length}
           onLogout={handleLogout}
         />
-        <div className="h-full overflow-auto pt-[110px] md:pt-0 md:pl-[412px]">
+        <div className="h-full overflow-auto pt-[52px] md:pt-0 md:pl-[412px]">
           {renderNonLandscapeContent()}
         </div>
       </div>

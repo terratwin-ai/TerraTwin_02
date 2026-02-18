@@ -23,7 +23,7 @@ export function FloatingLandscapeStats({ plots, stewards, isHidden }: FloatingLa
   if (isHidden) return null;
 
   return (
-    <div className="fixed top-[110px] left-2 right-2 md:top-4 md:right-4 md:left-auto z-40" data-testid="floating-landscape-stats">
+    <div className="fixed top-[52px] left-2 right-2 md:top-4 md:right-4 md:left-auto z-40" data-testid="floating-landscape-stats">
       <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
         <CardContent className="p-2 flex items-center gap-2 md:gap-3 overflow-x-auto">
           <div className="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 border-r border-border/50 flex-shrink-0">
