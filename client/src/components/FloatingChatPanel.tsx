@@ -287,7 +287,7 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90"
+        className="fixed bottom-4 right-4 md:bottom-4 md:left-4 md:right-auto z-50 h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90"
         data-testid="button-open-chat"
       >
         <Sparkles className="h-6 w-6" />
@@ -297,11 +297,11 @@ Provide helpful, concise guidance. Be conversational and practical. If the user 
 
   return (
     <div 
-      className="fixed bottom-4 left-4 transition-all duration-300 ease-out w-[380px]"
+      className="fixed bottom-0 left-0 right-0 md:bottom-4 md:left-4 md:right-auto transition-all duration-300 ease-out w-full md:w-[380px] z-50"
       style={{ maxHeight: "500px" }}
       data-testid="floating-chat-panel"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden max-h-[500px] flex flex-col">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden max-h-[500px] flex flex-col !rounded-b-none md:!rounded-b-xl">
         <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">

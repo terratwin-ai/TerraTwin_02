@@ -113,8 +113,8 @@ export default function FarmerPlotView() {
 
       {/* Bamboo Simulation Overlay */}
       {showBambooSim && (
-        <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center">
-          <Card className="w-[800px] h-[600px] relative overflow-hidden">
+        <div className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-[800px] h-[80vh] md:h-[600px] relative overflow-hidden">
             <Button
               variant="ghost"
               size="icon"
@@ -194,11 +194,13 @@ export default function FarmerPlotView() {
         onClose={() => setShowSatellite(false)}
       />
 
-      <FloatingChatPanel 
-        plot={plot} 
-        steward={steward}
-        onQueryResult={handleQueryResult}
-      />
+      <div className="hidden md:block">
+        <FloatingChatPanel 
+          plot={plot} 
+          steward={steward}
+          onQueryResult={handleQueryResult}
+        />
+      </div>
     </div>
   );
 }

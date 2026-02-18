@@ -73,7 +73,7 @@ export function FloatingDataCards({
       <Button
         variant="outline"
         size="sm"
-        className="fixed top-20 left-4 bg-card/90 backdrop-blur-sm"
+        className="fixed top-14 md:top-20 left-4 bg-card/90 backdrop-blur-sm z-30"
         onClick={() => setShowDetails(true)}
         data-testid="button-show-details"
       >
@@ -85,11 +85,36 @@ export function FloatingDataCards({
 
   return (
     <>
-      <div className="fixed top-4 left-4 w-[380px] max-h-[calc(100vh-200px)]" data-testid="floating-data-cards">
-        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl max-h-full flex flex-col">
+      {/* Sensor Bar - Top right on desktop, compact top bar on mobile */}
+      <div className="fixed top-4 left-14 right-4 md:left-auto md:right-4 z-30" data-testid="sensor-cards">
+        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
+          <CardContent className="p-2 flex items-center justify-center gap-3">
+            <div className="flex items-center gap-1.5 px-2 border-r border-border/50">
+              <Thermometer className="h-3.5 w-3.5 text-red-500" />
+              <span className="text-sm font-bold">{sensorData.temperature.toFixed(1)}°C</span>
+            </div>
+            
+            <div className="flex items-center gap-1.5 px-2 border-r border-border/50">
+              <Droplets className="h-3.5 w-3.5 text-blue-500" />
+              <span className="text-sm font-bold">{sensorData.soilMoisture.toFixed(0)}%</span>
+            </div>
+            
+            <div className="flex items-center gap-1.5 px-2">
+              <Activity className="h-3.5 w-3.5 text-emerald-500" />
+              <span className="text-sm font-bold">{plot.healthScore}%</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Data Cards - Bottom sheet on mobile, left panel on desktop */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-4 md:left-4 md:right-auto md:w-[380px] md:max-h-[calc(100vh-200px)] z-40"
+        data-testid="floating-data-cards"
+      >
+        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl max-h-[50vh] md:max-h-full flex flex-col !rounded-b-none md:!rounded-b-xl">
           <ScrollArea className="flex-1 overflow-y-auto">
             <CardContent className="p-4 space-y-4">
-              {/* Plot Info - Simplified */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
@@ -126,7 +151,6 @@ export function FloatingDataCards({
 
               <div className="border-t border-border/50" />
 
-              {/* Year Slider */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Planning Year</span>
@@ -149,7 +173,6 @@ export function FloatingDataCards({
 
               <div className="border-t border-border/50" />
 
-              {/* Your Earnings - Hero Section */}
               <div className="text-center py-2">
                 <p className="text-sm text-muted-foreground mb-1">Your Projected Earnings</p>
                 <p className="text-3xl font-bold text-emerald-500" data-testid="text-total-income">
@@ -158,7 +181,6 @@ export function FloatingDataCards({
                 <p className="text-xs text-muted-foreground">per year by {year}</p>
               </div>
 
-              {/* Income Breakdown */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-emerald-500/10 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -188,7 +210,6 @@ export function FloatingDataCards({
                 </div>
               </div>
 
-              {/* Harvest Status */}
               {canHarvest && (
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -203,7 +224,6 @@ export function FloatingDataCards({
                 </div>
               )}
 
-              {/* Expandable Technical Details */}
               <Button
                 variant="ghost"
                 className="w-full justify-between text-muted-foreground hover:text-foreground"
@@ -241,7 +261,6 @@ export function FloatingDataCards({
 
               <div className="border-t border-border/50" />
 
-              {/* Action Buttons */}
               {onOpenSatellite && (
                 <Button
                   variant="ghost"
@@ -258,28 +277,6 @@ export function FloatingDataCards({
               )}
             </CardContent>
           </ScrollArea>
-        </Card>
-      </div>
-
-      {/* Compact Sensor Bar - Top Right */}
-      <div className="fixed top-4 right-4" data-testid="sensor-cards">
-        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
-          <CardContent className="p-2 flex items-center gap-3">
-            <div className="flex items-center gap-2 px-2 border-r border-border/50">
-              <Thermometer className="h-3.5 w-3.5 text-red-500" />
-              <span className="text-sm font-bold">{sensorData.temperature.toFixed(1)}°C</span>
-            </div>
-            
-            <div className="flex items-center gap-2 px-2 border-r border-border/50">
-              <Droplets className="h-3.5 w-3.5 text-blue-500" />
-              <span className="text-sm font-bold">{sensorData.soilMoisture.toFixed(0)}%</span>
-            </div>
-            
-            <div className="flex items-center gap-2 px-2">
-              <Activity className="h-3.5 w-3.5 text-emerald-500" />
-              <span className="text-sm font-bold">{plot.healthScore}%</span>
-            </div>
-          </CardContent>
         </Card>
       </div>
     </>

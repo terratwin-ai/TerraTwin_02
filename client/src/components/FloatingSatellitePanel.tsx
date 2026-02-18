@@ -32,12 +32,16 @@ export function FloatingSatellitePanel({ plot, isOpen, onClose }: FloatingSatell
 
   return (
     <div 
-      className={`fixed inset-y-0 right-0 w-[380px] z-50 transition-transform duration-300 ease-out ${
-        isAnimating ? "translate-x-0" : "translate-x-full"
-      }`}
+      className={`fixed z-50 transition-transform duration-300 ease-out
+        bottom-0 left-0 right-0 max-h-[70vh]
+        md:bottom-auto md:inset-y-0 md:left-auto md:right-0 md:w-[380px] md:max-h-none
+        ${isAnimating 
+          ? "translate-y-0 md:translate-y-0 md:translate-x-0" 
+          : "translate-y-full md:translate-y-0 md:translate-x-full"
+        }`}
       data-testid="floating-satellite-panel"
     >
-      <Card className="h-full rounded-none bg-card/95 backdrop-blur-xl border-l border-border/50 shadow-2xl">
+      <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl !rounded-b-none md:!rounded-none md:border-l">
         <div className="absolute top-2 right-2 z-10">
           <Button
             variant="ghost"
