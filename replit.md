@@ -13,6 +13,15 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Mobile-Responsive Admin Dashboard** - All floating panels now adapt to mobile screens
+  - FloatingNavMenu: Full-width top bar on mobile, 380px side panel on desktop
+  - FloatingPlotDetail: Bottom sheet on mobile, right-side panel on desktop
+  - FloatingLandscapeChat: Full-width bottom drawer on mobile, bottom-left 380px on desktop
+  - FloatingLandscapeStats: Scrollable compact bar below nav on mobile, top-right on desktop
+  - FloatingProjectsPanel & FloatingLandscapeSatellite: Bottom sheets on mobile
+  - Mobile panel coordination: Only one bottom panel visible at a time on mobile
+  - Non-landscape views: Top padding on mobile instead of left padding for content offset
+  - Breakpoint: md (768px) separates mobile/desktop layouts
 - **Multi-Model Satellite Analysis** - Support for multiple Earth observation AI models
   - Model selector dropdown in satellite analysis panels (plot-level and landscape-level)
   - Clay Foundation Model (Made With ML): Open-source, Sentinel-2 based, 768-dimension embeddings

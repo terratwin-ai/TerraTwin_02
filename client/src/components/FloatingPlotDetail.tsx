@@ -70,13 +70,16 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
 
   return (
     <div 
-      className={`fixed top-4 right-6 w-[380px] z-50 transition-all duration-300 ease-out ${
-        isAnimating ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
-      }`}
+      className={`fixed z-50 transition-all duration-300 ease-out
+        bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:top-4 md:right-6 md:w-[380px]
+        ${isAnimating 
+          ? "opacity-100 translate-y-0 md:translate-y-0 md:translate-x-0" 
+          : "opacity-0 translate-y-full md:translate-y-0 md:translate-x-4"
+        }`}
       style={{ maxHeight: "calc(100vh - 32px)" }}
       data-testid="floating-plot-detail"
     >
-      <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col">
+      <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col !rounded-b-none md:!rounded-b-xl max-h-[75vh] md:max-h-none">
         <CardHeader className="p-4 border-b flex flex-row items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">

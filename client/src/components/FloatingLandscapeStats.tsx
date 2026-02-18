@@ -23,10 +23,10 @@ export function FloatingLandscapeStats({ plots, stewards, isHidden }: FloatingLa
   if (isHidden) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-40" data-testid="floating-landscape-stats">
+    <div className="fixed top-[110px] left-2 right-2 md:top-4 md:right-4 md:left-auto z-40" data-testid="floating-landscape-stats">
       <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
-        <CardContent className="p-2 flex items-center gap-3">
-          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+        <CardContent className="p-2 flex items-center gap-2 md:gap-3 overflow-x-auto">
+          <div className="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 border-r border-border/50 flex-shrink-0">
             <TreePine className="h-3.5 w-3.5 text-emerald-500" />
             <div className="flex items-center gap-1">
               <span className="text-sm font-bold">{plots.length}</span>
@@ -37,18 +37,18 @@ export function FloatingLandscapeStats({ plots, stewards, isHidden }: FloatingLa
             </div>
           </div>
           
-          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+          <div className="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 border-r border-border/50 flex-shrink-0">
             <Users className="h-3.5 w-3.5 text-blue-500" />
             <span className="text-sm font-bold">{stewards.length}</span>
           </div>
           
-          <div className="flex items-center gap-2 px-2 border-r border-border/50">
+          <div className="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 border-r border-border/50 flex-shrink-0">
             <Leaf className="h-3.5 w-3.5 text-primary" />
             <span className="text-sm font-bold">{totalCarbon.toFixed(0)}</span>
             <span className="text-[10px] text-muted-foreground">t CO₂</span>
           </div>
           
-          <div className="flex items-center gap-2 px-2">
+          <div className="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 flex-shrink-0">
             <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
             <span className="text-sm font-bold">{totalHectares.toFixed(0)}</span>
             <span className="text-[10px] text-muted-foreground">ha</span>

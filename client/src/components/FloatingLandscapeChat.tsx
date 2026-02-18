@@ -170,21 +170,21 @@ Provide helpful, practical guidance about bamboo species selection, land managem
     return (
       <Button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
+        className="fixed bottom-4 right-4 md:bottom-6 md:left-6 md:right-auto h-12 w-12 md:h-14 md:w-14 rounded-full shadow-lg bg-primary hover:bg-primary/90 z-50"
         data-testid="button-open-landscape-chat"
       >
-        <Sparkles className="h-6 w-6" />
+        <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
       </Button>
     );
   }
 
   return (
     <div 
-      className="fixed bottom-6 left-6 z-50 transition-all duration-300 ease-out w-[380px]"
+      className="fixed bottom-0 left-0 right-0 md:bottom-6 md:left-6 md:right-auto z-50 transition-all duration-300 ease-out w-full md:w-[380px]"
       style={{ maxHeight: "calc(100vh - 280px)" }}
       data-testid="floating-landscape-chat"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col max-h-[inherit]">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl overflow-hidden flex flex-col max-h-[inherit] !rounded-b-none md:!rounded-b-xl">
         <CardHeader className="p-3 border-b flex flex-row items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">

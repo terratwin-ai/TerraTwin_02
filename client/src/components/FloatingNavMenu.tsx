@@ -70,14 +70,13 @@ export function FloatingNavMenu({
   };
 
   return (
-    <div className="fixed top-4 left-4 z-50" data-testid="floating-nav-menu">
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-[380px]">
+    <div className="fixed top-0 left-0 right-0 md:right-auto md:top-4 md:left-4 z-50" data-testid="floating-nav-menu">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl overflow-hidden w-full md:w-[380px] !rounded-none md:!rounded-xl">
         <CardContent className="p-0">
           <div className="flex items-center gap-2 p-3 border-b">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
               onClick={() => setIsExpanded(!isExpanded)}
               data-testid="button-toggle-nav"
             >
@@ -94,7 +93,6 @@ export function FloatingNavMenu({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
                 onClick={onLogout}
                 title="Log out"
                 data-testid="button-logout"
@@ -105,7 +103,7 @@ export function FloatingNavMenu({
           </div>
 
           {isExpanded && (
-            <div className="p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200 min-w-[200px]">
+            <div className="p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
               {navItems.map((item) => (
                 <Button
                   key={item.id}
@@ -113,9 +111,7 @@ export function FloatingNavMenu({
                   className="w-full justify-start gap-2"
                   onClick={() => {
                     onViewChange(item.id);
-                    if (item.id === "landscape") {
-                      setIsExpanded(false);
-                    }
+                    setIsExpanded(false);
                   }}
                   data-testid={`nav-${item.id}`}
                 >
@@ -143,14 +139,15 @@ export function FloatingNavMenu({
 
           {!isExpanded && (
             <div className="px-3 py-2 space-y-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-xs gap-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   Live
                 </Badge>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <MapPin className="h-3 w-3" />
-                  <span>Mt. Anggas, Mindanao</span>
+                  <span className="hidden sm:inline">Mt. Anggas, Mindanao</span>
+                  <span className="sm:hidden">Mt. Anggas</span>
                 </div>
                 {onOpenSatellite && activeView === "landscape" && (
                   <Button

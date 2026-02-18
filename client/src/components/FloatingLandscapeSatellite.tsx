@@ -300,12 +300,15 @@ export function FloatingLandscapeSatellite({ plots, isOpen, onClose }: FloatingL
 
   return (
     <div
-      className={`fixed top-16 right-4 bottom-4 w-[380px] z-50 transition-all duration-300 ease-out ${
-        isAnimating ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-      }`}
+      className={`fixed z-50 transition-all duration-300 ease-out
+        bottom-0 left-0 right-0 top-auto md:top-16 md:right-4 md:bottom-4 md:left-auto w-full md:w-[380px] max-h-[80vh] md:max-h-none
+        ${isAnimating 
+          ? "translate-y-0 md:translate-y-0 md:translate-x-0 opacity-100" 
+          : "translate-y-full md:translate-y-0 md:translate-x-full opacity-0"
+        }`}
       data-testid="landscape-satellite-panel"
     >
-      <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl flex flex-col">
+      <Card className="h-full bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl flex flex-col !rounded-b-none md:!rounded-b-xl">
         <CardHeader className="pb-2 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

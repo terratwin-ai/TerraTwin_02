@@ -52,22 +52,28 @@ export default function Dashboard() {
     ? stewards.find((s) => s.id === selectedPlot.stewardId)
     : undefined;
 
-  const handleViewChange = (view: string) => {
-    if (view === "projects") {
+  const checkIsMobile = () => typeof window !== 'undefined' && window.innerWidth < 768;
+
+  const closeMobilePanels = () => {
+    if (checkIsMobile()) {
+      setSelectedPlotId(null);
+      setShowSatellite(false);
       setShowProjectsPanel(false);
-      setActiveView(view);
-    } else if (view === "landscape") {
-      setShowProjectsPanel(false);
-      setActiveView("landscape");
-    } else {
-      setShowProjectsPanel(false);
-      setActiveView(view);
     }
   };
 
-  const handlePlotSelect = (id: string) => {
-    setSelectedPlotId(id);
+  const handleViewChange = (view: string) => {
+    closeMobilePanels();
     setShowProjectsPanel(false);
+    setActiveView(view);
+  };
+
+  const handlePlotSelect = (id: string) => {
+    if (checkIsMobile()) {
+      setShowSatellite(false);
+      setShowProjectsPanel(false);
+    }
+    setSelectedPlotId(id);
     if (activeView !== "landscape") {
       setActiveView("landscape");
     }
@@ -144,7 +150,7 @@ export default function Dashboard() {
           projectCount={projects.length}
           onLogout={handleLogout}
         />
-        <div className="h-full overflow-auto pl-[412px]">
+        <div className="h-full overflow-auto pt-[110px] md:pt-0 md:pl-[412px]">
           {renderNonLandscapeContent()}
         </div>
       </div>
@@ -182,7 +188,13 @@ export default function Dashboard() {
         stewardCount={stewards.length}
         projectCount={projects.length}
         onLogout={handleLogout}
-        onOpenSatellite={() => setShowSatellite(true)}
+        onOpenSatellite={() => {
+          setShowSatellite(true);
+          if (checkIsMobile()) {
+            setSelectedPlotId(null);
+            setShowProjectsPanel(false);
+          }
+        }}
         onSearch={handlePlotSearch}
       />
 
@@ -192,9 +204,11 @@ export default function Dashboard() {
         onSelectProject={(projectId) => navigate(`/projects/${projectId}`)}
       />
 
-      {!showProjectsPanel && !selectedPlot && !showSatellite && (
-        <FloatingLandscapeStats plots={plots} stewards={stewards} />
-      )}
+      <FloatingLandscapeStats 
+        plots={plots} 
+        stewards={stewards} 
+        isHidden={!!selectedPlot || showProjectsPanel || showSatellite} 
+      />
 
       <FloatingLandscapeSatellite
         plots={plots}
@@ -208,14 +222,16 @@ export default function Dashboard() {
         onClose={() => setSelectedPlotId(null)}
       />
 
-      <FloatingLandscapeChat
-        plots={plots}
-        onFilterPlots={setFilteredPlotIds}
-        onHighlightPlot={(id) => {
-          if (id) setSelectedPlotId(id);
-        }}
-        onSelectPlot={handlePlotSelect}
-      />
+      <div className={(selectedPlot || showSatellite || showProjectsPanel) ? "hidden md:block" : ""}>
+        <FloatingLandscapeChat
+          plots={plots}
+          onFilterPlots={setFilteredPlotIds}
+          onHighlightPlot={(id) => {
+            if (id) setSelectedPlotId(id);
+          }}
+          onSelectPlot={handlePlotSelect}
+        />
+      </div>
 
       {!selectedPlot && (
         <div className="fixed left-4 bottom-4 z-10 hidden md:block">

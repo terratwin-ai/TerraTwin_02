@@ -51,10 +51,10 @@ export function FloatingProjectsPanel({
 
   return (
     <div 
-      className="fixed top-4 right-6 z-40 w-[380px] max-h-[calc(100vh-280px)] overflow-hidden animate-in slide-in-from-right-4 duration-300"
+      className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:top-4 md:right-6 z-40 w-full md:w-[380px] max-h-[75vh] md:max-h-[calc(100vh-280px)] overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-right-4 duration-300"
       data-testid="floating-projects-panel"
     >
-      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl h-full flex flex-col">
+      <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-2xl h-full flex flex-col !rounded-b-none md:!rounded-b-xl">
         <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
