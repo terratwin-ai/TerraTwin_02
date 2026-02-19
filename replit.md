@@ -13,6 +13,12 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Plot Auto-Zoom & Mobile Data Panel Optimization** - Improved /plot/:id experience
+  - Cesium camera auto-flies to plot center at computed altitude based on plot area (1.5s animation)
+  - FloatingDataCards redesigned: compact header always visible (plot name, year slider, total income)
+  - Expandable "More details" section on mobile (collapsed by default), always expanded on desktop
+  - Close button accessible on mobile to dismiss panel entirely
+  - ProjectDetail responsive: smaller padding, text-xs tabs, credit issuance adapted for narrow screens
 - **Mobile-Responsive Admin Dashboard** - All floating panels now adapt to mobile screens
   - FloatingNavMenu: Full-width top bar on mobile, 380px side panel on desktop
   - FloatingPlotDetail: Bottom sheet on mobile, right-side panel on desktop

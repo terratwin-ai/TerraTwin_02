@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Leaf, 
   Thermometer, 
@@ -12,6 +11,7 @@ import {
   Activity,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   Layers,
   X,
   Sprout,
@@ -44,6 +44,7 @@ export function FloatingDataCards({
 }: FloatingDataCardsProps) {
   const [showDetails, setShowDetails] = useState(true);
   const [showTechnical, setShowTechnical] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
   
   const plantingYear = 2026;
   const yearsGrown = Math.max(0, year - plantingYear);
@@ -112,171 +113,197 @@ export function FloatingDataCards({
         className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-4 md:left-4 md:right-auto md:w-[380px] md:max-h-[calc(100vh-200px)] z-40"
         data-testid="floating-data-cards"
       >
-        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl max-h-[50vh] md:max-h-full flex flex-col !rounded-b-none md:!rounded-b-xl">
-          <ScrollArea className="flex-1 overflow-y-auto">
-            <CardContent className="p-4 space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                    <Leaf className="h-5 w-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold" data-testid="text-plot-name">{plot.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {plot.areaHectares} hectares
-                    </p>
-                  </div>
+        <Card className="bg-card/95 backdrop-blur-xl border-border/50 shadow-xl flex flex-col !rounded-b-none md:!rounded-b-xl">
+          {/* Mobile drag handle */}
+          <div
+            className="flex items-center justify-center py-1.5 cursor-pointer md:hidden"
+            onClick={() => setMobileExpanded(!mobileExpanded)}
+            data-testid="button-toggle-mobile-expand"
+          >
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+
+          {/* Compact header always visible on mobile */}
+          <div className="px-4 pt-1 pb-2 md:pt-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <Leaf className="h-4 w-4 text-emerald-500" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs ${
-                      plot.status === "verified" ? "border-emerald-500/50 text-emerald-500 bg-emerald-500/10" :
-                      plot.status === "pending" ? "border-amber-500/50 text-amber-500 bg-amber-500/10" :
-                      "border-orange-500/50 text-orange-500 bg-orange-500/10"
-                    }`}
-                  >
-                    {plot.status}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6"
-                    onClick={() => setShowDetails(false)}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm truncate" data-testid="text-plot-name">{plot.name}</p>
+                  <p className="text-xs text-muted-foreground">{plot.areaHectares} ha</p>
                 </div>
               </div>
-
-              <div className="border-t border-border/50" />
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Planning Year</span>
-                  <span className="text-lg font-bold text-primary">{year}</span>
-                </div>
-                <Slider
-                  value={[year]}
-                  onValueChange={([v]) => onYearChange(v)}
-                  min={2026}
-                  max={2040}
-                  step={1}
-                  className="w-full"
-                  data-testid="slider-year"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>2026</span>
-                  <span>2040</span>
-                </div>
-              </div>
-
-              <div className="border-t border-border/50" />
-
-              <div className="text-center py-2">
-                <p className="text-sm text-muted-foreground mb-1">Your Projected Earnings</p>
-                <p className="text-3xl font-bold text-emerald-500" data-testid="text-total-income">
-                  ${totalIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                </p>
-                <p className="text-xs text-muted-foreground">per year by {year}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-emerald-500/10 rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Leaf className="h-4 w-4 text-emerald-500" />
-                    <span className="text-xs font-medium">Carbon Credits</span>
-                  </div>
-                  <p className="text-lg font-bold text-emerald-600">${carbonIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-                  <p className="text-xs text-muted-foreground">{annualCarbon.toFixed(0)} credits × ${carbonPricePerTon}</p>
-                </div>
-                
-                <div className={`rounded-lg p-3 ${canHarvest ? 'bg-amber-500/10' : 'bg-muted/30'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Sprout className="h-4 w-4 text-amber-600" />
-                    <span className="text-xs font-medium">Pole Harvest</span>
-                  </div>
-                  {canHarvest ? (
-                    <>
-                      <p className="text-lg font-bold text-amber-600">${harvestIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
-                      <p className="text-xs text-muted-foreground">{harvestablePolesPerYear.toFixed(0)} poles × ${polePrice}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-lg font-bold text-muted-foreground">—</p>
-                      <p className="text-xs text-muted-foreground">Ready in year {plantingYear + harvestStartYear}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {canHarvest && (
-                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-amber-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">Ready to Harvest!</p>
-                    <p className="text-xs text-muted-foreground">
-                      {harvestablePolesPerYear.toLocaleString('en-US', { maximumFractionDigits: 0 })} poles available this year
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <Button
-                variant="ghost"
-                className="w-full justify-between text-muted-foreground hover:text-foreground"
-                onClick={() => setShowTechnical(!showTechnical)}
-                data-testid="button-toggle-technical"
-              >
-                <span className="text-sm">Technical Details</span>
-                {showTechnical ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-              </Button>
-
-              {showTechnical && (
-                <div className="bg-muted/30 rounded-lg p-3 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Carbon Rate</span>
-                    <span>{currentCarbonRate.toFixed(1)} t CO2e/ha/yr</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total clumps</span>
-                    <span>{totalClumps} (5m × 5m spacing)</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Poles per clump</span>
-                    <span>{polesPerClump.toFixed(0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total poles</span>
-                    <span>{totalPoles.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Health score</span>
-                    <span>{plot.healthScore}%</span>
-                  </div>
-                </div>
-              )}
-
-              <div className="border-t border-border/50" />
-
-              {onOpenSatellite && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs ${
+                    plot.status === "verified" ? "border-emerald-500/50 text-emerald-500 bg-emerald-500/10" :
+                    plot.status === "pending" ? "border-amber-500/50 text-amber-500 bg-amber-500/10" :
+                    "border-orange-500/50 text-orange-500 bg-orange-500/10"
+                  }`}
+                >
+                  {plot.status}
+                </Badge>
                 <Button
                   variant="ghost"
-                  className="w-full justify-between hover:bg-muted/50"
-                  onClick={onOpenSatellite}
-                  data-testid="button-open-satellite"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setShowDetails(false)}
                 >
-                  <div className="flex items-center gap-2">
-                    <Satellite className="h-4 w-4 text-blue-500" />
-                    <span>Satellite Analysis</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
+              </div>
+            </div>
+
+            {/* Year slider + earnings always visible */}
+            <div className="mt-3 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Year {year}</span>
+                <span className="text-sm font-bold text-emerald-500" data-testid="text-total-income">
+                  ${totalIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}/yr
+                </span>
+              </div>
+              <Slider
+                value={[year]}
+                onValueChange={([v]) => onYearChange(v)}
+                min={2026}
+                max={2040}
+                step={1}
+                className="w-full"
+                data-testid="slider-year"
+              />
+              <div className="flex justify-between text-[10px] text-muted-foreground">
+                <span>2026</span>
+                <span>2040</span>
+              </div>
+            </div>
+
+            {/* Mobile expand/collapse toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-1 text-xs text-muted-foreground md:hidden"
+              onClick={() => setMobileExpanded(!mobileExpanded)}
+              data-testid="button-expand-details"
+            >
+              {mobileExpanded ? (
+                <>
+                  <ChevronDown className="h-3 w-3 mr-1" />
+                  Less details
+                </>
+              ) : (
+                <>
+                  <ChevronUp className="h-3 w-3 mr-1" />
+                  More details
+                </>
               )}
-            </CardContent>
-          </ScrollArea>
+            </Button>
+          </div>
+
+          {/* Expanded content - always on desktop, toggle on mobile */}
+          <div className={`${mobileExpanded ? 'max-h-[40vh] overflow-y-auto' : 'max-h-0 md:max-h-none overflow-hidden md:overflow-y-auto'} transition-all duration-300`}>
+              <CardContent className="px-4 pb-4 pt-0 space-y-3">
+                <div className="border-t border-border/50 pt-3" />
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-emerald-500/10 rounded-lg p-2.5">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Leaf className="h-3.5 w-3.5 text-emerald-500" />
+                      <span className="text-xs font-medium">Carbon Credits</span>
+                    </div>
+                    <p className="text-base font-bold text-emerald-600">${carbonIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
+                    <p className="text-[10px] text-muted-foreground">{annualCarbon.toFixed(0)} credits × ${carbonPricePerTon}</p>
+                  </div>
+                  
+                  <div className={`rounded-lg p-2.5 ${canHarvest ? 'bg-amber-500/10' : 'bg-muted/30'}`}>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Sprout className="h-3.5 w-3.5 text-amber-600" />
+                      <span className="text-xs font-medium">Pole Harvest</span>
+                    </div>
+                    {canHarvest ? (
+                      <>
+                        <p className="text-base font-bold text-amber-600">${harvestIncome.toLocaleString('en-US', { maximumFractionDigits: 0 })}</p>
+                        <p className="text-[10px] text-muted-foreground">{harvestablePolesPerYear.toFixed(0)} poles × ${polePrice}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-base font-bold text-muted-foreground">—</p>
+                        <p className="text-[10px] text-muted-foreground">Ready in {plantingYear + harvestStartYear}</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {canHarvest && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-xs">Ready to Harvest!</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {harvestablePolesPerYear.toLocaleString('en-US', { maximumFractionDigits: 0 })} poles available
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-between text-muted-foreground hover:text-foreground h-8"
+                  onClick={() => setShowTechnical(!showTechnical)}
+                  data-testid="button-toggle-technical"
+                >
+                  <span className="text-xs">Technical Details</span>
+                  {showTechnical ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                </Button>
+
+                {showTechnical && (
+                  <div className="bg-muted/30 rounded-lg p-2.5 space-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Carbon Rate</span>
+                      <span>{currentCarbonRate.toFixed(1)} t CO2e/ha/yr</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total clumps</span>
+                      <span>{totalClumps} (8m × 8m)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Poles per clump</span>
+                      <span>{polesPerClump.toFixed(0)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total poles</span>
+                      <span>{totalPoles.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Health score</span>
+                      <span>{plot.healthScore}%</span>
+                    </div>
+                  </div>
+                )}
+
+                {onOpenSatellite && (
+                  <>
+                    <div className="border-t border-border/50" />
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-between hover:bg-muted/50 h-8"
+                      onClick={onOpenSatellite}
+                      data-testid="button-open-satellite"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Satellite className="h-3.5 w-3.5 text-blue-500" />
+                        <span className="text-xs">Satellite Analysis</span>
+                      </div>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+          </div>
         </Card>
       </div>
     </>

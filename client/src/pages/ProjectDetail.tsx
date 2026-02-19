@@ -149,8 +149,8 @@ function MapSearch({ plots }: { plots: Plot[] }) {
             handleSearch(e.target.value);
           }}
           onFocus={() => results.length > 0 && setShowResults(true)}
-          placeholder="Search plots or locations..."
-          className="px-3 py-1.5 text-sm bg-background/95 border border-border rounded-md w-56 focus:outline-none focus:ring-1 focus:ring-primary"
+          placeholder="Search plots..."
+          className="px-3 py-1.5 text-sm bg-background/95 border border-border rounded-md w-40 md:w-56 focus:outline-none focus:ring-1 focus:ring-primary"
           data-testid="input-map-search"
         />
         {isSearching && (
@@ -238,29 +238,29 @@ export default function ProjectDetail() {
   );
 
   return (
-    <div className="p-6 h-full overflow-auto" data-testid="project-detail">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center gap-4 flex-wrap">
+    <div className="p-3 md:p-6 h-full overflow-auto" data-testid="project-detail">
+      <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
+        <div className="flex items-start gap-3 flex-wrap">
           <Link href="/">
             <Button variant="ghost" size="icon" data-testid="button-back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold" data-testid="text-project-name">{project.name}</h1>
-            <p className="text-muted-foreground" data-testid="text-project-description">{project.description}</p>
-          </div>
-          <div className="flex gap-2">
-            <Badge className={statusColors[project.status] || statusColors.active} data-testid="badge-status">
-              {project.status}
-            </Badge>
-            <Badge className={methodologyColors[project.methodology || "verra-bamboo"]} data-testid="badge-methodology">
-              {project.methodology === "gold-standard" ? "Gold Standard" : "Verra"}
-            </Badge>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold truncate" data-testid="text-project-name">{project.name}</h1>
+            <p className="text-sm text-muted-foreground line-clamp-2" data-testid="text-project-description">{project.description}</p>
+            <div className="flex gap-2 mt-2">
+              <Badge className={statusColors[project.status] || statusColors.active} data-testid="badge-status">
+                {project.status}
+              </Badge>
+              <Badge className={methodologyColors[project.methodology || "verra-bamboo"]} data-testid="badge-methodology">
+                {project.methodology === "gold-standard" ? "Gold Standard" : "Verra"}
+              </Badge>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           <StatCard
             icon={<MapPin className="h-5 w-5" />}
             label="Total Area"
@@ -288,14 +288,14 @@ export default function ProjectDetail() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4" data-testid="tabs-list">
-            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="timeline" data-testid="tab-timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="documents" data-testid="tab-documents">Documents</TabsTrigger>
-            <TabsTrigger value="stewards" data-testid="tab-stewards">Stewards</TabsTrigger>
+          <TabsList className="w-full overflow-x-auto flex" data-testid="tabs-list">
+            <TabsTrigger value="overview" className="flex-1 text-xs md:text-sm" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="timeline" className="flex-1 text-xs md:text-sm" data-testid="tab-timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="documents" className="flex-1 text-xs md:text-sm" data-testid="tab-documents">Docs</TabsTrigger>
+            <TabsTrigger value="stewards" className="flex-1 text-xs md:text-sm" data-testid="tab-stewards">Stewards</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 mt-6">
+          <TabsContent value="overview" className="space-y-4 md:space-y-6 mt-4 md:mt-6">
             {/* Map showing all plot locations */}
             <Card data-testid="card-plot-map">
               <CardHeader>
@@ -422,22 +422,24 @@ export default function ProjectDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-3 gap-3 md:gap-6">
                   <div>
-                    <p className="text-sm text-muted-foreground">Credits Issued</p>
-                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400" data-testid="text-credits-issued">
-                      {project.creditsIssued?.toFixed(1) || 0} tCO2e
+                    <p className="text-xs md:text-sm text-muted-foreground">Credits Issued</p>
+                    <p className="text-lg md:text-2xl font-bold text-emerald-600 dark:text-emerald-400" data-testid="text-credits-issued">
+                      {project.creditsIssued?.toFixed(1) || 0}
                     </p>
+                    <p className="text-[10px] text-muted-foreground">tCO2e</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Credits Retired</p>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="text-credits-retired">
-                      {project.creditsRetired?.toFixed(1) || 0} tCO2e
+                    <p className="text-xs md:text-sm text-muted-foreground">Credits Retired</p>
+                    <p className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="text-credits-retired">
+                      {project.creditsRetired?.toFixed(1) || 0}
                     </p>
+                    <p className="text-[10px] text-muted-foreground">tCO2e</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Vintage Year</p>
-                    <p className="text-2xl font-bold" data-testid="text-vintage">
+                    <p className="text-xs md:text-sm text-muted-foreground">Vintage Year</p>
+                    <p className="text-lg md:text-2xl font-bold" data-testid="text-vintage">
                       {project.vintage || "-"}
                     </p>
                   </div>

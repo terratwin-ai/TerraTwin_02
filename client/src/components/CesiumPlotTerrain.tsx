@@ -96,19 +96,21 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
         controller.minimumZoomDistance = 50;
         controller.maximumZoomDistance = 2000;
 
+        const plotSizeMeters = Math.sqrt(plot.areaHectares * 10000);
+        const cameraAltitude = Math.max(200, plotSizeMeters * 2.5);
+
         viewer.camera.flyTo({
-          destination: Cesium.Rectangle.fromDegrees(
-            west - halfSizeDeg * 4,
-            south - halfSizeDeg * 4,
-            east + halfSizeDeg * 4,
-            north + halfSizeDeg * 4
+          destination: Cesium.Cartesian3.fromDegrees(
+            plot.longitude,
+            plot.latitude,
+            cameraAltitude
           ),
           orientation: {
-            heading: Cesium.Math.toRadians(-45),
-            pitch: Cesium.Math.toRadians(-35),
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-45),
             roll: 0,
           },
-          duration: 0,
+          duration: 1.5,
         });
 
         setIsLoading(false);
@@ -225,7 +227,7 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
       style={{ 
         width: "100%", 
         height: "100%", 
-        minHeight: "600px",
+        minHeight: "100%",
         background: "#f5f5f5"
       }}
     >
