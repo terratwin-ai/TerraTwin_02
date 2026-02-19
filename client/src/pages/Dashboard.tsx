@@ -222,7 +222,7 @@ export default function Dashboard() {
         onClose={() => setSelectedPlotId(null)}
       />
 
-      <div className={(selectedPlot || showSatellite || showProjectsPanel) ? "hidden md:block" : ""}>
+      {!(selectedPlot || showSatellite || showProjectsPanel) && (
         <FloatingLandscapeChat
           plots={plots}
           onFilterPlots={setFilteredPlotIds}
@@ -231,7 +231,7 @@ export default function Dashboard() {
           }}
           onSelectPlot={handlePlotSelect}
         />
-      </div>
+      )}
 
       {!selectedPlot && (
         <div className="fixed left-4 bottom-4 z-10 hidden md:block">

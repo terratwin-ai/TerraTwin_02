@@ -16,7 +16,7 @@ Key features include:
 - **Mobile-Responsive Admin Dashboard** - All floating panels now adapt to mobile screens
   - FloatingNavMenu: Full-width top bar on mobile, 380px side panel on desktop
   - FloatingPlotDetail: Bottom sheet on mobile, right-side panel on desktop
-  - FloatingLandscapeChat: Full-width bottom drawer on mobile, bottom-left 380px on desktop
+  - FloatingLandscapeChat: Floating AI icon button on mobile (bottom-right), opens as bottom drawer; bottom-left 380px panel on desktop
   - FloatingLandscapeStats: Scrollable compact bar below nav on mobile, top-right on desktop
   - FloatingProjectsPanel & FloatingLandscapeSatellite: Bottom sheets on mobile
   - Mobile panel coordination: Only one bottom panel visible at a time on mobile
