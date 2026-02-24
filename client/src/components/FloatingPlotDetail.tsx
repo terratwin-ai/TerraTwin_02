@@ -92,7 +92,7 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
-              <span>{plot.latitude.toFixed(4)}°N, {plot.longitude.toFixed(4)}°E</span>
+              <span>{steward ? `${steward.barangay}, ${steward.province}` : `${plot.latitude.toFixed(4)}°N, ${plot.longitude.toFixed(4)}°E`}</span>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline" className={getStatusColor(plot.status)}>

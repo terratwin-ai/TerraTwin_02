@@ -6,6 +6,7 @@ import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Plot, Steward } from "@shared/schema";
+import ReactMarkdown from "react-markdown";
 
 interface AgentChatProps {
   plot: Plot;
@@ -199,7 +200,15 @@ Provide helpful, concise guidance about plot management, verification processes,
                       : "bg-muted"
                   }`}
                 >
-                  {msg.content || (
+                  {msg.content ? (
+                    msg.role === "assistant" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h1]:my-1.5 [&_h2]:my-1 [&_h3]:my-1 [&_code]:text-xs [&_pre]:text-xs [&_pre]:my-1 [&_pre]:p-2 [&_pre]:rounded [&_blockquote]:my-1 [&_blockquote]:pl-2 [&_blockquote]:border-l-2">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      msg.content
+                    )
+                  ) : (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
                 </div>

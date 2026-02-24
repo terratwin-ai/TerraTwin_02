@@ -176,20 +176,30 @@ export default function StewardSubmit() {
                 </div>
               ))}
               
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-                data-testid="button-add-photo"
-              >
-                <ImageIcon className="h-6 w-6" />
-                <span className="text-xs">Add Photo</span>
-              </button>
+              {photos.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="aspect-square h-auto flex-col gap-1 border-2 border-dashed"
+                  data-testid="button-add-more-photo"
+                >
+                  <ImageIcon className="h-6 w-6" />
+                  <span className="text-xs">Add More</span>
+                </Button>
+              )}
             </div>
             
             {photos.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center">
-                Take at least one photo of your bamboo plot
-              </p>
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full min-h-[120px] h-auto flex-col gap-2 border-2 border-dashed"
+                data-testid="button-add-photo"
+              >
+                <Camera className="h-8 w-8" />
+                <span className="text-sm font-medium">Tap to Add Photo</span>
+                <span className="text-xs font-normal text-muted-foreground">Take a photo of your bamboo plot</span>
+              </Button>
             )}
           </CardContent>
         </Card>

@@ -56,7 +56,7 @@ export function PlotDetailPanel({ plot, steward, onClose }: PlotDetailPanelProps
             </CardTitle>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" />
-              <span>{Number(plot.latitude).toFixed(4)}°N, {Number(plot.longitude).toFixed(4)}°E</span>
+              <span>{steward ? `${steward.barangay}, ${steward.province}` : `${Number(plot.latitude).toFixed(4)}°N, ${Number(plot.longitude).toFixed(4)}°E`}</span>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} data-testid="button-close-panel">

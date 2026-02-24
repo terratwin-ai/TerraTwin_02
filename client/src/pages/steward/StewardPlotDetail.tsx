@@ -83,7 +83,7 @@ export default function StewardPlotDetail() {
           <h1 className="font-medium">{plot.name}</h1>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin className="h-3 w-3" />
-            {plot.latitude.toFixed(4)}°N, {plot.longitude.toFixed(4)}°E
+            {steward ? `${steward.barangay}, ${steward.province}` : `${plot.latitude.toFixed(4)}°N, ${plot.longitude.toFixed(4)}°E`}
           </div>
         </div>
       </header>
