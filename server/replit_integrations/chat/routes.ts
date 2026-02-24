@@ -8,11 +8,19 @@ const anthropic = new Anthropic({
 });
 
 export function registerChatRoutes(app: Express): void {
-  // Get all conversations
+  // Get all conversations (optionally filter by plotId or stewardId)
   app.get("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const conversations = await chatStorage.getAllConversations();
-      res.json(conversations);
+      const { plotId, stewardId } = req.query;
+      let result;
+      if (plotId) {
+        result = await chatStorage.getConversationsByPlot(plotId as string);
+      } else if (stewardId) {
+        result = await chatStorage.getConversationsByStew(stewardId as string);
+      } else {
+        result = await chatStorage.getAllConversations();
+      }
+      res.json(result);
     } catch (error) {
       console.error("Error fetching conversations:", error);
       res.status(500).json({ error: "Failed to fetch conversations" });
@@ -38,8 +46,8 @@ export function registerChatRoutes(app: Express): void {
   // Create new conversation
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
-      const { title, plotId } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat", plotId);
+      const { title, plotId, stewardId } = req.body;
+      const conversation = await chatStorage.createConversation(title || "New Chat", plotId, stewardId);
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);

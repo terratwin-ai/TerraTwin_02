@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Loader2, Sparkles } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { Send, Bot, User, Loader2 } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Plot, Steward } from "@shared/schema";
 
 interface AgentChatProps {
   plot: Plot;
   steward?: Steward;
+  existingConversationId?: number | null;
 }
 
 interface ChatMessage {
@@ -17,11 +18,11 @@ interface ChatMessage {
   content: string;
 }
 
-export function AgentChat({ plot, steward }: AgentChatProps) {
+export function AgentChat({ plot, steward, existingConversationId }: AgentChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [conversationId, setConversationId] = useState<number | null>(null);
+  const [conversationId, setConversationId] = useState<number | null>(existingConversationId || null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentPlotId = useRef<string | null>(null);
 
@@ -31,8 +32,27 @@ export function AgentChat({ plot, steward }: AgentChatProps) {
     }
   }, [messages]);
 
+  const { data: existingConvData, isLoading: isLoadingConv } = useQuery<{ messages: { role: string; content: string }[] }>({
+    queryKey: [`/api/conversations/${existingConversationId}`],
+    enabled: !!existingConversationId,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  useEffect(() => {
+    if (existingConvData?.messages && existingConvData.messages.length > 0) {
+      const loaded: ChatMessage[] = existingConvData.messages
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .map(m => ({
+          role: m.role as "user" | "assistant",
+          content: m.content.replace(/^You are TerraTwin AI[\s\S]*?User Question: /m, ""),
+        }));
+      setMessages(loaded);
+    }
+  }, [existingConvData]);
+
   const createConversationMutation = useMutation({
-    mutationFn: async (plotData: { title: string; plotId: string }) => {
+    mutationFn: async (plotData: { title: string; plotId: string; stewardId?: string }) => {
       const res = await apiRequest("POST", "/api/conversations", plotData);
       return res.json();
     },
@@ -43,14 +63,20 @@ export function AgentChat({ plot, steward }: AgentChatProps) {
   });
 
   useEffect(() => {
+    if (existingConversationId) {
+      setConversationId(existingConversationId);
+      return;
+    }
     if (plot.id !== currentPlotId.current) {
       currentPlotId.current = plot.id;
+      const stewardId = localStorage.getItem("stewardId");
       createConversationMutation.mutate({
         title: `Plot: ${plot.name}`,
         plotId: plot.id,
+        ...(stewardId ? { stewardId } : {}),
       });
     }
-  }, [plot.id, plot.name]);
+  }, [plot.id, plot.name, existingConversationId]);
 
   async function sendMessage() {
     if (!input.trim() || isStreaming || !conversationId) return;
@@ -142,9 +168,18 @@ Provide helpful, concise guidance about plot management, verification processes,
   }
 
   return (
-    <div className="flex flex-col w-full">
-      {messages.length > 0 && (
-        <ScrollArea className="max-h-[200px] p-3" ref={scrollRef as any}>
+    <div className="flex flex-col w-full h-full">
+      <ScrollArea className="flex-1 p-3" ref={scrollRef as any}>
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Ask me anything about this plot
+            </p>
+          </div>
+        ) : (
           <div className="space-y-3">
             {messages.map((msg, i) => (
               <div
@@ -176,10 +211,10 @@ Provide helpful, concise guidance about plot management, verification processes,
               </div>
             ))}
           </div>
-        </ScrollArea>
-      )}
+        )}
+      </ScrollArea>
 
-      <div className="flex gap-2 w-full p-3">
+      <div className="flex gap-2 w-full p-3 border-t">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}

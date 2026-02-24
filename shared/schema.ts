@@ -160,6 +160,7 @@ export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   plotId: varchar("plot_id").references(() => plots.id),
+  stewardId: varchar("steward_id").references(() => stewards.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

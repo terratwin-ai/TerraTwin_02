@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AgentChat } from "@/components/AgentChat";
+import { StewardChatList } from "@/components/steward/StewardChatList";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   ArrowLeft, MapPin, Leaf, Camera, CheckCircle2, Clock, 
@@ -230,7 +230,7 @@ export default function StewardPlotDetail() {
         </TabsContent>
 
         <TabsContent value="agent" className="flex-1 overflow-hidden m-0">
-          <AgentChat plot={plot} steward={steward} />
+          <StewardChatList plot={plot} steward={steward} />
         </TabsContent>
       </Tabs>
       </div>
