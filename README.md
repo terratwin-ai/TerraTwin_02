@@ -1,6 +1,6 @@
 # TerraTwin
 
-**An agentic digital twin for coordination and enabling watershed-level regeneration.**
+**An agentic digital twin for coordination, enabling watershed-level regeneration.**
 
 TerraTwin is a browser-based platform that connects bamboo stewardship activities in the Philippines to measurable proof, incentives, and market access. It creates a living digital twin of bamboo landscapes — coordinating smallholder stewards, cooperatives, and verification workflows across entire watersheds to drive large-scale ecological restoration.
 
