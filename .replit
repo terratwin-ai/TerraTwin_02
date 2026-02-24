@@ -44,4 +44,4 @@ waitForPort = 5000
 VITE_CESIUM_ION_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ODk4Nzc5NS1kYTY4LTQxNjQtYmUwYi02OGViOGMwOGUyN2MiLCJpZCI6Mzg1MzIwLCJpYXQiOjE3Njk3OTI3Mzh9.BCyCXCwIhQr-_mfYi3a6sRm4Mt6A5EKo7C0IqhHt_1E"
 
 [agent]
-integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_anthropic_ai_integrations:2.0.0"]
+integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_anthropic_ai_integrations:2.0.0", "github:1.0.0"]
