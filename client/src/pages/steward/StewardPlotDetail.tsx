@@ -8,10 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgentChat } from "@/components/AgentChat";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   ArrowLeft, MapPin, Leaf, Camera, CheckCircle2, Clock, 
-  AlertCircle, FileCheck, TreeDeciduous, DollarSign, Calendar, Bot
+  AlertCircle, FileCheck, TreeDeciduous, DollarSign, Calendar, Bot, Eye
 } from "lucide-react";
+import evidence1 from "@/assets/evidence1.png";
+import evidence2 from "@/assets/evidence2.png";
 
 const statusConfig = {
   verified: { icon: CheckCircle2, label: "Verified", color: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" },
@@ -149,6 +152,68 @@ export default function StewardPlotDetail() {
               </CardContent>
             </Card>
           )}
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <Camera className="h-4 w-4" />
+                  Evidence Photos
+                </h3>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-xs h-7 gap-1" data-testid="button-view-evidence">
+                      <Eye className="h-3 w-3" />
+                      View All
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Camera className="h-5 w-5" />
+                        Verification Evidence
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <img 
+                          src={evidence1} 
+                          alt="Bamboo clump with steward"
+                          className="w-full h-56 object-cover rounded-lg border border-border"
+                          data-testid="img-evidence-1"
+                        />
+                        <p className="text-xs text-muted-foreground text-center">Steward with giant bamboo clump</p>
+                      </div>
+                      <div className="space-y-2">
+                        <img 
+                          src={evidence2} 
+                          alt="Bamboo grove detail"
+                          className="w-full h-56 object-cover rounded-lg border border-border"
+                          data-testid="img-evidence-2"
+                        />
+                        <p className="text-xs text-muted-foreground text-center">Bamboo grove detail shot</p>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <img 
+                  src={evidence1} 
+                  alt="Bamboo clump with steward"
+                  className="w-full h-24 object-cover rounded-md border border-border"
+                  data-testid="img-evidence-thumb-1"
+                />
+                <img 
+                  src={evidence2} 
+                  alt="Bamboo grove detail"
+                  className="w-full h-24 object-cover rounded-md border border-border"
+                  data-testid="img-evidence-thumb-2"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">2 photos • Last submitted {new Date().toLocaleDateString()}</p>
+            </CardContent>
+          </Card>
 
           {needsVerification && (
             <div className="absolute bottom-4 left-4 right-4">

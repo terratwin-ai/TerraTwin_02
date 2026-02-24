@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   X, 
   MapPin, 
@@ -18,9 +19,12 @@ import {
   Eye,
   ExternalLink,
   User,
-  Satellite
+  Satellite,
+  Camera
 } from "lucide-react";
 import type { Plot, Steward } from "@shared/schema";
+import evidence1 from "@/assets/evidence1.png";
+import evidence2 from "@/assets/evidence2.png";
 
 interface FloatingPlotDetailProps {
   plot: Plot | null;
@@ -188,6 +192,72 @@ export function FloatingPlotDetail({ plot, steward, onClose }: FloatingPlotDetai
                     </span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+            <Card className="border-border/50">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Camera className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Verification Evidence</span>
+                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="text-xs h-7 gap-1" data-testid="button-view-evidence">
+                        <Eye className="h-3 w-3" />
+                        View All
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Camera className="h-5 w-5" />
+                          Verification Evidence - {plot.name}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-2 gap-4 mt-4">
+                        <div className="space-y-2">
+                          <img 
+                            src={evidence1} 
+                            alt="Bamboo clump with steward"
+                            className="w-full h-48 object-cover rounded-lg border border-border"
+                            data-testid="img-evidence-1"
+                          />
+                          <p className="text-xs text-muted-foreground text-center">Steward with giant bamboo clump</p>
+                        </div>
+                        <div className="space-y-2">
+                          <img 
+                            src={evidence2} 
+                            alt="Bamboo grove detail"
+                            className="w-full h-48 object-cover rounded-lg border border-border"
+                            data-testid="img-evidence-2"
+                          />
+                          <p className="text-xs text-muted-foreground text-center">Bamboo grove detail shot</p>
+                        </div>
+                      </div>
+                      <div className="mt-4 p-3 bg-muted/50 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Uploaded by {steward?.name || "Steward"} • 2 photos
+                        </p>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <img 
+                    src={evidence1} 
+                    alt="Bamboo clump with steward"
+                    className="w-full h-20 object-cover rounded-md border border-border"
+                    data-testid="img-evidence-thumb-1"
+                  />
+                  <img 
+                    src={evidence2} 
+                    alt="Bamboo grove detail"
+                    className="w-full h-20 object-cover rounded-md border border-border"
+                    data-testid="img-evidence-thumb-2"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">2 photos submitted by {steward?.name || "steward"}</p>
               </CardContent>
             </Card>
           </div>
