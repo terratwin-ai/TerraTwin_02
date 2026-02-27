@@ -13,6 +13,14 @@ Key features include:
 - Dark/light theme support
 
 ## Recent Changes
+- **Evidence Bundle & Object Storage** - ML-ready verification data pipeline
+  - New verification_events fields: gpsLat, gpsLng, species, channel, verifierSpecies, verifierBiomass, verifierLabel
+  - Object Storage integration for photo uploads (presigned URL flow via GCS)
+  - StewardSubmit form: species selector (D. asper, Tinik, Guadua), GPS capture, photo upload to cloud storage
+  - Evidence URLs now stored as object paths (/objects/uploads/uuid) instead of base64
+  - VerificationList updated with species badges and "Field Verification" event type
+  - Bamboo species: dendrocalamus_asper, bambusa_blumeana, guadua_angustifolia, unknown
+  - ML pipeline targets: species ID (near-term), age classification (medium-term), biomass estimation (long-term)
 - **Plot Auto-Zoom & Mobile Data Panel Optimization** - Improved /plot/:id experience
   - Cesium camera auto-flies to plot center at computed altitude based on plot area (1.5s animation)
   - FloatingDataCards redesigned: compact header always visible (plot name, year slider, total income)

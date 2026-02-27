@@ -1,0 +1,19 @@
+Over a 12-month pilot with 100 farmers doing monthly submissions, that's ~1,200 records. After 3 years with 500 farmers, it's ~18,000 records — each with GPS coordinates, time series, and verifier-confirmed labels. That dataset doesn't exist for Philippine bamboo anywhere.
+Three model targets, in priority order
+Target 1 — Species identification (near-term, buildable now)
+Narrow problem: distinguish D. asper, B. blumeana (Tinik), and Guadua from a photo. Only 3 classes, not 1,600. Start with the MDPI paper's approach — fine-tune VGG16 or ResNet on our collected images once we have 200+ labeled examples per species. Roboflow is a good labeling and training infrastructure for this stage.
+Target 2 — Age / maturity classification (medium-term)
+Given a photo + known planting date, estimate age class (0–2 years, 2–4 years, 4+ years). This is a regression problem on image features correlated with known age. The temporal sequences TerraTwin naturally collects — same plot photographed monthly — are perfect training data for this. No other dataset has this.
+Target 3 — Biomass proxy estimation (longer-term, the prize)
+Derive a carbon biomass estimate from image features: culm diameter visible in frame, clump density, canopy coverage. Combine with allometric equations from Philippine DENR research. This requires the most data but unlocks model-based MRV — verification without a human auditor.
+The key insight: Tinik is your baseline, not your target
+B. blumeana (Tinik) grows wild everywhere already. Most farmer submissions in the early pilot will be Tinik plots. This is actually useful — Tinik becomes your negative class / baseline, and every confirmed D. asper or Guadua submission is a high-value positive label. The incentive structure (higher payments for D. asper) naturally drives toward the species you want labeled most.
+What we need from you
+For the pilot phase:
+
+Design the labeling schema for verifier-confirmed submissions (what fields, what ontology)
+Recommend a lightweight inference pipeline we can call from the Node.js agent (Roboflow API, or hosted model endpoint) — should return species confidence + age class in under 2 seconds
+Advise on minimum sample sizes before we can start running inference reliably
+Identify what additional morphological signals we should ask farmers to capture (culm diameter? internode length visible in frame?)
+
+For the dataset itself, you own it. We're not building a Roboflow dependency — we're building a proprietary Philippine bamboo dataset that gets more valuable with every verification cycle.

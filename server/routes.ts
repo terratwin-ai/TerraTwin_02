@@ -14,16 +14,16 @@ import {
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { registerChatRoutes } from "./replit_integrations/chat";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
-  // Register AI chat routes
   registerChatRoutes(app);
+  registerObjectStorageRoutes(app);
   
-  // Project routes - aggregation layer for smallholders
   app.get("/api/projects", async (_req, res) => {
     try {
       const projects = await storage.getProjects();

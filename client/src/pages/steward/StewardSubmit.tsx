@@ -5,11 +5,19 @@ import type { Plot } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
-  ArrowLeft, Camera, MapPin, CheckCircle, Loader2, Image as ImageIcon
+  ArrowLeft, Camera, MapPin, CheckCircle, Loader2, Image as ImageIcon, Leaf
 } from "lucide-react";
+
+const BAMBOO_SPECIES = [
+  { value: "dendrocalamus_asper", label: "Giant Bamboo (D. asper)" },
+  { value: "bambusa_blumeana", label: "Tinik (B. blumeana)" },
+  { value: "guadua_angustifolia", label: "Guadua" },
+  { value: "unknown", label: "Not sure" },
+];
 
 export default function StewardSubmit() {
   const [, setLocation] = useLocation();
@@ -19,9 +27,11 @@ export default function StewardSubmit() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [notes, setNotes] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [species, setSpecies] = useState("");
+  const [photos, setPhotos] = useState<{ file: File; preview: string }[]>([]);
   const [location, setLocationState] = useState<{ lat: number; lng: number } | null>(null);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   useEffect(() => {
     const id = localStorage.getItem("stewardId");
@@ -40,16 +50,52 @@ export default function StewardSubmit() {
 
   const plot = plots.find((p) => p.id.toString() === plotId);
 
+  const uploadPhoto = async (file: File): Promise<string> => {
+    const res = await fetch("/api/uploads/request-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: file.name,
+        size: file.size,
+        contentType: file.type || "image/jpeg",
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to get upload URL");
+    const { uploadURL, objectPath } = await res.json();
+
+    const uploadRes = await fetch(uploadURL, {
+      method: "PUT",
+      body: file,
+      headers: { "Content-Type": file.type || "image/jpeg" },
+    });
+    if (!uploadRes.ok) throw new Error("Failed to upload photo");
+
+    return objectPath;
+  };
+
   const submitMutation = useMutation({
     mutationFn: async () => {
       const stewardId = localStorage.getItem("stewardId");
+      
+      setUploadingPhotos(true);
+      let evidenceUrls: string[];
+      try {
+        evidenceUrls = await Promise.all(photos.map((p) => uploadPhoto(p.file)));
+      } finally {
+        setUploadingPhotos(false);
+      }
+
       return apiRequest("POST", "/api/verification-events", {
         plotId: plotId,
         stewardId: stewardId,
         eventType: "verification_submission",
         status: "pending",
-        notes: location ? `${notes}\n\nGPS: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}` : notes,
-        evidenceUrls: photos,
+        notes: notes || null,
+        evidenceUrls,
+        gpsLat: location?.lat ?? null,
+        gpsLng: location?.lng ?? null,
+        species: species || null,
+        channel: "app",
       });
     },
     onSuccess: () => {
@@ -97,19 +143,21 @@ export default function StewardSubmit() {
     if (!files) return;
 
     Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotos((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+      const preview = URL.createObjectURL(file);
+      setPhotos((prev) => [...prev, { file, preview }]);
     });
   };
 
   const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPhotos((prev) => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
-  const canSubmit = photos.length > 0 && location;
+  const canSubmit = photos.length > 0 && location && species;
+  const isSubmitting = submitMutation.isPending || uploadingPhotos;
 
   if (!plot) {
     return (
@@ -162,7 +210,7 @@ export default function StewardSubmit() {
               {photos.map((photo, index) => (
                 <div key={index} className="relative aspect-square">
                   <img 
-                    src={photo} 
+                    src={photo.preview} 
                     alt={`Evidence ${index + 1}`}
                     className="w-full h-full object-cover rounded-lg"
                   />
@@ -201,6 +249,30 @@ export default function StewardSubmit() {
                 <span className="text-xs font-normal text-muted-foreground">Take a photo of your bamboo plot</span>
               </Button>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-medium mb-3 flex items-center gap-2">
+              <Leaf className="h-4 w-4" />
+              Bamboo Species
+            </h3>
+            <Select value={species} onValueChange={setSpecies} data-testid="select-species">
+              <SelectTrigger data-testid="select-species-trigger">
+                <SelectValue placeholder="Select bamboo species" />
+              </SelectTrigger>
+              <SelectContent>
+                {BAMBOO_SPECIES.map((s) => (
+                  <SelectItem key={s.value} value={s.value} data-testid={`species-option-${s.value}`}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              Select the bamboo species in this plot
+            </p>
           </CardContent>
         </Card>
 
@@ -249,13 +321,13 @@ export default function StewardSubmit() {
           <Button 
             className="w-full h-14 text-lg gap-2"
             onClick={() => submitMutation.mutate()}
-            disabled={!canSubmit || submitMutation.isPending}
+            disabled={!canSubmit || isSubmitting}
             data-testid="button-submit"
           >
-            {submitMutation.isPending ? (
+            {isSubmitting ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Submitting...
+                {uploadingPhotos ? "Uploading Photos..." : "Submitting..."}
               </>
             ) : (
               <>
@@ -266,7 +338,7 @@ export default function StewardSubmit() {
           </Button>
           {!canSubmit && (
             <p className="text-xs text-center text-muted-foreground mt-2">
-              Add at least one photo and enable GPS
+              Add photo, select species, and enable GPS
             </p>
           )}
         </div>

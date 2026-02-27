@@ -70,6 +70,13 @@ export const verificationEvents = pgTable("verification_events", {
   verifiedBy: text("verified_by"),
   paymentAmount: real("payment_amount"),
   paymentStatus: text("payment_status"),
+  gpsLat: real("gps_lat"),
+  gpsLng: real("gps_lng"),
+  species: text("species"),
+  channel: text("channel").default("app"),
+  verifierSpecies: text("verifier_species"),
+  verifierBiomass: real("verifier_biomass"),
+  verifierLabel: text("verifier_label"),
   createdAt: timestamp("created_at").defaultNow(),
   completedAt: timestamp("completed_at"),
 });

@@ -51,6 +51,14 @@ export function VerificationList({ events, plots, stewards }: VerificationListPr
     survival_check: "Survival Check",
     growth_measurement: "Growth Measurement",
     harvest: "Harvest",
+    verification_submission: "Field Verification",
+  };
+
+  const speciesLabels: Record<string, string> = {
+    dendrocalamus_asper: "D. asper",
+    bambusa_blumeana: "Tinik",
+    guadua_angustifolia: "Guadua",
+    unknown: "Unknown sp.",
   };
 
   return (
@@ -130,6 +138,7 @@ export function VerificationList({ events, plots, stewards }: VerificationListPr
             events={events} 
             statusConfig={statusConfig} 
             eventTypeLabels={eventTypeLabels}
+            speciesLabels={speciesLabels}
             getPlotName={getPlotName}
             getStewardName={getStewardName}
           />
@@ -139,6 +148,7 @@ export function VerificationList({ events, plots, stewards }: VerificationListPr
             events={pendingEvents} 
             statusConfig={statusConfig} 
             eventTypeLabels={eventTypeLabels}
+            speciesLabels={speciesLabels}
             getPlotName={getPlotName}
             getStewardName={getStewardName}
           />
@@ -148,6 +158,7 @@ export function VerificationList({ events, plots, stewards }: VerificationListPr
             events={reviewEvents} 
             statusConfig={statusConfig} 
             eventTypeLabels={eventTypeLabels}
+            speciesLabels={speciesLabels}
             getPlotName={getPlotName}
             getStewardName={getStewardName}
           />
@@ -157,6 +168,7 @@ export function VerificationList({ events, plots, stewards }: VerificationListPr
             events={completedEvents} 
             statusConfig={statusConfig} 
             eventTypeLabels={eventTypeLabels}
+            speciesLabels={speciesLabels}
             getPlotName={getPlotName}
             getStewardName={getStewardName}
           />
@@ -170,12 +182,14 @@ function EventList({
   events,
   statusConfig,
   eventTypeLabels,
+  speciesLabels,
   getPlotName,
   getStewardName,
 }: {
   events: VerificationEvent[];
   statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }>;
   eventTypeLabels: Record<string, string>;
+  speciesLabels: Record<string, string>;
   getPlotName: (id: string | null) => string;
   getStewardName: (id: string | null) => string;
 }) {
@@ -212,9 +226,14 @@ function EventList({
                       {config.label}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                     <span>{getPlotName(event.plotId)}</span>
                     <span>by {getStewardName(event.stewardId)}</span>
+                    {event.species && (
+                      <Badge variant="outline" className="text-xs">
+                        {speciesLabels[event.species] || event.species}
+                      </Badge>
+                    )}
                     {event.createdAt && (
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
