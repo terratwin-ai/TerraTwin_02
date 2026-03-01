@@ -79,9 +79,9 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
         viewer.scene.globe.enableLighting = false;
         viewer.scene.fog.enabled = false;
 
-        const hectareMeters = 100;
+        const plotSideM = Math.sqrt(plot.areaHectares * 10000);
         const degreesPerMeter = 1 / 111320;
-        const halfSizeDeg = (hectareMeters / 2) * degreesPerMeter;
+        const halfSizeDeg = (plotSideM / 2) * degreesPerMeter;
         
         const west = plot.longitude - halfSizeDeg;
         const east = plot.longitude + halfSizeDeg;
@@ -140,9 +140,8 @@ export default function CesiumPlotTerrain({ plot, cesiumToken, year, showLidar =
       const Cesium = window.Cesium;
       viewer.entities.removeAll();
       
-      // Re-add plot boundary polygon that drapes over terrain
-      const hectareMeters = 100;
-      const halfSize = hectareMeters / 2;
+      const plotSideMeters = Math.sqrt(plot.areaHectares * 10000);
+      const halfSize = plotSideMeters / 2;
       const halfSizeDeg = halfSize / 111320;
       const west = plot.longitude - halfSizeDeg;
       const south = plot.latitude - halfSizeDeg;
@@ -304,20 +303,23 @@ function addBambooPlants(
   const poleCountPerClump = Math.floor(minPoles + (maxPoles - minPoles) / 
     (1 + Math.exp(-15 * (progress - 0.3))));
   
-  const spacingMeters = 8;
   const plotSizeMeters = Math.sqrt(plot.areaHectares * 10000);
-  const clumpsPerRow = Math.floor(plotSizeMeters / spacingMeters);
+  const halfSize = plotSizeMeters / 2;
+  const margin = 3;
+  const usableSize = plotSizeMeters - margin * 2;
+  
+  const spacingMeters = 8;
+  const clumpsPerRow = Math.max(1, Math.floor(usableSize / spacingMeters));
   const totalClumps = clumpsPerRow * clumpsPerRow;
   
-  const visibleClumps = Math.min(totalClumps, Math.round(plot.areaHectares * 150));
-  const visibleGridSize = Math.ceil(Math.sqrt(visibleClumps));
+  const targetClumps = Math.min(totalClumps, Math.round(plot.areaHectares * 40));
+  const visibleGridSize = Math.ceil(Math.sqrt(targetClumps));
+  const visibleClumps = Math.min(targetClumps, visibleGridSize * visibleGridSize);
   
-  const halfSize = plotSizeMeters / 2;
   const plotSeed = Math.abs(plot.latitude * 1000 + plot.longitude * 1000);
   
-  const clumpSpacing = 8;
-  const gridExtent = (visibleGridSize - 1) * clumpSpacing;
-  const gridOffset = gridExtent / 2;
+  const gridSpacing = visibleGridSize > 1 ? usableSize / (visibleGridSize - 1) : 0;
+  const gridOffset = usableSize / 2;
 
   for (let i = 0; i < visibleClumps; i++) {
     const row = Math.floor(i / visibleGridSize);
@@ -327,8 +329,8 @@ function addBambooPlants(
     const jitterX = (seededRandom(clumpSeed) - 0.5) * 2;
     const jitterZ = (seededRandom(clumpSeed + 1) - 0.5) * 2;
     
-    const offsetX = -gridOffset + col * clumpSpacing + jitterX;
-    const offsetZ = -gridOffset + row * clumpSpacing + jitterZ;
+    const offsetX = -gridOffset + col * gridSpacing + jitterX;
+    const offsetZ = -gridOffset + row * gridSpacing + jitterZ;
     
     const offsetLat = offsetZ / 111320;
     const offsetLng = offsetX / (111320 * Math.cos(plot.latitude * Math.PI / 180));
@@ -416,11 +418,11 @@ function addLidarPointCloud(
   const baseHeight = minHeight + (maxHeight - minHeight) / 
     (1 + Math.exp(-growthRate * (progress - midpoint)));
   
-  const hectareMeters = 100;
-  const halfSize = hectareMeters / 2;
+  const plotSideMeters = Math.sqrt(plot.areaHectares * 10000);
+  const halfSize = plotSideMeters / 2;
   
   const gridResolution = 4;
-  const numPoints = Math.floor(hectareMeters / gridResolution);
+  const numPoints = Math.min(25, Math.floor(plotSideMeters / gridResolution));
   
   for (let x = 0; x < numPoints; x++) {
     for (let z = 0; z < numPoints; z++) {
