@@ -140,4 +140,4 @@ shared/                 # Shared between client and server
 
 ## License
 
-This project is proprietary to TerraTwin AI.
+This project is licensed under the MIT License.
